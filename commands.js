@@ -7,10 +7,22 @@ const numberWithCommas = (x) => {
 };
 
 const slayerAuraChance = (tier) => {
-  if(tier > 5 || tier < 0) {
+  var auraToTier = {
+    "none": 1.0,
+    "dedicated": 1.03,
+    "greater": 1.05,
+    "master" : 1.07,
+    "supreme": 1.1,
+    "legendary": 1.15
+  }, multiplier;
+  
+  if(tier > 5 || tier < 0 || (typeof tier !== 'number' && auraToTier[tier] === 'undefined')) {
     return false;
   }
-  var multiplier = [1.0, 1.03, 1.05, 1.07, 1.1, 1.15][tier];
+
+  var index = typeof tier === 'string' ? tier : Object.keys(auraToTier)[tier];
+
+  multiplier = auraToTier[index];
   return 1 / (2 - multiplier); // expected value of geometric distribution
 };
 
@@ -72,7 +84,7 @@ exports.cmd = {
       expectedAmount;
 
     if(!auraMultiplier) {
-      msg.channel.send('**Invalid aura tier **' + tier);
+      msg.channel.send('**Invalid aura tier **' + aura);
       return;
     }
 
