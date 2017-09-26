@@ -142,5 +142,11 @@ exports.cmd = {
         console.error(err);
         msg.channel.send('**' + err.message + '**');
     });
+  },
+  onerm: (msg, weight, reps) => {
+    // using Epley formula:
+    var max = Math.floor(weight * (1 + reps / 30));
+
+    msg.channel.send('Estimated one rep max: ' + max);
   }
 };

@@ -68,5 +68,13 @@
       "text": "The text to be translated"
     },
     "fn": "translate"
+  },
+  "1rm": {
+    "desc": "Calculates one rep max",
+    "params": {
+      "weight": "The weight lifted",
+      "reps": "The amount of full reps performed"
+    },
+    "fn": "onerm"
   }
 }
