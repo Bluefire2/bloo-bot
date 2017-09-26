@@ -70,7 +70,7 @@
     "fn": "translate"
   },
   "1rm": {
-    "desc": "Calculates one rep max",
+    "desc": "Calculates one rep max using the Epley formula",
     "params": {
       "weight": "The weight lifted",
       "reps": "The amount of full reps performed"

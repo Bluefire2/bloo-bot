@@ -7,23 +7,11 @@ const numberWithCommas = (x) => {
 };
 
 const slayerAuraChance = (tier) => {
-  var multiplier;
-  switch(tier) {
-    case 1:
-      multiplier = 1.03;
-    case 2:
-      multiplier = 1.05;
-    case 3:
-      multiplier = 1.07;
-    case 4:
-      multiplier = 1.1;
-    case 5:
-      multiplier = 1.15;
-    default:
-      multiplier = 1.0;
-
-    return 1 / (2 - multiplier); // expected value of geometric distribution
+  if(tier > 5 || tier < 0) {
+    return false;
   }
+  var multiplier = [1.0, 1.03, 1.05, 1.07, 1.1, 1.15][tier];
+  return 1 / (2 - multiplier); // expected value of geometric distribution
 };
 
 const randomInRange = (min, max) => {
@@ -81,7 +69,14 @@ exports.cmd = {
     const baseUrl = 'http://runescape.wikia.com/wiki/';
 
     var auraMultiplier = slayerAuraChance(aura),
-      expectedAmount = parseInt(amount * auraMultiplier);
+      expectedAmount;
+
+    if(!auraMultiplier) {
+      msg.channel.send('**Invalid aura tier **' + tier);
+      return;
+    }
+
+    expectedAmount = parseInt(amount * auraMultiplier);
 
     // get the monster id
     axios.get(baseUrl + monster)
