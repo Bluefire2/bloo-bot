@@ -1,0 +1,72 @@
+{
+  "import": {
+    "desc": "Zen",
+    "params": {
+      "this": "This."
+    },
+    "fn": "import_fn"
+  },
+  "ping": {
+    "desc": "Pings the bot",
+    "params": {
+
+    },
+    "fn": "ping"
+  },
+  "pi": {
+    "desc": "Prints pi to a specified number of digits",
+    "params": {
+      "digits": "The amount of digits to print"
+    },
+    "fn": "pi"
+  },
+  "roll": {
+    "desc": "Rolls some dice",
+    "params": {
+      "sides": "The amount of sides per die",
+      "dice": "The amount of dice to roll, defaults to 1"
+    },
+    "fn": "roll"
+  },
+  "pasta": {
+    "desc": "Outputs a copypasta specified by the input parameters",
+    "params": {
+      "pasta-name": "The name of the copypasta to be outputted"
+    },
+    "fn": "pasta"
+  },
+  "pc": {
+    "desc": "Price checks an item on the ge",
+    "params": {
+      "item": "The name of the item to be price checked",
+      "amount": "The amount of this item, defaults to 1"
+    },
+    "fn": "pc"
+  },
+  "slayer": {
+    "desc": "Calculates xp gained from your slayer task",
+    "params": {
+      "monster": "The monster to kill",
+      "amount": "The number of kills assigned, defaults to 1",
+      "aura": "The tier of the slayer aura used, defaults to 0"
+    },
+    "fn": "slayer"
+  },
+  "wp": {
+    "desc": "Links to the first result on wikipedia",
+    "params": {
+      "article": "The article to link to or search for",
+      "lang": "The wikipedia language, defaults to en"
+    },
+    "fn": "wp"
+  },
+  "translate": {
+    "desc": "Translates a phrase from one language to another",
+    "params": {
+      "lang-from": "The language to translate from",
+      "lang-into": "The language to translate into",
+      "text": "The text to be translated"
+    },
+    "fn": "translate"
+  }
+}
