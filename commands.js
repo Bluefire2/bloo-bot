@@ -15,7 +15,7 @@ const slayerAuraChance = (tier) => {
     "supreme": 1.1,
     "legendary": 1.15
   }, multiplier;
-  
+
   if(tier > 5 || tier < 0 || (typeof tier !== 'number' && auraToTier[tier] === 'undefined')) {
     return false;
   }
@@ -61,7 +61,7 @@ exports.cmd = {
     }
   },
   pc: (msg, item, amount = 1) => {
-    const baseUrl = 'http://runescape.wikia.com/wiki/Exchange:'
+    const baseUrl = 'http://runescape.wikia.com/wiki/Exchange:';
 
     axios.get(baseUrl + item)
       .then((response) => {
@@ -95,7 +95,7 @@ exports.cmd = {
       .then((response) => {
         const processXpText = (text) => {
           return Math.floor(parseFloat(text.replace(/,/g, '')) * expectedAmount);
-        }
+        };
 
         var $ = cheerio.load(response.data),
           monsterName = $('.page-header__title').text(),

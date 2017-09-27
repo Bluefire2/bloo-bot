@@ -122,5 +122,5 @@ function cmdParse(cmdString) {
   return {
     'cmdName': commandName,
     'cmdArgs': commandArgs
-  }
+  };
 }
