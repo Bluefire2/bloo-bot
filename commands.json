@@ -86,5 +86,12 @@
       "dp": "How many decimal places to round to, defaults to 2"
     },
     "fn": "convert"
+  },
+  "b": {
+    "desc": "B",
+    "params": {
+
+    },
+    "fn": "b"
   }
 }

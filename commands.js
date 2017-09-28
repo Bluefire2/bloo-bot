@@ -201,5 +201,8 @@ exports.cmd = {
     } catch(e) {
       msg.channel.send('**Error**: ' + e.message);
     }
+  },
+  b: (msg) => {
+    msg.channel.send(':b:');
   }
 };

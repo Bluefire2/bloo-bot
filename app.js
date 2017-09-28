@@ -16,19 +16,24 @@ client.on('message', (msg) => {
     return;
   } else {
     console.log(msg.content);
-    var parsedCmd = cmdParse(msg.content), // parse out the command and args
+    var parsedCmd = cmdParse(msg), // parse out the command and args
+      output;
+    if(parsedCmd) {
       output = cmdExe(msg, parsedCmd.cmdName, parsedCmd.cmdArgs);
 
-    console.log(parsedCmd);
-    var outText = '';
+      console.log(parsedCmd);
+      var outText = '';
 
-    for(var i in output) {
-      outText += output[i];
-      if(i < output.length - 1) outText += '\n';
-    }
+      for(var i in output) {
+        outText += output[i];
+        if(i < output.length - 1) outText += '\n';
+      }
 
-    if(outText !== '') {
-      msg.channel.send('```\n' + outText + '```');
+      if(outText !== '') {
+        msg.channel.send('```\n' + outText + '```');
+      }
+    } else {
+
     }
   }
 });
@@ -47,13 +52,10 @@ client.login(config.token);
 
 function cmdExe(msg, cmdName, args) {
   var currCmd = cmdData[cmdName],
-    outText = [],
-    paramsCount = Object.keys(currCmd.params).length;
+    outText = [];
 
-  if(typeof currCmd === 'undefined') {
-    msg.channel.send('**Undefined command name** "' + cmdName + '"');
-    return;
-  }
+  var paramsCount = Object.keys(currCmd.params).length;
+
   if(args.length === 0 && paramsCount !== 0) {
     // output the command docstring
     var cmdParams = currCmd.params,
@@ -84,14 +86,21 @@ function cmdExe(msg, cmdName, args) {
   return outText;
 }
 
-function cmdParse(cmdString) {
-  var cmdText = cmdString.slice(prefix.length), // take out the prefix
+function cmdParse(msg) {
+  var cmdString = msg.content,
+    cmdText = cmdString.slice(prefix.length), // take out the prefix
     firstSpace = cmdText.indexOf(' '),
     commandName,
     commandArgs;
 
     if(firstSpace != -1) {
       commandName = cmdText.slice(0, firstSpace);  // get the command name
+
+      if(typeof currCmd === 'undefined') {
+        msg.channel.send('**Undefined command name** "' + commandName + '"');
+        return false;
+      }
+
       commandArgs = cmdText.slice(firstSpace).match(/"(?:\\"|\\\\|[^"])*"|\S+/g)
         .map((elem) => {
           if(elem.charAt(0) === '"' && elem.charAt(elem.length - 1) === '"') {
