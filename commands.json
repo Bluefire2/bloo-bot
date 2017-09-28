@@ -76,5 +76,15 @@
       "reps": "The amount of full reps performed"
     },
     "fn": "onerm"
+  },
+  "convert": {
+    "desc": "Converts values from one unit to another",
+    "params": {
+      "units-from": "The units to convert from",
+      "units-to": "The units to convert to",
+      "number": "The value to convert",
+      "dp": "How many decimal places to round to, defaults to 2"
+    },
+    "fn": "convert"
   }
 }

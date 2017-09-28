@@ -1,6 +1,20 @@
 const cheerio = require('cheerio');
 const axios = require('axios');
 const gtranslate = require('google-translate-api');
+const convertUnits = require('convert-units');
+
+const UNITSPACE = '\u202F';
+
+const roundTo = (n, digits) => {
+  if(digits === undefined) {
+    digits = 0;
+  }
+
+  var multiplicator = Math.pow(10, digits);
+  n = parseFloat((n * multiplicator).toFixed(11));
+  var test =(Math.round(n) / multiplicator);
+  return +(test.toFixed(digits));
+};
 
 const numberWithCommas = (x) => {
   return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
@@ -28,6 +42,29 @@ const slayerAuraChance = (tier) => {
 
 const randomInRange = (min, max) => {
   return Math.floor(Math.random() * (max + 1 - min)) + min;
+};
+
+const SIDecimalMultiplier = {
+  "y": -24,
+  "z": -21,
+  "a": -18,
+  "f": -15,
+  "p": -12,
+  "n": -9,
+  "u": -6,
+  "m": -3,
+  "c": -2,
+  "d": -1,
+  "da": 1,
+  "h": 2,
+  "k": 3,
+  "M": 6,
+  "G": 9,
+  "T": 12,
+  "P": 15,
+  "E": 18,
+  "Z": 21,
+  "Y": 24
 };
 
 exports.cmd = {
@@ -155,5 +192,14 @@ exports.cmd = {
     var max = Math.floor(weight * (1 + reps / 30));
 
     msg.channel.send('Estimated one rep max: ' + max);
+  },
+  convert: (msg, unitsFrom, unitsTo, number, dp = 2) => {
+    var converted;
+    try {
+      converted = roundTo(convertUnits(number).from(unitsFrom).to(unitsTo), dp);
+      msg.channel.send('**' + number + UNITSPACE + unitsFrom + '** is **' + converted + UNITSPACE + unitsTo + '**');
+    } catch(e) {
+      msg.channel.send('**Error**: ' + e.message);
+    }
   }
 };

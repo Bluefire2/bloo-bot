@@ -1,4 +1,5 @@
 node_modules/
+.eslintrc
 config.json
 LICENSE
 log.txt
