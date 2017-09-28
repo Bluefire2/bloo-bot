@@ -96,7 +96,7 @@ function cmdParse(msg) {
     if(firstSpace != -1) {
       commandName = cmdText.slice(0, firstSpace);  // get the command name
 
-      if(typeof currCmd === 'undefined') {
+      if(typeof cmdData[commandName] === 'undefined') {
         msg.channel.send('**Undefined command name** "' + commandName + '"');
         return false;
       }
@@ -126,6 +126,11 @@ function cmdParse(msg) {
     } else {
       commandName = cmdText;
       commandArgs = [];
+
+      if(typeof cmdData[commandName] === 'undefined') {
+        msg.channel.send('**Undefined command name** "' + commandName + '"');
+        return false;
+      }
     }
 
   return {
