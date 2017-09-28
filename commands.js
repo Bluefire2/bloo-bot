@@ -193,7 +193,7 @@ exports.cmd = {
 
     msg.channel.send('Estimated one rep max: ' + max);
   },
-  convert: (msg, unitsFrom, unitsTo, number, dp = 2) => {
+  convert: (msg, number, unitsFrom, unitsTo, dp = 2) => {
     var converted;
     try {
       converted = roundTo(convertUnits(number).from(unitsFrom).to(unitsTo), dp);
