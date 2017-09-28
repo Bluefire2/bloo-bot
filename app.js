@@ -57,7 +57,7 @@ function cmdExe(msg, cmdName, args) {
   if(args.length === 0 && paramsCount !== 0) {
     // output the command docstring
     var cmdParams = currCmd.params,
-      usageStr = cmdName + " <" + Object.keys(cmdParams).join("> <") + ">";
+      usageStr = prefix + cmdName + " <" + Object.keys(cmdParams).join("> <") + ">";
 
     outText.push(usageStr);
     outText.push(currCmd.desc + '\n');
