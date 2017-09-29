@@ -94,5 +94,13 @@
 
     },
     "fn": "b"
+  },
+  "youtube": {
+    "desc": "Gets videos from youtube based on a search query",
+    "params": {
+      "query": "What to search for"
+    },
+    "fn": "yt",
+    "aliases": ["yt"]
   }
 }

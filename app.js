@@ -1,5 +1,6 @@
 const Discord = require('discord.js');
 const client = new Discord.Client();
+
 const config = require('./config.json');
 const cmdData = require('./commands.json');
 const cmd = require('./commands.js');
@@ -73,7 +74,7 @@ function cmdExe(msg, cmdName, args) {
 
     // aliases
     var aliases = currCmd.aliases;
-    if(typeof aliases !== 'undefined') {
+    if(Array.isArray(aliases)) {
       // command has one or more aliases
       aliasesStr = 'Alias(es): ';
 

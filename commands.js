@@ -3,6 +3,8 @@ const axios = require('axios');
 const gtranslate = require('google-translate-api');
 const convertUnits = require('convert-units');
 
+const config = require('./config.json');
+
 const UNITSPACE = '\u202F';
 
 const roundTo = (n, digits) => {
@@ -65,6 +67,10 @@ const SIDecimalMultiplier = {
   "E": 18,
   "Z": 21,
   "Y": 24
+};
+
+const youtubeIDToLink = (id) => {
+  return 'https://www.youtube.com/watch?v=' + id;
 };
 
 exports.cmd = {
@@ -204,5 +210,26 @@ exports.cmd = {
   },
   b: (msg) => {
     msg.channel.send(':b:');
+  },
+  yt: (msg, query) => {
+    var baseYoutubeUrl = 'https://www.googleapis.com/youtube/v3/search';
+
+    axios.get(baseYoutubeUrl, {
+      params: {
+        key: config.googleAPIKey,
+        part: 'snippet',
+        order: 'viewCount',
+        type: 'video',
+        q: query
+      }
+    }).then((response) => {
+      var items = response.data.items,
+        firstResult = items[0],
+        firstVideoID = firstResult.id.videoId;
+
+        msg.channel.send(youtubeIDToLink(firstVideoID));
+    }).catch((response) => {
+      console.log(response);
+    });
   }
 };
