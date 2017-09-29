@@ -58,15 +58,33 @@ function cmdExe(msg, cmdName, args) {
 
   if(args.length === 0 && paramsCount !== 0) {
     // output the command docstring
+    // signature and descstring
     var cmdParams = currCmd.params,
       usageStr = prefix + cmdName + " <" + Object.keys(cmdParams).join("> <") + ">";
 
     outText.push(usageStr);
     outText.push(currCmd.desc + '\n');
 
+    // parameters
     for (var paramName in cmdParams) {
       var paramDesc = cmdParams[paramName];
       outText.push(paramName + ": " + paramDesc);
+    }
+
+    // aliases
+    var aliases = currCmd.aliases;
+    if(typeof aliases !== 'undefined') {
+      // command has one or more aliases
+      aliasesStr = 'Alias(es): ';
+
+      aliases.forEach((elem, index) => {
+        aliasesStr += elem;
+        if(index < aliases.length - 1) {
+          // if not the last element, add a comma for the next one
+          aliasesStr += ', ';
+        }
+      });
+      outText.push('\n' + aliasesStr);
     }
   } else {
     func = cmd.cmd[currCmd.fn];
@@ -97,8 +115,13 @@ function cmdParse(msg) {
       commandName = cmdText.slice(0, firstSpace);  // get the command name
 
       if(typeof cmdData[commandName] === 'undefined') {
-        msg.channel.send('**Undefined command name** "' + commandName + '"');
-        return false;
+        var aliasCommand = checkForAlias(commandName);
+        if(aliasCommand) {
+          commandName = aliasCommand;
+        } else {
+          msg.channel.send('**Undefined command name** "' + commandName + '"');
+          return false;
+        }
       }
 
       commandArgs = cmdText.slice(firstSpace).match(/"(?:\\"|\\\\|[^"])*"|\S+/g)
@@ -128,8 +151,14 @@ function cmdParse(msg) {
       commandArgs = [];
 
       if(typeof cmdData[commandName] === 'undefined') {
-        msg.channel.send('**Undefined command name** "' + commandName + '"');
-        return false;
+        var aliasCommand = checkForAlias(commandName);
+        console.log(commandName, aliasCommand);
+        if(aliasCommand) {
+          commandName = aliasCommand;
+        } else {
+          msg.channel.send('**Undefined command name** "' + commandName + '"');
+          return false;
+        }
       }
     }
 
@@ -137,4 +166,26 @@ function cmdParse(msg) {
     'cmdName': commandName,
     'cmdArgs': commandArgs
   };
+}
+
+function checkForAlias(alias) {
+  var cmdNames = Object.keys(cmdData),
+    out = '';
+
+  for(var i in cmdNames) {
+    var cmdName = cmdNames[i],
+      cmdObj = cmdData[cmdName],
+      aliases = cmdObj.aliases;
+    if(Array.isArray(aliases)) {
+      if(aliases.indexOf(alias) !== -1) {
+        out = cmdName;
+      }
+    }
+  }
+
+  if(out === '') {
+    return false;
+  } else {
+    return out;
+  }
 }

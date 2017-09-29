@@ -67,7 +67,8 @@
       "lang-into": "The language to translate into",
       "text": "The text to be translated"
     },
-    "fn": "translate"
+    "fn": "translate",
+    "aliases": ["t"]
   },
   "1rm": {
     "desc": "Calculates one rep max using the Epley formula",
