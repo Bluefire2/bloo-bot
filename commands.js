@@ -6,6 +6,7 @@ const convertUnits = require('convert-units');
 const config = require('./config.json');
 
 const UNITSPACE = '\u202F';
+const ALPHABET = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
 
 const roundTo = (n, digits) => {
   if(digits === undefined) {
@@ -234,8 +235,12 @@ exports.cmd = {
   },
   prettify: (msg, text) => {
     var prettifiedText = text.split(' ').map((word) => {
-      return word.split('').map((elem) => {
-        return ':regional_indicator_' + elem + ':';
+      return word.split('').map((char) => {
+        if(ALPHABET.indexOf(char) !== -1) {
+          return ':regional_indicator_' + char.toLowerCase() + ':';
+        } else {
+          return char;
+        }
       }).join('');
     }).join(' ');
 

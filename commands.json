@@ -60,7 +60,7 @@
       "lang": "The wikipedia language, defaults to en"
     },
     "fn": "wikipedia",
-    "aliaseS": ["wikipedia"]
+    "aliases": ["wp"]
   },
   "translate": {
     "desc": "Translates a phrase from one language to another",
@@ -88,7 +88,8 @@
       "units-to": "The units to convert to",
       "dp": "How many decimal places to round to, defaults to 2"
     },
-    "fn": "convert"
+    "fn": "convert",
+    "aliases": ["co"]
   },
   "b": {
     "desc": "B",
@@ -110,6 +111,7 @@
     "params": {
       "text": "The text to be prettified"
     },
-    "fn": "prettify"
+    "fn": "prettify",
+    "aliases": ["ptfy"]
   }
 }
