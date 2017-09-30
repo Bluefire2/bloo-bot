@@ -35,13 +35,14 @@
     },
     "fn": "pasta"
   },
-  "pc": {
+  "pricecheck": {
     "desc": "Price checks an item on the ge",
     "params": {
       "item": "The name of the item to be price checked",
       "amount": "The amount of this item, defaults to 1"
     },
-    "fn": "pc"
+    "fn": "priceCheck",
+    "aliases": ["pc"]
   },
   "slayer": {
     "desc": "Calculates xp gained from your slayer task",
@@ -52,13 +53,14 @@
     },
     "fn": "slayer"
   },
-  "wp": {
+  "wikipedia": {
     "desc": "Links to the first result on wikipedia",
     "params": {
       "article": "The article to link to or search for",
       "lang": "The wikipedia language, defaults to en"
     },
-    "fn": "wp"
+    "fn": "wikipedia",
+    "aliaseS": ["wikipedia"]
   },
   "translate": {
     "desc": "Translates a phrase from one language to another",
@@ -100,7 +102,7 @@
     "params": {
       "query": "What to search for"
     },
-    "fn": "yt",
+    "fn": "youtube",
     "aliases": ["yt"]
   },
   "prettify": {

@@ -103,7 +103,7 @@ exports.cmd = {
       return Object.keys(pastaData).slice(0);
     }
   },
-  pc: (msg, item, amount = 1) => {
+  priceCheck: (msg, item, amount = 1) => {
     const baseUrl = 'http://runescape.wikia.com/wiki/Exchange:';
 
     axios.get(baseUrl + item)
@@ -153,7 +153,7 @@ exports.cmd = {
         console.log(error);
       });
   },
-  wp: (msg, article, lang = 'en') => {
+  wikipedia: (msg, article, lang = 'en') => {
     var baseUrl = 'https://' + lang + '.wikipedia.org/w/api.php?action=query&list=search&format=json&srsearch=',
       baseLinkUrl = 'https://' + lang + '.wikipedia.org/wiki/';
 
@@ -211,7 +211,7 @@ exports.cmd = {
   b: (msg) => {
     msg.channel.send(':b:');
   },
-  yt: (msg, query) => {
+  youtube: (msg, query) => {
     var baseYoutubeUrl = 'https://www.googleapis.com/youtube/v3/search';
 
     axios.get(baseYoutubeUrl, {
