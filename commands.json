@@ -102,5 +102,12 @@
     },
     "fn": "yt",
     "aliases": ["yt"]
+  },
+  "prettify": {
+    "desc": "Prettifies text!",
+    "params": {
+      "text": "The text to be prettified"
+    },
+    "fn": "prettify"
   }
 }

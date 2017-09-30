@@ -231,5 +231,14 @@ exports.cmd = {
     }).catch((response) => {
       console.log(response);
     });
+  },
+  prettify: (msg, text) => {
+    var prettifiedText = text.split(' ').map((word) => {
+      return word.split('').map((elem) => {
+        return ':regional_indicator_' + elem + ':';
+      }).join('');
+    }).join(' ');
+
+    msg.channel.send(prettifiedText);
   }
 };
