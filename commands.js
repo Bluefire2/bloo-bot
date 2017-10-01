@@ -267,7 +267,7 @@ exports.cmd = {
           return char;
         }
       }).join('');
-    }).join(' ');
+    }).join('  ');
 
     msg.channel.send(prettifiedText);
   },
