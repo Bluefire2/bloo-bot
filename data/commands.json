@@ -1,0 +1,132 @@
+{
+  "help": {
+    "desc": "Lists all available commands",
+    "params": {
+
+    },
+    "fn": "help"
+  },
+  "import": {
+    "desc": "Zen",
+    "params": {
+      "this": "This."
+    },
+    "fn": "import_fn"
+  },
+  "ping": {
+    "desc": "Pings the bot",
+    "params": {
+
+    },
+    "fn": "ping"
+  },
+  "pi": {
+    "desc": "Prints pi to a specified number of digits",
+    "params": {
+      "digits": "The amount of digits to print"
+    },
+    "fn": "pi"
+  },
+  "roll": {
+    "desc": "Rolls some dice",
+    "params": {
+      "sides": "The amount of sides per die",
+      "dice": "The amount of dice to roll, defaults to 1"
+    },
+    "fn": "roll"
+  },
+  "pasta": {
+    "desc": "Outputs a copypasta specified by the input parameters",
+    "params": {
+      "pasta-name": "The name of the copypasta to be outputted"
+    },
+    "fn": "pasta"
+  },
+  "pricecheck": {
+    "desc": "Price checks an item on the ge",
+    "params": {
+      "item": "The name of the item to be price checked",
+      "amount": "The amount of this item, defaults to 1"
+    },
+    "fn": "priceCheck",
+    "aliases": ["pc"]
+  },
+  "slayer": {
+    "desc": "Calculates xp gained from your slayer task",
+    "params": {
+      "monster": "The monster to kill",
+      "amount": "The number of kills assigned, defaults to 1",
+      "aura": "The tier of the slayer aura used, defaults to 0"
+    },
+    "fn": "slayer"
+  },
+  "wikipedia": {
+    "desc": "Links to the first result on wikipedia",
+    "params": {
+      "article": "The article to link to or search for",
+      "lang": "The wikipedia language, defaults to en"
+    },
+    "fn": "wikipedia",
+    "aliases": ["wp"]
+  },
+  "translate": {
+    "desc": "Translates a phrase from one language to another",
+    "params": {
+      "lang-from": "The language to translate from",
+      "lang-into": "The language to translate into",
+      "text": "The text to be translated"
+    },
+    "fn": "translate",
+    "aliases": ["t"]
+  },
+  "1rm": {
+    "desc": "Calculates one rep max using the Epley formula",
+    "params": {
+      "weight": "The weight lifted",
+      "reps": "The amount of full reps performed"
+    },
+    "fn": "onerm"
+  },
+  "convert": {
+    "desc": "Converts values from one unit to another",
+    "params": {
+      "number": "The value to convert",
+      "units-from": "The units to convert from",
+      "units-to": "The units to convert to",
+      "dp": "How many decimal places to round to, defaults to 2"
+    },
+    "fn": "convert",
+    "aliases": ["co"]
+  },
+  "b": {
+    "desc": "B",
+    "params": {
+
+    },
+    "fn": "b"
+  },
+  "youtube": {
+    "desc": "Gets videos from youtube based on a search query",
+    "params": {
+      "query": "What to search for"
+    },
+    "fn": "youtube",
+    "aliases": ["yt"]
+  },
+  "prettify": {
+    "desc": "Prettifies text!",
+    "params": {
+      "text": "The text to be prettified"
+    },
+    "fn": "prettify",
+    "aliases": ["ptfy"]
+  },
+  "cyrillify": {
+    "desc": "Turns latin text into Cyrillic",
+    "params": {
+      "text": "Text to be Cyrillified"
+    },
+    "fn": "cyrillify",
+    "aliases": ["cyr"]
+  }
+}
