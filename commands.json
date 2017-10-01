@@ -120,5 +120,13 @@
     },
     "fn": "prettify",
     "aliases": ["ptfy"]
+  },
+  "cyrillify": {
+    "desc": "Turns latin text into Cyrillic",
+    "params": {
+      "text": "Text to be Cyrillified"
+    },
+    "fn": "cyrillify",
+    "aliases": ["cyr"]
   }
 }

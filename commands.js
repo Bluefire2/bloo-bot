@@ -5,6 +5,7 @@ const convertUnits = require('convert-units');
 
 const commands = require('./commands.json');
 const config = require('./config.json');
+const cyrillicMap = require('./data/cyrillic.json');
 
 const UNITSPACE = '\u202F';
 const ALPHABET = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
@@ -268,5 +269,17 @@ exports.cmd = {
     }).join(' ');
 
     msg.channel.send(prettifiedText);
+  },
+  cyrillify: (msg, text) => {
+    var cyrillifiedText = text.split('').map((elem) => {
+      var mappedChar = cyrillicMap[elem];
+      if(typeof mappedChar === 'undefined') {
+        return elem;
+      } else {
+        return mappedChar;
+      }
+    }).join('');
+
+    msg.channel.send(cyrillifiedText);
   }
 };
