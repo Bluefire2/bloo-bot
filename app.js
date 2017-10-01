@@ -2,7 +2,7 @@ const Discord = require('discord.js');
 const client = new Discord.Client();
 
 const config = require('./config.json');
-const cmdData = require('./commands.json');
+const cmdData = require('./data/commands.json');
 const cmd = require('./commands.js');
 
 const prefix = '~';

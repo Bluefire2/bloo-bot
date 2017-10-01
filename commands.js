@@ -3,8 +3,9 @@ const axios = require('axios');
 const gtranslate = require('google-translate-api');
 const convertUnits = require('convert-units');
 
-const commands = require('./commands.json');
 const config = require('./config.json');
+
+const commands = require('./data/commands.json');
 const cyrillicMap = require('./data/cyrillic.json');
 
 const UNITSPACE = '\u202F';
