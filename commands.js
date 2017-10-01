@@ -3,6 +3,7 @@ const axios = require('axios');
 const gtranslate = require('google-translate-api');
 const convertUnits = require('convert-units');
 
+const commands = require('./commands.json');
 const config = require('./config.json');
 
 const UNITSPACE = '\u202F';
@@ -75,6 +76,28 @@ const youtubeIDToLink = (id) => {
 };
 
 exports.cmd = {
+  help: (msg) => {
+    var outText = 'Available commands:\n\n',
+      commandsArray = [],
+      cmdNames = Object.keys(commands);
+
+    for(var i in cmdNames) {
+      var commandName = cmdNames[i],
+        commandEntry = '',
+        aliasesArray = commands[commandName].aliases;
+
+      commandEntry += commandName;
+
+      if(Array.isArray(aliasesArray)) {
+        commandEntry += ' (' + aliasesArray.join(', ') + ')';
+      }
+
+      commandsArray.push(commandEntry);
+    }
+
+    outText += commandsArray.join(', ');
+    return outText;
+  },
   import_fn: (msg, text) => {
     if(text === 'this') {
       return exports.cmd.pasta(msg, 'pyzen');

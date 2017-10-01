@@ -1,4 +1,11 @@
 {
+  "help": {
+    "desc": "Lists all available commands",
+    "params": {
+
+    },
+    "fn": "help"
+  },
   "import": {
     "desc": "Zen",
     "params": {
