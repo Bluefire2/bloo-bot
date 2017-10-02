@@ -7,6 +7,7 @@ const config = require('./config.json');
 
 const commands = require('./data/commands.json');
 const cyrillicMap = require('./data/cyrillic.json');
+const NUMBERS = require('./data/numbers.json');
 
 const UNITSPACE = '\u202F';
 const ALPHABET = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
@@ -259,10 +260,12 @@ exports.cmd = {
     });
   },
   prettify: (msg, text) => {
-    var prettifiedText = text.split(' ').map((word) => {
+    var prettifiedText = (text + '').split(' ').map((word) => {
       return word.split('').map((char) => {
         if(ALPHABET.indexOf(char) !== -1) {
           return ':regional_indicator_' + char.toLowerCase() + ':';
+        } else if(typeof NUMBERS[char] !== 'undefined') {
+          return ':' + NUMBERS[char] + ':';
         } else {
           return char;
         }
