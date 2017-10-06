@@ -20,13 +20,6 @@
     },
     "fn": "ping"
   },
-  "pi": {
-    "desc": "Prints pi to a specified number of digits",
-    "params": {
-      "digits": "The amount of digits to print"
-    },
-    "fn": "pi"
-  },
   "roll": {
     "desc": "Rolls some dice",
     "params": {
