@@ -14,18 +14,18 @@ client.on('ready', () => {
 client.on('message', (msg) => {
   if(msg.author === client.user || !msg.content.startsWith(prefix)) {
     // make sure the bot doesn't respond to its own messages
-    return;
+
   } else {
     console.log(msg.content);
-    var parsedCmd = cmdParse(msg), // parse out the command and args
+      let parsedCmd = cmdParse(msg), // parse out the command and args
       output;
     if(parsedCmd) {
       output = cmdExe(msg, parsedCmd.cmdName, parsedCmd.cmdArgs);
 
       console.log(parsedCmd);
-      var outText = '';
+        let outText = '';
 
-      for(var i in output) {
+        for (let i in output) {
         outText += output[i];
         if(i < output.length - 1) outText += '\n';
       }
@@ -52,28 +52,28 @@ client.on('guildMemberAdd', member => {
 client.login(config.token);
 
 function cmdExe(msg, cmdName, args) {
-  var currCmd = cmdData[cmdName],
+    let currCmd = cmdData[cmdName],
     outText = [];
 
-  var paramsCount = Object.keys(currCmd.params).length;
+    let paramsCount = Object.keys(currCmd.params).length;
 
   if(args.length === 0 && paramsCount !== 0) {
     // output the command docstring
     // signature and descstring
-    var cmdParams = currCmd.params,
+      let cmdParams = currCmd.params,
       usageStr = prefix + cmdName + " <" + Object.keys(cmdParams).join("> <") + ">";
 
     outText.push(usageStr);
     outText.push(currCmd.desc + '\n');
 
     // parameters
-    for (var paramName in cmdParams) {
-      var paramDesc = cmdParams[paramName];
+      for (let paramName in cmdParams) {
+          let paramDesc = cmdParams[paramName];
       outText.push(paramName + ": " + paramDesc);
     }
 
     // aliases
-    var aliases = currCmd.aliases;
+      let aliases = currCmd.aliases;
     if(Array.isArray(aliases)) {
       // command has one or more aliases
       aliasesStr = 'Alias(es): ';
@@ -90,7 +90,7 @@ function cmdExe(msg, cmdName, args) {
   } else {
     func = cmd.cmd[currCmd.fn];
 
-    var fullArgs;
+      let fullArgs;
 
     fullArgs = args.slice(0);
     fullArgs.unshift(msg);
@@ -106,17 +106,17 @@ function cmdExe(msg, cmdName, args) {
 }
 
 function cmdParse(msg) {
-  var cmdString = msg.content,
+    let cmdString = msg.content,
     cmdText = cmdString.slice(prefix.length), // take out the prefix
     firstSpace = cmdText.indexOf(' '),
     commandName,
     commandArgs;
 
-    if(firstSpace != -1) {
+    if (firstSpace !== -1) {
       commandName = cmdText.slice(0, firstSpace);  // get the command name
 
       if(typeof cmdData[commandName] === 'undefined') {
-        var aliasCommand = checkForAlias(commandName);
+          let aliasCommand = checkForAlias(commandName);
         if(aliasCommand) {
           commandName = aliasCommand;
         } else {
@@ -138,11 +138,11 @@ function cmdParse(msg) {
         }); // get the args
 
         // if too many args have been received:
-        var paramsCount = Object.keys(cmdData[commandName].params).length;
+        let paramsCount = Object.keys(cmdData[commandName].params).length;
 
         if(commandArgs.length > paramsCount) {
           // too many args received, so condense the remainder into one argument
-          var remainingArgs = commandArgs.slice(paramsCount - 1, commandArgs.length);
+            let remainingArgs = commandArgs.slice(paramsCount - 1, commandArgs.length);
 
           commandArgs = commandArgs.slice(0, paramsCount - 1);
           commandArgs.push(remainingArgs.join(' '));
@@ -152,7 +152,7 @@ function cmdParse(msg) {
       commandArgs = [];
 
       if(typeof cmdData[commandName] === 'undefined') {
-        var aliasCommand = checkForAlias(commandName);
+          let aliasCommand = checkForAlias(commandName);
         console.log(commandName, aliasCommand);
         if(aliasCommand) {
           commandName = aliasCommand;
@@ -170,11 +170,11 @@ function cmdParse(msg) {
 }
 
 function checkForAlias(alias) {
-  var cmdNames = Object.keys(cmdData),
+    let cmdNames = Object.keys(cmdData),
     out = '';
 
-  for(var i in cmdNames) {
-    var cmdName = cmdNames[i],
+    for (let i in cmdNames) {
+        let cmdName = cmdNames[i],
       cmdObj = cmdData[cmdName],
       aliases = cmdObj.aliases;
     if(Array.isArray(aliases)) {
