@@ -3,6 +3,8 @@ const axios = require('axios');
 const gtranslate = require('google-translate-api');
 const convertUnits = require('convert-units');
 
+const scv = require('./modules/scv.js');
+
 const config = require('./config.json');
 
 const commands = require('./data/commands.json');
@@ -262,5 +264,13 @@ exports.cmd = {
         }).join('');
 
         msg.channel.send(cyrillifiedText);
+    },
+    setPrefix: (msg, value) => {
+        let channelID = msg.channel.id;
+
+        console.log(scv);
+        scv.set(channelID, 'prefix', value);
+
+        msg.channel.send("**Prefix set to**: " + value);
     }
 };

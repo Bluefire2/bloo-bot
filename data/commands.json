@@ -121,5 +121,12 @@
     },
     "fn": "cyrillify",
     "aliases": ["cyr"]
+  },
+  "setprefix": {
+    "desc": "Sets the command prefix for this channel",
+    "params": {
+      "value": "What to set the command prefix to"
+    },
+    "fn": "setPrefix"
   }
 }
