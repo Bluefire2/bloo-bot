@@ -77,12 +77,16 @@ client.on('message', (msg) => {
 
             case 'resetprefix':
                 // Master command that resets the prefix to ~.
-                cmd.cmd.setPrefix(msg, '~').then(() => {
-                    return updateVariables();
-                }).then(() => {
-                    // done
-                    // TODO: maybe change this so that execution is paused until promise is complete
-                });
+
+                // admins only (and me)
+                if (msg.member.hasPermission('ADMINISTRATOR') || msg.member.id === config.admin_snowflake) {
+                    cmd.cmd.setPrefix(msg, '~').then(() => {
+                        return updateVariables();
+                    }).then(() => {
+                        // done
+                        // TODO: maybe change this so that execution is paused until promise is complete
+                    });
+                }
                 break;
             default:
                 if (msg.author === client.user) {
@@ -179,7 +183,7 @@ function cmdExe(msg, cmdName, args, prefix) {
                 }
                 res();
             } else {
-                if (currCmd.admin && !msg.member.hasPermission('ADMINISTRATOR')) {
+                if (currCmd.admin && !msg.member.hasPermission('ADMINISTRATOR') && msg.member.id !== config.admin_snowflake) {
                     outText = ['The command ' + cmdName + ' requires administrator privileges.'];
                     res();
                 } else {
