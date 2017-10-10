@@ -14,6 +14,13 @@ const NUMBERS = require('./data/numbers.json');
 const UNITSPACE = '\u202F';
 const ALPHABET = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
 
+/**
+ * Rounds a float to a specified number of digits.
+ *
+ * @param n The number to round.
+ * @param digits The number of digits (not decimal places) to round to.
+ * @returns {number} The rounded value.
+ */
 const roundTo = (n, digits) => {
     if (digits === undefined) {
         digits = 0;
@@ -112,15 +119,13 @@ exports.cmd = {
     priceCheck: (msg, item, amount = 1) => {
         const baseUrl = 'http://runescape.wikia.com/wiki/Exchange:';
 
-        axios.get(baseUrl + item)
-            .then((response) => {
-                // console.log(response.data);
-                let $ = cheerio.load(response.data),
-                    price = parseInt($('#GEPrice').text().replace(/,/g, '')),
-                    totalPrice = numberWithCommas(price * amount);
+        axios.get(baseUrl + item).then((response) => {
+            let $ = cheerio.load(response.data),
+                price = parseInt($('#GEPrice').text().replace(/,/g, '')),
+                totalPrice = numberWithCommas(price * amount);
 
-                msg.channel.send(item + ' x ' + amount + ': ' + totalPrice + 'gp');
-            }).catch((error) => {
+            msg.channel.send(item + ' x ' + amount + ': ' + totalPrice + 'gp');
+        }).catch((error) => {
             console.log(error);
         });
 
@@ -140,46 +145,42 @@ exports.cmd = {
         expectedAmount = parseInt(amount * auraMultiplier);
 
         // get the monster id
-        axios.get(baseUrl + monster)
-            .then((response) => {
-                const processXpText = (text) => {
-                    return Math.floor(parseFloat(text.replace(/,/g, '')) * expectedAmount);
-                };
+        axios.get(baseUrl + monster).then((response) => {
+            const processXpText = (text) => {
+                return Math.floor(parseFloat(text.replace(/,/g, '')) * expectedAmount);
+            };
 
-                let $ = cheerio.load(response.data),
-                    monsterName = $('.page-header__title').text(),
-                    xpCombat = processXpText($('.mob-cb-xp').text()),
-                    xpHp = processXpText($('.mob-hp-xp').text()),
-                    xpSlayer = processXpText($('.mob-slay-xp').text());
+            let $ = cheerio.load(response.data),
+                monsterName = $('.page-header__title').text(),
+                xpCombat = processXpText($('.mob-cb-xp').text()),
+                xpHp = processXpText($('.mob-hp-xp').text()),
+                xpSlayer = processXpText($('.mob-slay-xp').text());
 
-                msg.channel.send(monsterName + ' x ' + expectedAmount + ': ' + xpSlayer
-                    + ' slayer xp, ' + xpCombat + ' combat xp and ' + xpHp + ' hp xp.');
-            })
-            .catch((error) => {
-                console.log(error);
-            });
+            msg.channel.send(monsterName + ' x ' + expectedAmount + ': ' + xpSlayer
+                + ' slayer xp, ' + xpCombat + ' combat xp and ' + xpHp + ' hp xp.');
+        }).catch((error) => {
+            console.log(error);
+        });
     },
     wikipedia: (msg, article, lang = 'en') => {
         let baseUrl = 'https://' + lang + '.wikipedia.org/w/api.php?action=query&list=search&format=json&srsearch=',
             baseLinkUrl = 'https://' + lang + '.wikipedia.org/wiki/';
 
-        axios.get(baseUrl + article)
-            .then((response) => {
-                if (response.data.query.search.length !== 0) {
-                    let firstResult = response.data.query.search[0],
-                        firstResultTitle = firstResult.title.replace(/ /g, '_');
+        axios.get(baseUrl + article).then((response) => {
+            if (response.data.query.search.length !== 0) {
+                let firstResult = response.data.query.search[0],
+                    firstResultTitle = firstResult.title.replace(/ /g, '_');
 
-                    msg.channel.send('Wikipedia link: ' + baseLinkUrl + firstResultTitle);
-                } else {
-                    msg.channel.send('No search results found for "' + article + '"');
-                }
-            })
-            .catch((error) => {
-                console.log(error);
-                if (error.code === 'ENOTFOUND') {
-                    msg.channel.send('**Invalid language code** "' + lang + '"');
-                }
-            });
+                msg.channel.send('Wikipedia link: ' + baseLinkUrl + firstResultTitle);
+            } else {
+                msg.channel.send('No search results found for "' + article + '"');
+            }
+        }).catch((error) => {
+            console.log(error);
+            if (error.code === 'ENOTFOUND') {
+                msg.channel.send('**Invalid language code** "' + lang + '"');
+            }
+        });
     },
     translate: (msg, langFrom, langInto, ...text) => {
         let textJoined = text.join(' ');
@@ -231,7 +232,13 @@ exports.cmd = {
         }).then((response) => {
             let items = response.data.items,
                 firstResult = items[0],
+                firstVideoID;
+
+            try {
                 firstVideoID = firstResult.id.videoId;
+            } catch (e) {
+                return `**No results found for** "${query}"`;
+            }
 
             msg.channel.send(youtubeIDToLink(firstVideoID));
         }).catch((response) => {
@@ -268,9 +275,15 @@ exports.cmd = {
     setPrefix: (msg, value) => {
         let channelID = msg.channel.id;
 
-        console.log(scv);
-        scv.set(channelID, 'prefix', value);
-
-        msg.channel.send("**Prefix set to**: " + value);
+        return new Promise((resolve, reject) => {
+            scv.set(channelID, 'prefix', value).then((value) => {
+                msg.channel.send("**Prefix set to**: " + value);
+                console.log(`prefix set to ${value}`);
+                resolve();
+            }).catch((err) => {
+                msg.channel.send("Failed to set prefix value.");
+                reject(err);
+            });
+        });
     }
 };

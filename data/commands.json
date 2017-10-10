@@ -127,6 +127,8 @@
     "params": {
       "value": "What to set the command prefix to"
     },
-    "fn": "setPrefix"
+    "fn": "setPrefix",
+    "admin": true,
+    "update": true
   }
 }

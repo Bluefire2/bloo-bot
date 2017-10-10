@@ -12,6 +12,7 @@
     "discord.js": "^11.2.1",
     "google-translate-api": "^2.3.0",
     "node-wikia": "0.0.3",
-    "runescape-api": "^1.0.9"
+    "runescape-api": "^1.0.9",
+    "sqlite": "^2.8.0"
   }
 }

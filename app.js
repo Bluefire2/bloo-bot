@@ -12,47 +12,98 @@ const test = process.argv[2] === 'test';
 const loginToken = test ? config.test_token : config.token;
 
 const setVariableWithFallback = (channelID, variable) => {
-    let v;
-    if (v = scv.get(channelID, variable)) {
-        return v;
-    } else {
-        return defaults.get(variable);
-    }
+    // I FUCKING HATE THIS ASYNC HYPE GARBAGE
+    // WHY THE FUCK DOES EVERYTHING IN THIS LANGUAGE HAVE TO BE ASYNC
+    // THE SIMPLEST FUCKING THINGS ABSOLUTELY MUST BE ASYNC
+    // BECAUSE IF THEY'RE NOT THEN IT WOULD ACTUALLY BE CONVENIENT AND WE CAN'T HAVE THAT CAN WE
+    // AND NOW I NEED 10 LAYERS OF PROMISES FOR EVERYTHING I FUCKING DO TO DEAL WITH ASYNC RACE CONDITIONS
+    // REEEEEEEEEEEEEEEEEEEEEEE
+    return new Promise((resolve, reject) => {
+        scv.get(channelID, variable).then(val => {
+            if (val) {
+                resolve(val);
+            } else {
+                resolve(defaults.get(variable));
+            }
+        }).catch(err => {
+            reject(err);
+        });
+    });
 };
+
+const updateVariables = (channelID) => {
+    return new Promise((resolve, reject) => {
+        setVariableWithFallback(channelID, 'prefix').then(val => {
+            prefix = val;
+            resolve();
+        }).catch(err => {
+            reject(err);
+        });
+    });
+};
+
+
+// Global variables
+let variablesLoaded = false,
+    prefix;
 
 client.on('ready', () => {
     console.log('Hello world!');
+    // scv.drop();
+    // scv.create();
+    // scv.listTable();
 });
 
 client.on('message', (msg) => {
     const channelID = msg.channel.id;
-    const prefix = setVariableWithFallback(channelID, 'prefix');
+    const varRequest = new Promise((resolve, reject) => {
+        if (!variablesLoaded) {
+            updateVariables(channelID).then(() => {
+                resolve();
+                variablesLoaded = true;
+            });
+        } else {
+            resolve();
+        }
+    });
 
-    if (msg.author === client.user || !msg.content.startsWith(prefix)) {
-        // make sure the bot doesn't respond to its own messages
+    varRequest.then(() => {
+        if (msg.author === client.user) {
+            // make sure the bot doesn't respond to its own messages
 
-    } else {
-        console.log(msg.content);
-        let parsedCmd = cmdParse(msg, prefix), // parse out the command and args
-            output;
-        if (parsedCmd) {
-            output = cmdExe(msg, parsedCmd.cmdName, parsedCmd.cmdArgs, prefix);
+        } else if (!msg.content.startsWith(prefix)) {
+            // message doesn't start with the prefix so do nothing
 
-            console.log(parsedCmd);
-            let outText = '';
-
-            for (let i in output) {
-                outText += output[i];
-                if (i < output.length - 1) outText += '\n';
-            }
-
-            if (outText !== '') {
-                msg.channel.send('```\n' + outText + '```');
+            // unless...
+            if (msg.content === 'bloobotprefix') {
+                // Master command that lists the prefix. This command must be independent of
+                // the current prefix and therefore cannot be handled by regular command logic.
+                msg.channel.send(`**Command prefix currently in use**: ${prefix}`);
             }
         } else {
+            console.log(msg.content);
+            let parsedCmd = cmdParse(msg, prefix), // parse out the command and args
+                output;
+            if (parsedCmd) {
+                cmdExe(msg, parsedCmd.cmdName, parsedCmd.cmdArgs, prefix).then((out) => {
+                    output = out;
+                    console.log(parsedCmd);
+                    let outText = '';
 
+                    for (let i in output) {
+                        outText += output[i];
+                        if (i < output.length - 1) outText += '\n';
+                    }
+
+                    if (outText !== '') {
+                        msg.channel.send('```\n' + outText + '```');
+                    }
+                });
+            } else {
+                // do nothing? idk
+            }
         }
-    }
+    });
 });
 
 // Create an event listener for new guild members
@@ -67,60 +118,113 @@ client.on('guildMemberAdd', member => {
 
 client.login(loginToken);
 
+/**
+ * Executes a command using the function reference found in the command documentation file.
+ *
+ * @param msg The message that requested the command to be executed.
+ * @param cmdName The name of the command specified.
+ * @param args The arguments given to the command.
+ * @param prefix The command prefix currently in use.
+ * @returns {Array} The text to be messaged inside ``, if any, line by line.
+ */
 function cmdExe(msg, cmdName, args, prefix) {
     let currCmd = cmdData[cmdName],
-        outText = [];
+        outText = [],
+        paramsCount = Object.keys(currCmd.params).length;
 
-    let paramsCount = Object.keys(currCmd.params).length;
+    return new Promise((resolve, reject) => {
+        new Promise((res, rej) => {
+            if (args.length === 0 && paramsCount !== 0) {
+                // output the command docstring
+                // signature and descstring
+                let cmdParams = currCmd.params,
+                    usageStr = prefix + cmdName + " <" + Object.keys(cmdParams).join("> <") + ">";
 
-    if (args.length === 0 && paramsCount !== 0) {
-        // output the command docstring
-        // signature and descstring
-        let cmdParams = currCmd.params,
-            usageStr = prefix + cmdName + " <" + Object.keys(cmdParams).join("> <") + ">";
+                outText.push(usageStr);
+                outText.push(currCmd.desc + '\n');
 
-        outText.push(usageStr);
-        outText.push(currCmd.desc + '\n');
-
-        // parameters
-        for (let paramName in cmdParams) {
-            let paramDesc = cmdParams[paramName];
-            outText.push(paramName + ": " + paramDesc);
-        }
-
-        // aliases
-        let aliases = currCmd.aliases;
-        if (Array.isArray(aliases)) {
-            // command has one or more aliases
-            aliasesStr = 'Alias(es): ';
-
-            aliases.forEach((elem, index) => {
-                aliasesStr += elem;
-                if (index < aliases.length - 1) {
-                    // if not the last element, add a comma for the next one
-                    aliasesStr += ', ';
+                // parameters
+                for (let paramName in cmdParams) {
+                    let paramDesc = cmdParams[paramName];
+                    outText.push(paramName + ": " + paramDesc);
                 }
+
+                // aliases
+                let aliases = currCmd.aliases;
+                if (Array.isArray(aliases)) {
+                    // command has one or more aliases
+                    aliasesStr = 'Alias(es): ';
+
+                    aliases.forEach((elem, index) => {
+                        aliasesStr += elem;
+                        if (index < aliases.length - 1) {
+                            // if not the last element, add a comma for the next one
+                            aliasesStr += ', ';
+                        }
+                    });
+                    outText.push('\n' + aliasesStr);
+                }
+                res();
+            } else {
+                if (currCmd.admin && !msg.member.hasPermission('ADMINISTRATOR')) {
+                    outText = ['**The command** ' + cmdName + ' **requires administrator privileges**.'];
+                    res();
+                } else {
+                    func = cmd.cmd[currCmd.fn];
+
+                    let fullArgs;
+
+                    fullArgs = args.slice(0);
+                    fullArgs.unshift(msg);
+
+                    // call the command function:
+                    moreText = func.apply(this, fullArgs);
+
+                    // process result
+                    if (typeof moreText === 'string') {
+                        outText.push(moreText);
+                        res();
+                    } else if (Array.isArray(moreText)) {
+                        outText = outText.concat(moreText);
+                        res();
+                    } else if (moreText instanceof Promise) {
+                        moreText.then((out) => {
+                            if (typeof out === 'string') {
+                                outText.push(out);
+                            } else if (Array.isArray(out)) {
+                                outText = outText.concat(out);
+                            }
+                            res();
+                        });
+                    }
+                }
+            }
+        }).then(() => {
+            // command execution successful
+            // update global variables if required, then return
+            new Promise((res, rej) => {
+                if (currCmd.update) {
+                    updateVariables(msg.channel.id).then(() => {
+                        res();
+                    }).catch(() => {
+                        rej();
+                    });
+                }
+            }).then(() => {
+                resolve(outText);
             });
-            outText.push('\n' + aliasesStr);
-        }
-    } else {
-        func = cmd.cmd[currCmd.fn];
-
-        let fullArgs;
-
-        fullArgs = args.slice(0);
-        fullArgs.unshift(msg);
-
-        moreText = func.apply(this, fullArgs);
-        if (typeof moreText === 'string') {
-            outText.push(moreText);
-        } else if (Array.isArray(moreText)) {
-            outText = outText.concat(moreText);
-        }
-    }
-    return outText;
+        });
+    });
 }
 
+/**
+ * Parses a command from a message into the command name and a list of arguments.
+ *
+ * @param msg The message that requested the command to be executed.
+ * @param prefix The command prefix currently in use.
+ * @returns {*} An object containing the command name and command arguments, to be passed to cmdExe, or false if no such
+ * command exists.
+ */
 function cmdParse(msg, prefix) {
     let cmdString = msg.content,
         cmdText = cmdString.slice(prefix.length), // take out the prefix
