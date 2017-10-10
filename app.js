@@ -68,52 +68,53 @@ client.on('message', (msg) => {
     });
 
     varRequest.then(() => {
-        if (msg.author === client.user) {
-            // make sure the bot doesn't respond to its own messages
+        switch (msg.content) {
+            case 'bloobotprefix':
+                // Master command that lists the prefix. This command must be independent of
+                // the current prefix and therefore cannot be handled by regular command logic.
+                msg.channel.send(`**Command prefix currently in use**: ${prefix}`);
+                break;
 
-        } else if (!msg.content.startsWith(prefix)) {
-            // message doesn't start with the prefix so do nothing
-
-            // unless...
-            switch (msg.content) {
-                case 'bloobotprefix':
-                    // Master command that lists the prefix. This command must be independent of
-                    // the current prefix and therefore cannot be handled by regular command logic.
-                    msg.channel.send(`**Command prefix currently in use**: ${prefix}`);
-                    break;
-
-                case 'resetprefix':
-                    // Master command that resets the prefix to ~.
-                    cmdExe(msg, 'setprefix', ['~'], prefix).then(() => {
-                        return updateVariables();
-                    }).then(() => {
-                        // done
-                        // TODO: maybe change this so that execution is paused until promise is complete
-                    });
-                    break;
-            }
-        } else {
-            console.log(msg.content);
-            let parsedCmd = cmdParse(msg, prefix), // parse out the command and args
-                output;
-            if (parsedCmd) {
-                cmdExe(msg, parsedCmd.cmdName, parsedCmd.cmdArgs, prefix).then((out) => {
-                    output = out;
-                    console.log(parsedCmd);
-                    let outText = '';
-
-                    for (let i in output) {
-                        outText += output[i];
-                        if (i < output.length - 1) outText += '\n';
-                    }
-
-                    if (outText !== '') {
-                        msg.channel.send('```\n' + outText + '```');
-                    }
+            case 'resetprefix':
+                // Master command that resets the prefix to ~.
+                cmd.cmd.setPrefix(msg, '~').then(() => {
+                    return updateVariables();
+                }).then(() => {
+                    // done
+                    // TODO: maybe change this so that execution is paused until promise is complete
                 });
-            } else {
-                // do nothing? idk
-            }
+                break;
+            default:
+                if (msg.author === client.user) {
+                    // make sure the bot doesn't respond to its own messages
+
+                } else if (!msg.content.startsWith(prefix)) {
+                    // message doesn't start with the prefix so do nothing
+
+                } else {
+                    console.log(msg.content);
+                    let parsedCmd = cmdParse(msg, prefix), // parse out the command and args
+                        output;
+                    if (parsedCmd) {
+                        cmdExe(msg, parsedCmd.cmdName, parsedCmd.cmdArgs, prefix).then((out) => {
+                            output = out;
+                            console.log(parsedCmd);
+                            let outText = '';
+
+                            for (let i in output) {
+                                outText += output[i];
+                                if (i < output.length - 1) outText += '\n';
+                            }
+
+                            if (outText !== '') {
+                                msg.channel.send('```\n' + outText + '```');
+                            }
+                        });
+                    } else {
+                        // do nothing? idk
+                    }
+                }
+                break;
         }
     });
 });
