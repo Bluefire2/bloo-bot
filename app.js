@@ -224,6 +224,8 @@ function cmdExe(msg, cmdName, args, prefix) {
                     }).catch(() => {
                         rej();
                     });
+                } else {
+                    res();
                 }
             }).then(() => {
                 resolve(outText);
