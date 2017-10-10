@@ -5,3 +5,4 @@ config.json
 log.txt
 MainKey.pem
 MainKey.ppk
+data/CV.sqlite
