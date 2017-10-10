@@ -75,10 +75,22 @@ client.on('message', (msg) => {
             // message doesn't start with the prefix so do nothing
 
             // unless...
-            if (msg.content === 'bloobotprefix') {
-                // Master command that lists the prefix. This command must be independent of
-                // the current prefix and therefore cannot be handled by regular command logic.
-                msg.channel.send(`**Command prefix currently in use**: ${prefix}`);
+            switch (msg.content) {
+                case 'bloobotprefix':
+                    // Master command that lists the prefix. This command must be independent of
+                    // the current prefix and therefore cannot be handled by regular command logic.
+                    msg.channel.send(`**Command prefix currently in use**: ${prefix}`);
+                    break;
+
+                case 'resetprefix':
+                    // Master command that resets the prefix to ~.
+                    cmdExe(msg, 'setprefix', ['~'], prefix).then(() => {
+                        return updateVariables();
+                    }).then(() => {
+                        // done
+                        // TODO: maybe change this so that execution is paused until promise is complete
+                    });
+                    break;
             }
         } else {
             console.log(msg.content);
@@ -172,9 +184,7 @@ function cmdExe(msg, cmdName, args, prefix) {
                 } else {
                     func = cmd.cmd[currCmd.fn];
 
-                    let fullArgs;
-
-                    fullArgs = args.slice(0);
+                    let fullArgs = args.slice(0);
                     fullArgs.unshift(msg);
 
                     // call the command function:
