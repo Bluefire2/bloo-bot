@@ -9,9 +9,13 @@
   "author": "Bluefire2",
   "license": "MIT",
   "dependencies": {
+    "axios": "^0.16.2",
+    "cheerio": "^1.0.0-rc.2",
+    "convert-units": "^2.3.1",
     "discord.js": "^11.2.1",
     "google-translate-api": "^2.3.0",
     "node-wikia": "0.0.3",
+    "path": "^0.12.7",
     "runescape-api": "^1.0.9",
     "sqlite": "^2.8.0"
   }

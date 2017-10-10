@@ -1,3 +1,10 @@
+/*
+ * A module to deal with storing and retrieving guild variables. This module handles
+ * getting and setting all the variables, as well as creating/removing/listing/truncating
+ * the main storage table. I'll probably change this code a lot as I start storing more
+ * and more data, but the interfact will remain the same. The idea is to blackbox this
+ * part of the code and not worry about it in my other modules.
+ */
 const sql = require('sqlite');
 const path = require('path');
 

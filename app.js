@@ -167,7 +167,7 @@ function cmdExe(msg, cmdName, args, prefix) {
                 res();
             } else {
                 if (currCmd.admin && !msg.member.hasPermission('ADMINISTRATOR')) {
-                    outText = ['**The command** ' + cmdName + ' **requires administrator privileges**.'];
+                    outText = ['The command ' + cmdName + ' requires administrator privileges.'];
                     res();
                 } else {
                     func = cmd.cmd[currCmd.fn];
