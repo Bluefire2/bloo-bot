@@ -10,6 +10,8 @@ const path = require('path');
 
 const CVTableName = 'guildsCV';
 const CVDBFilePath = path.join(__dirname, '..', 'data', 'CV.sqlite');
+
+// TODO: be smarter about opening the db, since it's async. Maybe open it every time get/set is called?
 sql.open(CVDBFilePath.toString());
 
 const allowedVariables = [

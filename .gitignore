@@ -1,6 +1,5 @@
 node_modules/
 .idea/
-.eslintrc
 config.json
 log.txt
 MainKey.pem
