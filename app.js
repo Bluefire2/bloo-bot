@@ -80,7 +80,7 @@ client.on('message', (msg) => {
 
                 // admins only (and me)
                 if (msg.member.hasPermission('ADMINISTRATOR') || msg.member.id === config.admin_snowflake) {
-                    cmd.cmd.setPrefix(msg, '~').then(() => {
+                    cmd.setPrefix(msg, '~').then(() => {
                         return updateVariables();
                     }).then(() => {
                         // done
@@ -187,7 +187,7 @@ function cmdExe(msg, cmdName, args, prefix) {
                     outText = ['The command ' + cmdName + ' requires administrator privileges.'];
                     res();
                 } else {
-                    func = cmd.cmd[currCmd.fn];
+                    func = cmd[currCmd.fn];
 
                     let fullArgs = args.slice(0);
                     fullArgs.unshift(msg);

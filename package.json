@@ -14,6 +14,7 @@
     "convert-units": "^2.3.1",
     "discord.js": "^11.2.1",
     "google-translate-api": "^2.3.0",
+    "mathjs": "^3.16.4",
     "node-wikia": "0.0.3",
     "path": "^0.12.7",
     "runescape-api": "^1.0.9",

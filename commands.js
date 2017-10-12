@@ -2,12 +2,13 @@ const cheerio = require('cheerio');
 const axios = require('axios');
 const gtranslate = require('google-translate-api');
 const convertUnits = require('convert-units');
+const mathjs = require('mathjs');
 
 const scv = require('./modules/scv.js');
 
 const config = require('./config.json');
 
-const commands = require('./data/commands.json');
+const commandDesc = require('./data/commands.json');
 const cyrillicMap = require('./data/cyrillic.json');
 const NUMBERS = require('./data/numbers.json');
 
@@ -64,16 +65,16 @@ const youtubeIDToLink = (id) => {
     return 'https://www.youtube.com/watch?v=' + id;
 };
 
-exports.cmd = {
+commands = {
     help: (msg) => {
         let outText = 'Available commands:\n\n',
             commandsArray = [],
-            cmdNames = Object.keys(commands);
+            cmdNames = Object.keys(commandDesc);
 
         for (let i in cmdNames) {
             let commandName = cmdNames[i],
                 commandEntry = '',
-                aliasesArray = commands[commandName].aliases;
+                aliasesArray = commandDesc[commandName].aliases;
 
             commandEntry += commandName;
 
@@ -285,5 +286,10 @@ exports.cmd = {
                 reject(err);
             });
         });
-    }
+    }//,
+    // eval: (msg, expression) => {
+    //
+    // }
 };
+
+module.exports = commands;

@@ -131,4 +131,13 @@
     "admin": true,
     "update": true
   }
+  //,
+  //  "eval": {
+  //    "desc": "Evaluates a mathematical expression. Not literally eval()!",
+  //    "params": {
+  //      "expression": "The expression to be evaluated"
+  //    },
+  //    "fn": "eval",
+  //    "aliases": ["calc", "e"]
+  //  }
 }
