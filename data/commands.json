@@ -130,14 +130,32 @@
     "fn": "setPrefix",
     "admin": true,
     "update": true
+  },
+  "eval": {
+    "desc": "Evaluates a mathematical expression. Not literally eval()!",
+    "params": {
+      "expression": "The expression to be evaluated"
+    },
+    "fn": "eval",
+    "aliases": [
+      "calc",
+      "e"
+    ]
+  },
+  "setvar": {
+    "desc": "Sets a variable for the evaluation context",
+    "params": {
+      "varname": "The name of the variable to be assigned to",
+      "value": "The new value of the variable"
+    },
+    "fn": "setvar"
+  },
+  "setvars": {
+    "desc": "Same as setvar, but sets multiple variables in one command",
+    "params": {
+      "varnames": "The names of the variables, for instance \"x, y, z\"",
+      "value": "The values of the variables, for instance \"1, e, sqrt(x)\""
+    },
+    "fn": "setvars"
   }
-  //,
-  //  "eval": {
-  //    "desc": "Evaluates a mathematical expression. Not literally eval()!",
-  //    "params": {
-  //      "expression": "The expression to be evaluated"
-  //    },
-  //    "fn": "eval",
-  //    "aliases": ["calc", "e"]
-  //  }
 }

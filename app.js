@@ -34,7 +34,7 @@ const setVariableWithFallback = (channelID, variable) => {
 const updateVariables = (channelID) => {
     return new Promise((resolve, reject) => {
         setVariableWithFallback(channelID, 'prefix').then(val => {
-            prefix = val;
+            allPrefixes[channelID + ''] = val;
             resolve();
         }).catch(err => {
             reject(err);
@@ -45,7 +45,7 @@ const updateVariables = (channelID) => {
 
 // Global variables
 let variablesLoaded = false,
-    prefix;
+    allPrefixes = {};
 
 client.on('ready', () => {
     console.log('Hello world!');
@@ -56,6 +56,7 @@ client.on('ready', () => {
 
 client.on('message', (msg) => {
     const channelID = msg.channel.id;
+
     const varRequest = new Promise((resolve, reject) => {
         if (!variablesLoaded) {
             updateVariables(channelID).then(() => {
@@ -68,6 +69,13 @@ client.on('message', (msg) => {
     });
 
     varRequest.then(() => {
+        let prefix = allPrefixes[channelID + ''];
+
+        if (typeof prefix === 'undefined') {
+            allPrefixes[channelID + ''] = defaults.get('prefix');
+            prefix = defaults.get('prefix');
+        }
+
         switch (msg.content) {
             case 'bloobotprefix':
                 // Master command that lists the prefix. This command must be independent of
@@ -147,7 +155,8 @@ client.login(loginToken);
 function cmdExe(msg, cmdName, args, prefix) {
     let currCmd = cmdData[cmdName],
         outText = [],
-        paramsCount = Object.keys(currCmd.params).length;
+        paramsCount = Object.keys(currCmd.params).length,
+        channelID = msg.channel.id;
 
     return new Promise((resolve, reject) => {
         new Promise((res, rej) => {
@@ -170,7 +179,7 @@ function cmdExe(msg, cmdName, args, prefix) {
                 let aliases = currCmd.aliases;
                 if (Array.isArray(aliases)) {
                     // command has one or more aliases
-                    aliasesStr = 'Alias(es): ';
+                    let aliasesStr = 'Alias(es): ';
 
                     aliases.forEach((elem, index) => {
                         aliasesStr += elem;
@@ -187,13 +196,13 @@ function cmdExe(msg, cmdName, args, prefix) {
                     outText = ['The command ' + cmdName + ' requires administrator privileges.'];
                     res();
                 } else {
-                    func = cmd[currCmd.fn];
+                    let func = cmd[currCmd.fn];
 
                     let fullArgs = args.slice(0);
                     fullArgs.unshift(msg);
 
                     // call the command function:
-                    moreText = func.apply(this, fullArgs);
+                    let moreText = func.apply(this, fullArgs);
 
                     // process result
                     if (typeof moreText === 'string') {
@@ -219,7 +228,8 @@ function cmdExe(msg, cmdName, args, prefix) {
             // update global variables if required, then return
             new Promise((res, rej) => {
                 if (currCmd.update) {
-                    updateVariables(msg.channel.id).then(() => {
+                    console.log('updating for ' + channelID);
+                    updateVariables(channelID).then(() => {
                         res();
                     }).catch(() => {
                         rej();

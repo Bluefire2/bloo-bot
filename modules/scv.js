@@ -18,7 +18,7 @@ const allowedVariables = [
     'prefix'
 ];
 
-module.exports = {
+scvFunctions = {
     create: () => {
         sql.run(`CREATE TABLE ${CVTableName} (id bigint, prefix varchar(255))`);
     },
@@ -88,5 +88,27 @@ module.exports = {
                 resolve(false);
             }
         });
+    },
+    getMultiple: (channelID, variables) => {
+        return new Promise((resolve, reject) => {
+            let getPromises = variables.map((elem) => {
+                return scvFunctions.get(channelID, elem);
+            });
+
+            Promise.all(getPromises).then((values) => {
+                let varValues = {};
+
+                values.forEach((varValue) => {
+                    let varName = variables[i];
+                    varValues[varName] = varValue;
+                });
+
+                resolve(varValues);
+            }).catch((err) => {
+                reject(err);
+            });
+        });
     }
 };
+
+module.exports = scvFunctions;

@@ -15,6 +15,10 @@ const NUMBERS = require('./data/numbers.json');
 const UNITSPACE = '\u202F';
 const ALPHABET = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
 
+const removeWhitespace = (str) => {
+    return str.replace(/ /g, '');
+};
+
 /**
  * Rounds a float to a specified number of digits.
  *
@@ -63,6 +67,12 @@ const randomInRange = (min, max) => {
 
 const youtubeIDToLink = (id) => {
     return 'https://www.youtube.com/watch?v=' + id;
+};
+
+let mathVariables = {};
+mathConstants = {
+    pi: Math.PI,
+    e: Math.E
 };
 
 commands = {
@@ -276,6 +286,7 @@ commands = {
     setPrefix: (msg, value) => {
         let channelID = msg.channel.id;
 
+        console.log('setting for ' + channelID);
         return new Promise((resolve, reject) => {
             scv.set(channelID, 'prefix', value).then((value) => {
                 msg.channel.send("**Prefix set to**: " + value);
@@ -286,10 +297,84 @@ commands = {
                 reject(err);
             });
         });
-    }//,
-    // eval: (msg, expression) => {
-    //
-    // }
+    },
+    eval: (msg, expression) => {
+        let channelID = msg.channel.id,
+            context = mathVariables[channelID + ''];
+
+        if (typeof context === 'undefined') {
+            context = {};
+        }
+
+        try {
+            let result = mathjs.eval(expression, context);
+            msg.channel.send(`Expression value: ${result}`);
+        } catch (e) {
+            msg.channel.send('Bad expression. Make sure all variables are defined!');
+        }
+    },
+    setvar: (msg, varname, varvalue) => {
+        if (Object.keys(mathConstants).indexOf(varname) !== -1) {
+            msg.channel.send(`**Unable to set as variable name** ${varname} **is reserved.**`);
+        } else {
+            let varvalueParsed,
+                channelID = msg.channel.id,
+                channelMathVariables = mathVariables[channelID + ''];
+
+            if (typeof channelMathVariables === 'undefined') {
+                mathVariables[channelID + ''] = {};
+                channelMathVariables = mathVariables[channelID + ''];
+            }
+
+            let context = Object.assign({}, channelMathVariables, mathConstants);
+
+            // parse expression if we need to
+            if (typeof varvalue === 'number') {
+                varvalueParsed = varvalue;
+            } else {
+                varvalueParsed = mathjs.eval(varvalue, context);
+            }
+
+            if (typeof channelMathVariables[varname] === 'undefined') {
+                msg.channel.send(`**Variable** ${varname} **created and set to** ${varvalueParsed}`);
+            } else {
+                msg.channel.send(`**Variable** ${varname} **changed from** ${mathVariables[varname]} **to** ${varvalueParsed}`);
+            }
+
+            channelMathVariables[varname] = varvalueParsed;
+        }
+    },
+    setvars: (msg, varnames, varvalues) => {
+        const varnamesArray = removeWhitespace(varnames).split(','),
+            varvaluesArray = removeWhitespace(varvalues).splie(',');
+
+        varnamesArray.forEach((elem, index) => {
+            let value = varvaluesArray[index];
+            if (Object.keys(mathConstants).indexOf(elem) !== -1) {
+                // do nothing since we don't want to overwrite global constants
+            } else {
+                let valueParsed,
+                    channelID = msg.channel.id,
+                    channelMathVariables = mathVariables[channelID + ''];
+
+                if (typeof channelMathVariables === 'undefined') {
+                    mathVariables[channelID + ''] = {};
+                    channelMathVariables = mathVariables[channelID + ''];
+                }
+
+                let context = Object.assign({}, channelMathVariables, mathConstants);
+
+                // parse expression if we need to
+                if (typeof value === 'number') {
+                    valueParsed = value;
+                } else {
+                    valueParsed = mathjs.eval(value, context);
+                }
+
+                channelMathVariables[elem] = valueParsed;
+            }
+        });
+    }
 };
 
 module.exports = commands;
