@@ -130,7 +130,7 @@ commands = {
     priceCheck: (msg, item, amount = 1) => {
         const baseUrl = 'http://runescape.wikia.com/wiki/Exchange:';
 
-        axios.get(baseUrl + item).then((response) => {
+        axios.get(baseUrl + item).then(response => {
             let $ = cheerio.load(response.data),
                 price = parseInt($('#GEPrice').text().replace(/,/g, '')),
                 totalPrice = numberWithCommas(price * amount);
@@ -346,7 +346,7 @@ commands = {
     },
     setvars: (msg, varnames, varvalues) => {
         const varnamesArray = removeWhitespace(varnames).split(','),
-            varvaluesArray = removeWhitespace(varvalues).splie(',');
+            varvaluesArray = removeWhitespace(varvalues).split(',');
 
         varnamesArray.forEach((elem, index) => {
             let value = varvaluesArray[index];
