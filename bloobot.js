@@ -10,6 +10,8 @@ const cmdData = require('./data/commands.json');
 
 const test = process.argv[2] === 'test';
 const loginToken = test ? config.test_token : config.token;
+const DISCORD_CHAR_LIMIT = 2000;
+const MY_CHAR_LIMIT = 10000;
 
 const setVariableWithFallback = (channelID, variable) => {
     // I FUCKING HATE THIS ASYNC HYPE GARBAGE
@@ -42,6 +44,24 @@ const updateVariables = (channelID) => {
     });
 };
 
+const safeSendMsg = (channel, text, surround = '') => {
+    let localCharLim = DISCORD_CHAR_LIMIT - 2 * surround.length;
+
+    if (text.length > MY_CHAR_LIMIT) {
+        return false;
+    } else if (text.length < localCharLim) {
+        channel.send(surround + text + surround);
+    } else {
+        let textTemp = text;
+
+        for (let i = 0; i <= textTemp.length % localCharLim; i++) {
+            channel.send(surround + textTemp.slice(0, localCharLim) + surround);
+
+            textTemp = textTemp.slice(localCharLim);
+        }
+        return true;
+    }
+};
 
 // Global variables
 let variablesLoaded = false,
@@ -119,7 +139,8 @@ client.on('message', (msg) => {
                             }
 
                             if (outText !== '') {
-                                msg.channel.send('```\n' + outText + '```');
+                                // send the message
+                                safeSendMsg(msg.channel, '\n' + outText, '```');
                             }
                         });
                     } else {
