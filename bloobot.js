@@ -89,7 +89,7 @@ client.on('message', (msg) => {
                 // admins only (and me)
                 if (msg.member.hasPermission('ADMINISTRATOR') || msg.member.id === config.admin_snowflake) {
                     cmd.setPrefix(msg, '~').then(() => {
-                        return updateVariables();
+                        return updateVariables(channelID);
                     }).then(() => {
                         // done
                         // TODO: maybe change this so that execution is paused until promise is complete
