@@ -157,5 +157,12 @@
       "value": "The values of the variables, for instance \"1, e, sqrt(x)\""
     },
     "fn": "setvars"
+  },
+  "ree": {
+    "desc": "REEEEEs so you don't have to",
+    "params": {
+      "i": "How much to REEEEE"
+    },
+    "fn": "ree"
   }
 }
