@@ -140,7 +140,9 @@ client.on('message', (msg) => {
 
                             if (outText !== '') {
                                 // send the message
-                                safeSendMsg(msg.channel, '\n' + outText, '```');
+                                if (!safeSendMsg(msg.channel, '\n' + outText, '```')) {
+                                    msg.channel.send(`Outbound message length greater than ${MY_CHAR_LIMIT} character limit.`);
+                                }
                             }
                         });
                     } else {
