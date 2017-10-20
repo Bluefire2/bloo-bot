@@ -116,7 +116,27 @@ commands = {
             rolls.push(randomInRange(1, sides));
         }
 
-        return rolls.join(' ');
+        let data = {
+            variance: mathjs.var,
+            std: mathjs.std,
+            mean: mathjs.mean,
+            median: mathjs.median,
+            mode: mathjs.mode,
+            max: mathjs.max,
+            min: mathjs.min,
+            sum: mathjs.sum
+        };
+
+        let rollsString = rolls.join(' '),
+            dataString = Object.keys(data).map(key => {
+                let func = val => {
+                    return roundTo(data[key](val), 3);
+                };
+
+                return `${key}: ${func(rolls)}`;
+            }).join(', ');
+
+        return `${rollsString};\n\n${dataString}`;
     },
     pasta: (msg, pastaName) => {
         let pastaData = require("./data/pastas.json");
