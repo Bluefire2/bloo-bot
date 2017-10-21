@@ -153,6 +153,9 @@ commands = {
         let rollsString = rolls.join(' '),
             dataString = Object.keys(data).map(key => {
                 let func = val => {
+                    if (key === 'mode') {
+                        return `[${data[key](val)}]`;
+                    }
                     return roundTo(data[key](val), 3);
                 };
 
