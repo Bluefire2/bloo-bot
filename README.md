@@ -2,7 +2,7 @@
 A Discord bot with a bunch of random commands. Initially made for a RuneScape server but has many other features.
 
 ## How to use this bot
-Click (http://bit.ly/2yJBLPj)[this link] to go to the invite menu. Then select the server you want to invite the bot to, and click "Authorize". You must be the owner of the server in order to invite this bot (or any other bot).
+Click [this link](http://bit.ly/2yJBLPj) to go to the invite menu. Then select the server you want to invite the bot to, and click "Authorize". You must be the owner of the server in order to invite this bot (or any other bot).
 
 To use a command, type "<prefix>command-name argument1 argument2 etc". The default prefix is the tilde "~"; this can be changed using the setprefix command. To get help with a command and its usage, just type "<prefix>command-name". For a list of all commands, type "<prefix>help".
 
