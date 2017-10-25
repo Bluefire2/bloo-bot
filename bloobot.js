@@ -76,6 +76,9 @@ client.on('message', (msg) => {
         }
 
         switch (msg.content) {
+            /*
+             * Master commands. These commands do not depend on the prefix.
+             */
             case 'bloobotprefix':
                 // Master command that lists the prefix. This command must be independent of
                 // the current prefix and therefore cannot be handled by regular command logic.

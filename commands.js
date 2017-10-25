@@ -420,7 +420,11 @@ commands = {
         });
     },
     ree: (msg, i) => {
-        safeSendMsg(msg.channel, `R${Array(i + 1).join('E')}`);
+        if (typeof i === 'number') {
+            safeSendMsg(msg.channel, `R${Array(i + 1).join('E')}`);
+        } else {
+            msg.channel.send('Bad input');
+        }
     }
 
 };
