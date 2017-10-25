@@ -7,6 +7,7 @@ const mathjs = require('mathjs');
 const scv = require('./modules/scv.js');
 const cconvert = require('./modules/cconvert');
 const Timer = require('./modules/timer');
+const cmdData = require('./data/commands.json');
 
 const config = require('./config.json');
 
@@ -21,6 +22,43 @@ const DISCORD_CHAR_LIMIT = 2000;
 const MY_CHAR_LIMIT = 10000;
 
 const uptimeTimer = new Timer();
+
+const descString = (prefix, cmdName) => {
+    // output the command docstring
+    console.log(cmdData[cmdName]);
+    let currCmd = cmdData[cmdName],
+        outText = [];
+    // signature and descstring
+    let cmdParams = currCmd.params,
+        usageStr = prefix + cmdName + " <" + Object.keys(cmdParams).join("> <") + ">";
+
+    outText.push(usageStr);
+    outText.push(currCmd.desc + '\n');
+
+// parameters
+    for (let paramName in cmdParams) {
+        let paramDesc = cmdParams[paramName];
+        outText.push(paramName + ": " + paramDesc);
+    }
+
+// aliases
+    let aliases = currCmd.aliases;
+    if (Array.isArray(aliases)) {
+        // command has one or more aliases
+        let aliasesStr = 'Alias(es): ';
+
+        aliases.forEach((elem, index) => {
+            aliasesStr += elem;
+            if (index < aliases.length - 1) {
+                // if not the last element, add a comma for the next one
+                aliasesStr += ', ';
+            }
+        });
+        outText.push('\n' + aliasesStr);
+    }
+
+    return outText;
+};
 
 const removeWhitespace = (str) => {
     return str.replace(/ /g, '');
@@ -103,7 +141,7 @@ mathConstants = {
 };
 
 commands = {
-    help: (msg) => {
+    listcmd: (msg) => {
         let outText = 'Available commands:\n\n',
             commandsArray = [],
             cmdNames = Object.keys(commandDesc);
@@ -124,6 +162,15 @@ commands = {
 
         outText += commandsArray.join(', ');
         return outText;
+    },
+    help: (msg, cmdName) => {
+        let prefix = '<prefix>';
+        console.log(cmdData[cmdName]);
+        if (typeof cmdData[cmdName] === 'undefined') {
+            msg.channel.send('**Undefined command name** "' + cmdName + '"');
+        } else {
+            msg.channel.send('```' + descString(prefix, cmdName).join('\n') + '```');
+        }
     },
     uptime: (msg) => {
         const timeOnline = uptimeTimer.timeElapsedDhms();
@@ -441,5 +488,6 @@ commands = {
 
 module.exports = commands;
 
+module.exports.descString = descString;
 module.exports.safeSendMsg = safeSendMsg;
 module.exports.MY_CHAR_LIMIT = MY_CHAR_LIMIT;

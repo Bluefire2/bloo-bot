@@ -1,8 +1,15 @@
 {
-  "help": {
+  "listcmd": {
     "desc": "Lists all available commands",
     "params": {
 
+    },
+    "fn": "listcmd"
+  },
+  "help": {
+    "desc": "Gives usage information on a specific command",
+    "params": {
+      "cmd-name": "The command to get help with"
     },
     "fn": "help"
   },

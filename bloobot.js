@@ -113,16 +113,10 @@ client.on('message', (msg) => {
                         cmdExe(msg, parsedCmd.cmdName, parsedCmd.cmdArgs, prefix).then((out) => {
                             output = out;
                             console.log(parsedCmd);
-                            let outText = '';
 
-                            for (let i in output) {
-                                outText += output[i];
-                                if (i < output.length - 1) outText += '\n';
-                            }
-
-                            if (outText !== '') {
+                            if (output.length !== 0) {
                                 // send the message
-                                if (!cmd.safeSendMsg(msg.channel, '\n' + outText, '```')) {
+                                if (!cmd.safeSendMsg(msg.channel, output.join('\n'), '```')) {
                                     msg.channel.send(`Outbound message length greater than ${cmd.MY_CHAR_LIMIT} character limit.`);
                                 }
                             }
@@ -166,35 +160,7 @@ function cmdExe(msg, cmdName, args, prefix) {
     return new Promise((resolve, reject) => {
         new Promise((res, rej) => {
             if (args.length === 0 && paramsCount !== 0) {
-                // output the command docstring
-                // signature and descstring
-                let cmdParams = currCmd.params,
-                    usageStr = prefix + cmdName + " <" + Object.keys(cmdParams).join("> <") + ">";
-
-                outText.push(usageStr);
-                outText.push(currCmd.desc + '\n');
-
-                // parameters
-                for (let paramName in cmdParams) {
-                    let paramDesc = cmdParams[paramName];
-                    outText.push(paramName + ": " + paramDesc);
-                }
-
-                // aliases
-                let aliases = currCmd.aliases;
-                if (Array.isArray(aliases)) {
-                    // command has one or more aliases
-                    let aliasesStr = 'Alias(es): ';
-
-                    aliases.forEach((elem, index) => {
-                        aliasesStr += elem;
-                        if (index < aliases.length - 1) {
-                            // if not the last element, add a comma for the next one
-                            aliasesStr += ', ';
-                        }
-                    });
-                    outText.push('\n' + aliasesStr);
-                }
+                outText = cmd.descString(prefix, cmdName);
                 res();
             } else {
                 if (currCmd.admin && !msg.member.hasPermission('ADMINISTRATOR') && msg.member.id !== config.admin_snowflake) {
