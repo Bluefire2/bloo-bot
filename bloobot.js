@@ -154,7 +154,7 @@ client.login(loginToken);
 function cmdExe(msg, cmdName, args, prefix) {
     let currCmd = cmdData[cmdName],
         outText = [],
-        paramsCount = Object.keys(currCmd.params).length,
+        paramsCount = typeof currCmd.params === 'undefined' ? 0 : Object.keys(currCmd.params).length,
         channelID = msg.channel.id;
 
     return new Promise((resolve, reject) => {
