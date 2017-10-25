@@ -429,7 +429,6 @@ commands = {
             msg.channel.send('Bad input');
         }
     }
-
 };
 
 module.exports = commands;
