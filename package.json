@@ -2,7 +2,7 @@
   "name": "BlooBot",
   "version": "1.2.0",
   "description": "A Discord bot",
-  "main": "app.js",
+  "main": "bloobot.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -18,6 +18,7 @@
     "node-wikia": "0.0.3",
     "path": "^0.12.7",
     "runescape-api": "^1.0.9",
-    "sqlite": "^2.8.0"
+    "sqlite": "^2.8.0",
+    "typescript-require": "^0.2.9-1"
   }
 }
