@@ -6,12 +6,12 @@
     },
     "fn": "help"
   },
-  "import": {
-    "desc": "Zen",
+  "uptime": {
+    "desc": "Says how long the bot has been online for",
     "params": {
-      "this": "This."
+
     },
-    "fn": "import_fn"
+    "fn": "uptime"
   },
   "ping": {
     "desc": "Pings the bot",
@@ -157,6 +157,13 @@
       "value": "The values of the variables, for instance \"1, e, sqrt(x)\""
     },
     "fn": "setvars"
+  },
+  "import": {
+    "desc": "Zen",
+    "params": {
+      "this": "This."
+    },
+    "fn": "import_fn"
   },
   "ree": {
     "desc": "REEEEEs so you don't have to",

@@ -6,6 +6,7 @@ const mathjs = require('mathjs');
 
 const scv = require('./modules/scv.js');
 const cconvert = require('./modules/cconvert');
+const Timer = require('./modules/timer');
 
 const config = require('./config.json');
 
@@ -18,6 +19,8 @@ const ALPHABET = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'.split(''
 
 const DISCORD_CHAR_LIMIT = 2000;
 const MY_CHAR_LIMIT = 10000;
+
+const uptimeTimer = new Timer();
 
 const removeWhitespace = (str) => {
     return str.replace(/ /g, '');
@@ -121,6 +124,11 @@ commands = {
 
         outText += commandsArray.join(', ');
         return outText;
+    },
+    uptime: (msg) => {
+        const timeOnline = uptimeTimer.timeElapsedDhms();
+
+        msg.channel.send(`Online for ${timeOnline.days} days, ${timeOnline.hours} hours, ${timeOnline.minutes} minutes and ${timeOnline.seconds} seconds.`);
     },
     import_fn: (msg, text) => {
         if (text === 'this') {
