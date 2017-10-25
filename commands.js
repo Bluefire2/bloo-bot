@@ -29,8 +29,12 @@ const descString = (prefix, cmdName) => {
     let currCmd = cmdData[cmdName],
         outText = [];
     // signature and descstring
-    let cmdParams = currCmd.params,
-        usageStr = prefix + cmdName + " <" + Object.keys(cmdParams).join("> <") + ">";
+    let cmdParams = typeof currCmd.params === 'undefined' ? {} : currCmd.params, // huh
+        usageStr = prefix + cmdName;
+
+    if (Object.keys(cmdParams) === 0) {
+        usageStr += " <" + Object.keys(cmdParams).join("> <") + ">";
+    }
 
     outText.push(usageStr);
     outText.push(currCmd.desc + '\n');

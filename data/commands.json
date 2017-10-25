@@ -1,9 +1,6 @@
 {
   "listcmd": {
     "desc": "Lists all available commands",
-    "params": {
-
-    },
     "fn": "listcmd"
   },
   "help": {
@@ -22,9 +19,6 @@
   },
   "ping": {
     "desc": "Pings the bot",
-    "params": {
-
-    },
     "fn": "ping"
   },
   "roll": {
