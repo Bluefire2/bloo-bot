@@ -1,6 +1,6 @@
 const axios = require('axios');
 
-fns = {
+const fns = {
     rate: (from, to) => {
         return new Promise((resolve, reject) => {
             const url = `http://api.fixer.io/latest?base=${from}&symbols=${to}`;

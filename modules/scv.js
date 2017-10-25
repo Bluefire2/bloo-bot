@@ -18,7 +18,7 @@ const allowedVariables = [
     'prefix'
 ];
 
-scvFunctions = {
+const scvFunctions = {
     create: () => {
         sql.run(`CREATE TABLE ${CVTableName} (id bigint, prefix varchar(255))`);
     },
