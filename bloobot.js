@@ -11,7 +11,15 @@ const cmdData = require('./data/commands.json');
 const test = process.argv[2] === 'test';
 const loginToken = test ? config.test_token : config.token;
 
-const setVariableWithFallback = (channelID, variable) => {
+/**
+ * A function to deal with retrieving channel variables. If the variable is undefined, this function returns its
+ * default value.
+ *
+ * @param channelID The current channel ID.
+ * @param variable The name of the channel variable to be fetched.
+ * @returns {Promise} A promise that resolves with the value to be assigned to this variable in the current context.
+ */
+const getVariableWithFallback = (channelID, variable) => {
     // I FUCKING HATE THIS ASYNC HYPE GARBAGE
     // WHY THE FUCK DOES EVERYTHING IN THIS LANGUAGE HAVE TO BE ASYNC
     // THE SIMPLEST FUCKING THINGS ABSOLUTELY MUST BE ASYNC
@@ -31,15 +39,51 @@ const setVariableWithFallback = (channelID, variable) => {
     });
 };
 
+/**
+ * Updates all channel variables.
+ * TODO: fix this so it doesn't just update prefix but can iterate over a list of variables to update. Maybe use Promise.all?
+ *
+ * @param channelID The current channel ID.
+ * @returns {Promise} A promise that resolves when the variables have been updated.
+ */
 const updateVariables = (channelID) => {
     return new Promise((resolve, reject) => {
-        setVariableWithFallback(channelID, 'prefix').then(val => {
+        getVariableWithFallback(channelID, 'prefix').then(val => {
             allPrefixes[channelID + ''] = val;
             resolve();
         }).catch(err => {
             reject(err);
         });
     });
+};
+
+/**
+ * Checks if the string is an alias for some command.
+ * TODO: make this return a special string in case of no applicable command being found, for consistency
+ *
+ * @param alias The string to be cross-checked.
+ * @returns {*} The relevant command name if the string is an alias for some command, or false if not.
+ */
+const checkForAlias = (alias) => {
+    let cmdNames = Object.keys(cmdData),
+        out = '';
+
+    for (let i in cmdNames) {
+        let cmdName = cmdNames[i],
+            cmdObj = cmdData[cmdName],
+            aliases = cmdObj.aliases;
+        if (Array.isArray(aliases)) {
+            if (aliases.indexOf(alias) !== -1) {
+                out = cmdName;
+            }
+        }
+    }
+
+    if (out === '') {
+        return false;
+    } else {
+        return out;
+    }
 };
 
 // Global variables
@@ -53,9 +97,15 @@ client.on('ready', () => {
     // scv.listTable();
 });
 
+/*
+ * This triggers on every message. Use this to listen to commands and master commands.
+ */
 client.on('message', (msg) => {
     const channelID = msg.channel.id;
 
+    /*
+     * Update all variables if we're just starting up; if not then just resolve.
+     */
     const varRequest = new Promise((resolve, reject) => {
         if (!variablesLoaded) {
             updateVariables(channelID).then(() => {
@@ -67,6 +117,7 @@ client.on('message', (msg) => {
         }
     });
 
+    // once we've updated our variables (if we need to), try to parse a command
     varRequest.then(() => {
         let prefix = allPrefixes[channelID + ''];
 
@@ -106,14 +157,15 @@ client.on('message', (msg) => {
                     // message doesn't start with the prefix so do nothing
 
                 } else {
-                    console.log(msg.content);
+                    console.log(msg.content); // for debugging and just making sure it works
                     let parsedCmd = cmdParse(msg, prefix), // parse out the command and args
                         output;
                     if (parsedCmd) {
                         cmdExe(msg, parsedCmd.cmdName, parsedCmd.cmdArgs, prefix).then((out) => {
                             output = out;
-                            console.log(parsedCmd);
+                            console.log(parsedCmd); // same as above
 
+                            // if we need to output something that was returned from the command, then do so
                             if (output.length !== 0) {
                                 // send the message
                                 if (!cmd.safeSendMsg(msg.channel, output.join('\n'), '```')) {
@@ -149,7 +201,7 @@ client.login(loginToken);
  * @param cmdName The name of the command specified.
  * @param args The arguments given to the command.
  * @param prefix The command prefix currently in use.
- * @returns {Array} The text to be messaged inside ``, if any, line by line.
+ * @returns {Promise} A promise that resolves with an array of the text to be messaged inside ``, if any, line by line.
  */
 function cmdExe(msg, cmdName, args, prefix) {
     let currCmd = cmdData[cmdName],
@@ -285,26 +337,4 @@ function cmdParse(msg, prefix) {
         'cmdName': commandName,
         'cmdArgs': commandArgs
     };
-}
-
-function checkForAlias(alias) {
-    let cmdNames = Object.keys(cmdData),
-        out = '';
-
-    for (let i in cmdNames) {
-        let cmdName = cmdNames[i],
-            cmdObj = cmdData[cmdName],
-            aliases = cmdObj.aliases;
-        if (Array.isArray(aliases)) {
-            if (aliases.indexOf(alias) !== -1) {
-                out = cmdName;
-            }
-        }
-    }
-
-    if (out === '') {
-        return false;
-    } else {
-        return out;
-    }
 }

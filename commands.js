@@ -23,6 +23,14 @@ const MY_CHAR_LIMIT = 10000;
 
 const uptimeTimer = new Timer();
 
+/**
+ * Outputs the descstring for a command.
+ * TODO: rewrite this to not use the prefix?
+ *
+ * @param prefix The current prefix.
+ * @param cmdName The command name.
+ * @returns {Array} The descstring as an array, line by line.
+ */
 const descString = (prefix, cmdName) => {
     // output the command docstring
     console.log(cmdData[cmdName]);
@@ -39,13 +47,13 @@ const descString = (prefix, cmdName) => {
     outText.push(usageStr);
     outText.push(currCmd.desc + '\n');
 
-// parameters
+    // parameters
     for (let paramName in cmdParams) {
         let paramDesc = cmdParams[paramName];
         outText.push(paramName + ": " + paramDesc);
     }
 
-// aliases
+    // aliases
     let aliases = currCmd.aliases;
     if (Array.isArray(aliases)) {
         // command has one or more aliases
@@ -64,10 +72,26 @@ const descString = (prefix, cmdName) => {
     return outText;
 };
 
+/**
+ * Removes *all* whitespace from a string.
+ *
+ * @param str The string.
+ */
 const removeWhitespace = (str) => {
     return str.replace(/ /g, '');
 };
 
+/**
+ * Send a message that may or may not be longer than Discord's char limit. If it is not longer then just send it; if it
+ * is longer then split it into several sub-limit chunks, sending each one individually, and wrapping them all with a
+ * wrapper if needed (for example ``` ```) for code. However, if the message is way too long (longer than "my" char
+ * limit) then don't send it.
+ *
+ * @param channel The current channel (access using msg.channel from commands).
+ * @param text The text of the message to send.
+ * @param surround The wrapper for the message(s).
+ * @returns {boolean} true if the message was sent, false if it was not (due to excessive size).
+ */
 const safeSendMsg = (channel, text, surround = '') => {
     let localCharLim = DISCORD_CHAR_LIMIT - 2 * surround.length;
 
@@ -106,10 +130,21 @@ const roundTo = (n, digits) => {
     return +(test.toFixed(digits));
 };
 
+/**
+ * Formats a number with commas, e.g. 1234567 => 1,234,567
+ * @param x The number.
+ * @returns {string} The number formatted with commas.
+ */
 const numberWithCommas = (x) => {
     return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 };
 
+/**
+ * Maps the aura tier name to its slayer kill multiplier. Used in the `slayer` command.
+ *
+ * @param tier The name of the aura tier.
+ * @returns {*} The multiplier for the tier, or false if no such tier exists.
+ */
 const slayerAuraChance = (tier) => {
     let auraToTier = {
         "none": 1.0,
@@ -130,20 +165,39 @@ const slayerAuraChance = (tier) => {
     return 1 / (2 - multiplier); // expected value of geometric distribution
 };
 
+/**
+ * Generates a random integer in a specified range.
+ *
+ * @param min The lower bound for the range.
+ * @param max The upper bound for the range.
+ * @returns {number} The random integer.
+ */
 const randomInRange = (min, max) => {
     return Math.floor(Math.random() * (max + 1 - min)) + min;
 };
 
+/**
+ * Provides the link to a youtube video, given its youtube ID.
+ *
+ * @param id The video id.
+ * @returns {string} The link.
+ */
 const youtubeIDToLink = (id) => {
     return 'https://www.youtube.com/watch?v=' + id;
 };
 
+// Store the current math variables. These will expire on restart but will persist if the bot is kicked and then reinvited.
 let mathVariables = {};
 mathConstants = {
     pi: Math.PI,
     e: Math.E
 };
 
+/*
+ * The object that stores all the commands. Command functions must take at least one param, msg, which is the message
+ * that triggered the command. If the command is documented to take parameters in commmands.json, then the function
+ * should take those parameters, in the order that they're documented in.
+ */
 commands = {
     listcmd: (msg) => {
         let outText = 'Available commands:\n\n',
@@ -490,8 +544,8 @@ commands = {
     }
 };
 
+// export some stuff
 module.exports = commands;
-
 module.exports.descString = descString;
 module.exports.safeSendMsg = safeSendMsg;
 module.exports.MY_CHAR_LIMIT = MY_CHAR_LIMIT;

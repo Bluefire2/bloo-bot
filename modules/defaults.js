@@ -2,6 +2,7 @@ const path = require('path');
 
 const defaultCVFilePath = path.join(__dirname, '..', 'data', 'defaultCV.json');
 
+// TODO: fix this garbage
 module.exports = {
     /**
      * Gets the default value of a variable.

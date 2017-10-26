@@ -1,13 +1,32 @@
+/**
+ * A class to time things.
+ *
+ * YES, I do know that Momentjs is a thing. NO, I do not want to install a 10mb library to use one function.
+ */
 class Timer {
+    /**
+     * Starts the timer.
+     */
     constructor() {
         this.initTimestamp = Date.now();
     }
 
+    /**
+     * Measures the time elapsed since the timer was initiated.
+     *
+     * @returns {number} The time elapsed, in ms.
+     */
     timeElapsed() {
         let currTimestamp = Date.now();
         return currTimestamp - this.initTimestamp;
     }
 
+    /**
+     * Measures the time elapsed since the timer was initiated, in days-hours-minutes-seconds format.
+     *
+     * @returns {{days: number, hours: number, minutes: number, seconds: number}} A dictionary containing the number of
+     * days, hours, minutes and seconds elapsed.
+     */
     timeElapsedDhms() {
         const t = this.timeElapsed();
 
@@ -40,7 +59,11 @@ class Timer {
         return {"days": d, "hours": h, "minutes": m, "seconds": s};
     }
 
-    reset() {
+
+    /**
+     * Restarts the timer.
+     */
+    restart() {
         this.initTimestamp = Date.now();
     }
 }
