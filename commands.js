@@ -550,7 +550,7 @@ commands = {
             if (isNaN(val)) {
                 msg.channel.send("Oops, something went wrong. Check that your currencies are both valid!");
             } else {
-                msg.channel.send(`${currFromTemp} ${amount} is ${currToTemp} ${roundTo(val, dp)}`);
+                msg.channel.send(`${currFromTemp} ${amount} is ${currToTemp} ${roundTo(val, dp)}.`);
             }
         }).catch(err => {
             msg.channel.send("Oops, something went wrong. Check that your currencies are both valid!");
