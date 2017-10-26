@@ -92,6 +92,20 @@
     "fn": "convert",
     "aliases": ["co"]
   },
+  "currency": {
+    "desc": "Converts money from one currency to another",
+    "params": {
+      "value": "The amount of money",
+      "curr-from": "The currency to convert from",
+      "curr-to": "The currency to convert to",
+      "dp": "How many decimal places to round to, defaults to 2"
+    },
+    "fn": "currconvert",
+    "aliases": [
+      "cc",
+      "curr"
+    ]
+  },
   "b": {
     "desc": "B",
     "params": {

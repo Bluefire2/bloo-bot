@@ -541,6 +541,17 @@ commands = {
         } else {
             msg.channel.send('Bad input');
         }
+    },
+    currconvert: (msg, amount, currFrom, currTo, dp = 2) => {
+        cconvert.convert(amount, currFrom, currTo).then(val => {
+            if (isNaN(val)) {
+                msg.channel.send("Oops, something went wrong. Check that your currencies are both valid!");
+            } else {
+                msg.channel.send(`${currFrom} ${amount} is ${currTo} ${roundTo(val, dp)}`);
+            }
+        }).catch(err => {
+            msg.channel.send("Oops, something went wrong. Check that your currencies are both valid!");
+        });
     }
 };
 

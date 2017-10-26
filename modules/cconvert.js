@@ -13,10 +13,12 @@ const fns = {
      * @returns {Promise} A promise that resolves with the rate.
      */
     rate: (from, to) => {
+        let fromTemp = from.toUpperCase(),
+            toTemp = to.toUpperCase();
         return new Promise((resolve, reject) => {
-            const url = `http://api.fixer.io/latest?base=${from}&symbols=${to}`;
+            const url = `http://api.fixer.io/latest?base=${fromTemp}&symbols=${toTemp}`;
             axios.get(url).then(response => {
-                resolve(response.data.rates[to]);
+                resolve(response.data.rates[toTemp]);
             }).catch(err => {
                 reject(err);
             });
@@ -30,7 +32,7 @@ const fns = {
      * @param amount The amount to convert.
      * @returns {Promise} A promise that resolves with the amount in the new currency.
      */
-    convert: (from, to, amount) => {
+    convert: (amount, from, to) => {
         return new Promise((resolve, reject) => {
             fns.rate(from, to).then(exRate => {
                 resolve(exRate * amount);
