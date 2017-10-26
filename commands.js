@@ -536,8 +536,16 @@ commands = {
         });
     },
     ree: (msg, i) => {
-        if (typeof i === 'number') {
-            safeSendMsg(msg.channel, `R${Array(i + 1).join('E')}`);
+        if (typeof i === 'number' && i >= 0) {
+            let reeee = "R";
+
+            // can't use array shorthand for some reason
+            for (let j = 0; j < i; j++) {
+                reeee += "E";
+            }
+            if (!safeSendMsg(msg.channel, reeee)) {
+                msg.channel.send("Too long!");
+            }
         } else {
             msg.channel.send('Bad input');
         }
