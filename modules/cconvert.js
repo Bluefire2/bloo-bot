@@ -13,12 +13,10 @@ const fns = {
      * @returns {Promise} A promise that resolves with the rate.
      */
     rate: (from, to) => {
-        let fromTemp = from.toUpperCase(),
-            toTemp = to.toUpperCase();
         return new Promise((resolve, reject) => {
-            const url = `http://api.fixer.io/latest?base=${fromTemp}&symbols=${toTemp}`;
+            const url = `http://api.fixer.io/latest?base=${from}&symbols=${to}`;
             axios.get(url).then(response => {
-                resolve(response.data.rates[toTemp]);
+                resolve(response.data.rates[to]);
             }).catch(err => {
                 reject(err);
             });

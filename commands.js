@@ -543,11 +543,14 @@ commands = {
         }
     },
     currconvert: (msg, amount, currFrom, currTo, dp = 2) => {
-        cconvert.convert(amount, currFrom, currTo).then(val => {
+        currFromTemp = currFrom.toUpperCase();
+        currToTemp = currTo.toUpperCase();
+
+        cconvert.convert(amount, currFromTemp, currToTemp).then(val => {
             if (isNaN(val)) {
                 msg.channel.send("Oops, something went wrong. Check that your currencies are both valid!");
             } else {
-                msg.channel.send(`${currFrom} ${amount} is ${currTo} ${roundTo(val, dp)}`);
+                msg.channel.send(`${currFromTemp} ${amount} is ${currToTemp} ${roundTo(val, dp)}`);
             }
         }).catch(err => {
             msg.channel.send("Oops, something went wrong. Check that your currencies are both valid!");
