@@ -118,7 +118,7 @@ const checkForAlias = (alias) => {
 };
 
 // Global variables
-let variablesLoaded = false,
+let variablesLoaded = {},
     allPrefixes = {};
 
 client.on('ready', () => {
