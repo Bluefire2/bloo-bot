@@ -42,14 +42,14 @@ Then, create the command doc in `data\commands.json`, like so:
   "fn": "The name of the function in commands.js that implements the command (functionName)",
   <optional>
   "aliases": ["alias1", "alias2"] <-- aliases for the command,
-  "defaults": A number; if the command has any default parameters, specify how many here.
-  "update": "true" if the command changes a server variable,
-  "admin": "true" if the user needs to have admin privileges in the server to execute the command
+  "defaults": A number; if the command has any default parameters, specify how many here, defaults to 0,
+  "update": "true" if the command changes a server variable, defaults to false,
+  "admin": "true" if the user needs to have admin privileges in the server to execute the command, defaults to false
 },
 ...
 ```
 
-You *must* make the command doc otherwise the command will not work. If you do both of these steps correctly, calling the command is as simple as "\<prefix\>command-name argument1 argument2 etc".
+You *must* make the command doc otherwise the command will not work. If you do both of these steps correctly, calling the command is as simple as "\<prefix\>command-name argument1 argument2 etc". Note: command names are **case insensitive**!
 
 ### Contributing to the core code
 Feel free to do this if you're experienced with Node.js. I'll gladly look at any pull requests.

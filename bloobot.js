@@ -323,7 +323,7 @@ function cmdParse(msg, prefix) {
         commandArgs;
 
     if (firstSpace !== -1) {
-        commandName = cmdText.slice(0, firstSpace);  // get the command name
+        commandName = cmdText.slice(0, firstSpace).toLowerCase();  // get the command name
 
         if (typeof cmdData[commandName] === 'undefined') {
             const aliasCommand = checkForAlias(commandName);
@@ -360,7 +360,7 @@ function cmdParse(msg, prefix) {
             commandArgs.push(remainingArgs.join(' '));
         }
     } else {
-        commandName = cmdText;
+        commandName = cmdText.toLowerCase();
         commandArgs = [];
 
         if (typeof cmdData[commandName] === 'undefined') {

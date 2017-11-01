@@ -25,6 +25,16 @@ const sourceCodeURL = 'https://github.com/Bluefire2/bloo-bot';
 
 const uptimeTimer = new Timer();
 
+const polls = {};
+
+const pollOpen = (channelID) => {
+    return typeof polls[channelID] !== 'undefined';
+};
+
+const closePoll = (channelID) => {
+    delete polls[channelID];
+};
+
 /**
  * Outputs the descstring for a command.
  * TODO: rewrite this to not use the prefix?
@@ -35,19 +45,24 @@ const uptimeTimer = new Timer();
  */
 const descString = (prefix, cmdName) => {
     // output the command docstring
-    console.log(cmdData[cmdName]);
     let currCmd = cmdData[cmdName],
         outText = [];
     // signature and descstring
-    let cmdParams = typeof currCmd.params === 'undefined' ? {} : currCmd.params, // huh
-        usageStr = prefix + cmdName;
+    const cmdParams = typeof currCmd.params === 'undefined' ? {} : currCmd.params, // huh
+        admin = typeof currCmd.admin === 'undefined' ? false : currCmd.admin;
+    let usageStr = prefix + cmdName;
 
     if (Object.keys(cmdParams) === 0) {
         usageStr += " <" + Object.keys(cmdParams).join("> <") + ">";
     }
 
     outText.push(usageStr);
-    outText.push(currCmd.desc + '\n');
+    if (admin) {
+        outText.push(currCmd.desc + ' (requires admin privileges)');
+    } else {
+        outText.push(currCmd.desc);
+    }
+    outText.push('\n');
 
     // parameters
     for (let paramName in cmdParams) {
@@ -190,8 +205,8 @@ const youtubeIDToLink = (id) => {
 };
 
 // Store the current math variables. These will expire on restart but will persist if the bot is kicked and then reinvited.
-let mathVariables = {};
-mathConstants = {
+const mathVariables = {},
+    mathConstants = {
     pi: Math.PI,
     e: Math.E
 };
@@ -201,7 +216,7 @@ mathConstants = {
  * that triggered the command. If the command is documented to take parameters in commmands.json, then the function
  * should take those parameters, in the order that they're documented in.
  */
-commands = {
+const commands = {
     listcmd: (msg) => {
         let outText = 'Available commands:\n\n',
             commandsArray = [],
@@ -210,9 +225,14 @@ commands = {
         for (let i in cmdNames) {
             let commandName = cmdNames[i],
                 commandEntry = '',
-                aliasesArray = commandDesc[commandName].aliases;
+                aliasesArray = commandDesc[commandName].aliases,
+                admin = typeof commandDesc[commandName].admin === 'undefined' ? false : commandDesc[commandName].admin;
 
-            commandEntry += commandName;
+            if (admin) {
+                commandEntry += commandName.toUpperCase();
+            } else {
+                commandEntry += commandName;
+            }
 
             if (Array.isArray(aliasesArray)) {
                 commandEntry += ' (' + aliasesArray.join(', ') + ')';
