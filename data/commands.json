@@ -13,7 +13,6 @@
   "uptime": {
     "desc": "Says how long the bot has been online for",
     "params": {
-
     },
     "fn": "uptime"
   },
@@ -35,6 +34,17 @@
     },
     "fn": "roll"
   },
+  "flipcoin": {
+    "desc": "Flips a coin",
+    "params": {
+    },
+    "fn": "flipcoin",
+    "aliases": [
+      "coin",
+      "flip",
+      "toss"
+    ]
+  },
   "pasta": {
     "desc": "Outputs a copypasta specified by the input parameters",
     "params": {
@@ -49,7 +59,9 @@
       "amount": "The amount of this item, defaults to 1"
     },
     "fn": "priceCheck",
-    "aliases": ["pc"]
+    "aliases": [
+      "pc"
+    ]
   },
   "slayer": {
     "desc": "Calculates xp gained from your slayer task",
@@ -67,7 +79,9 @@
       "lang": "The wikipedia language, defaults to en"
     },
     "fn": "wikipedia",
-    "aliases": ["wp"]
+    "aliases": [
+      "wp"
+    ]
   },
   "translate": {
     "desc": "Translates a phrase from one language to another",
@@ -77,7 +91,9 @@
       "text": "The text to be translated"
     },
     "fn": "translate",
-    "aliases": ["t"]
+    "aliases": [
+      "t"
+    ]
   },
   "1rm": {
     "desc": "Calculates one rep max using the Epley formula",
@@ -96,7 +112,9 @@
       "dp": "How many decimal places to round to, defaults to 2"
     },
     "fn": "convert",
-    "aliases": ["co"]
+    "aliases": [
+      "co"
+    ]
   },
   "currency": {
     "desc": "Converts money from one currency to another",
@@ -115,7 +133,6 @@
   "b": {
     "desc": "B",
     "params": {
-
     },
     "fn": "b"
   },
@@ -125,7 +142,9 @@
       "query": "What to search for"
     },
     "fn": "youtube",
-    "aliases": ["yt"]
+    "aliases": [
+      "yt"
+    ]
   },
   "prettify": {
     "desc": "Prettifies text!",
@@ -133,7 +152,9 @@
       "text": "The text to be prettified"
     },
     "fn": "prettify",
-    "aliases": ["ptfy"]
+    "aliases": [
+      "ptfy"
+    ]
   },
   "cyrillify": {
     "desc": "Turns latin text into Cyrillic",
@@ -141,7 +162,9 @@
       "text": "Text to be Cyrillified"
     },
     "fn": "cyrillify",
-    "aliases": ["cyr"]
+    "aliases": [
+      "cyr"
+    ]
   },
   "setprefix": {
     "desc": "Sets the command prefix for this channel",

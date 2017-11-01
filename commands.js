@@ -282,6 +282,10 @@ commands = {
 
         return `${rollsString};\n\n${dataString}`;
     },
+    flipcoin: (msg) => {
+        let HorT = randomInRange(0, 1) === 1 ? 'heads' : 'tails';
+        msg.reply(HorT);
+    },
     pasta: (msg, pastaName) => {
         let pastaData = require("./data/pastas.json");
         if (pastaName !== 'list') {
