@@ -227,7 +227,8 @@ client.on('guildMemberAdd', member => {
 client.login(loginToken);
 
 /**
- * Executes a command using the function reference found in the command documentation file.
+ * Executes a command using the function reference found in the command documentation file. This function is supposed to
+ * be called after cmdParse, and take the command name and command args from its output.
  *
  * @param msg The message that requested the command to be executed.
  * @param cmdName The name of the command specified.
@@ -236,10 +237,13 @@ client.login(loginToken);
  * @returns {Promise} A promise that resolves with an array of the text to be messaged inside ``, if any, line by line.
  */
 function cmdExe(msg, cmdName, args, prefix) {
-    let currCmd = cmdData[cmdName],
-        outText = [],
+    const currCmd = cmdData[cmdName],
+        // note: paramsCount DOES include default parameters!!!
         paramsCount = typeof currCmd.params === 'undefined' ? 0 : Object.keys(currCmd.params).length,
+        defaultsCount = typeof currCmd.defaults === 'undefined' ? 0 : currCmd.defaults,
         channelID = msg.channel.id;
+
+    let outText = [];
 
     return new Promise((resolve, reject) => {
         new Promise((res, rej) => {
@@ -247,17 +251,20 @@ function cmdExe(msg, cmdName, args, prefix) {
                 outText = cmd.descString(prefix, cmdName);
                 res();
             } else {
-                if (currCmd.admin && !sentByAdminOrMe(msg)) {
+                if (currCmd.admin && !sentByAdminOrMe(msg)) { // check for privileges if the command requires them
                     outText = ['The command ' + cmdName + ' requires administrator privileges.'];
                     res();
+                } else if (args.length < paramsCount - defaultsCount) { // check if the number of args is correct
+                    outText = [`The command ${cmdName} requires at least ${paramsCount - defaultsCount} arguments; received ${args.length}.`];
+                    res();
                 } else {
-                    let func = cmd[currCmd.fn];
+                    const func = cmd[currCmd.fn],
+                        fullArgs = args.slice(0);
 
-                    let fullArgs = args.slice(0);
                     fullArgs.unshift(msg);
 
                     // call the command function:
-                    let moreText = func.apply(this, fullArgs);
+                    const moreText = func.apply(this, fullArgs);
 
                     // process result
                     if (typeof moreText === 'string') {
@@ -308,17 +315,18 @@ function cmdExe(msg, cmdName, args, prefix) {
  * command exists.
  */
 function cmdParse(msg, prefix) {
-    let cmdString = msg.content,
+    const cmdString = msg.content,
         cmdText = cmdString.slice(prefix.length), // take out the prefix
-        firstSpace = cmdText.indexOf(' '),
-        commandName,
+        firstSpace = cmdText.indexOf(' ');
+
+    let commandName,
         commandArgs;
 
     if (firstSpace !== -1) {
         commandName = cmdText.slice(0, firstSpace);  // get the command name
 
         if (typeof cmdData[commandName] === 'undefined') {
-            let aliasCommand = checkForAlias(commandName);
+            const aliasCommand = checkForAlias(commandName);
             if (aliasCommand) {
                 commandName = aliasCommand;
             } else {
@@ -327,24 +335,26 @@ function cmdParse(msg, prefix) {
             }
         }
 
+        // parse out the command args
         commandArgs = cmdText.slice(firstSpace).match(/"(?:\\"|\\\\|[^"])*"|\S+/g)
             .map((elem) => {
+                let out;
+                // check if it's in quotes
                 if (elem.charAt(0) === '"' && elem.charAt(elem.length - 1) === '"') {
-                    return elem.slice(1, elem.length - 1);
+                    out = elem.slice(1, elem.length - 1);
                 } else {
-                    return elem;
+                    out = elem;
                 }
-            })
-            .map((elem) => {
-                return isNaN(elem) ? elem : +elem; // convert to number if numerical
-            }); // get the args
+                // convert to number if numerical
+                return isNaN(out) ? out : +out;
+            });
 
         // if too many args have been received:
         let paramsCount = Object.keys(cmdData[commandName].params).length;
 
         if (commandArgs.length > paramsCount) {
             // too many args received, so condense the remainder into one argument
-            let remainingArgs = commandArgs.slice(paramsCount - 1, commandArgs.length);
+            const remainingArgs = commandArgs.slice(paramsCount - 1, commandArgs.length);
 
             commandArgs = commandArgs.slice(0, paramsCount - 1);
             commandArgs.push(remainingArgs.join(' '));
@@ -354,7 +364,7 @@ function cmdParse(msg, prefix) {
         commandArgs = [];
 
         if (typeof cmdData[commandName] === 'undefined') {
-            let aliasCommand = checkForAlias(commandName);
+            const aliasCommand = checkForAlias(commandName);
             console.log(commandName, aliasCommand);
             if (aliasCommand) {
                 commandName = aliasCommand;

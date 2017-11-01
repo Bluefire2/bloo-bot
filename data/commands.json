@@ -32,7 +32,8 @@
       "sides": "The amount of sides per die",
       "dice": "The amount of dice to roll, defaults to 1"
     },
-    "fn": "roll"
+    "fn": "roll",
+    "defaults": 1
   },
   "flipcoin": {
     "desc": "Flips a coin",
@@ -61,7 +62,8 @@
     "fn": "priceCheck",
     "aliases": [
       "pc"
-    ]
+    ],
+    "defaults": 1
   },
   "slayer": {
     "desc": "Calculates xp gained from your slayer task",
@@ -70,7 +72,8 @@
       "amount": "The number of kills assigned, defaults to 1",
       "aura": "The tier of the slayer aura used, defaults to 0"
     },
-    "fn": "slayer"
+    "fn": "slayer",
+    "defaults": 2
   },
   "wikipedia": {
     "desc": "Links to the first result on wikipedia",
@@ -81,7 +84,8 @@
     "fn": "wikipedia",
     "aliases": [
       "wp"
-    ]
+    ],
+    "defaults": 1
   },
   "translate": {
     "desc": "Translates a phrase from one language to another",
@@ -114,7 +118,8 @@
     "fn": "convert",
     "aliases": [
       "co"
-    ]
+    ],
+    "defaults": 1
   },
   "currency": {
     "desc": "Converts money from one currency to another",
@@ -128,7 +133,8 @@
     "aliases": [
       "cc",
       "curr"
-    ]
+    ],
+    "defaults": 1
   },
   "b": {
     "desc": "B",

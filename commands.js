@@ -95,6 +95,7 @@ const removeWhitespace = (str) => {
  * @returns {boolean} true if the message was sent, false if it was not (due to excessive size).
  */
 const safeSendMsg = (channel, text, surround = '') => {
+    // TODO: Implement optional "smart" mode where it tries to not cut off in the middle of words
     let localCharLim = DISCORD_CHAR_LIMIT - 2 * surround.length;
 
     if (text.length > MY_CHAR_LIMIT) {

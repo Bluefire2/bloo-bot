@@ -4,7 +4,7 @@ A Discord bot with a bunch of random commands. Initially made for a RuneScape se
 ## How to use this bot
 Click [this link](http://bit.ly/2yJBLPj) to go to the invite menu. Then select the server you want to invite the bot to, and click "Authorize". You must be the owner of the server in order to invite this bot (or any other bot).
 
-To use a command, type "<prefix>command-name argument1 argument2 etc". The default prefix is the tilde "~"; this can be changed using the setprefix command. To get help with a command and its usage, just type "<prefix>command-name". For a list of all commands, type "<prefix>help".
+To use a command, type "\<prefix\>command-name argument1 argument2 etc". The default prefix is the tilde "~"; this can be changed using the setprefix command. To get help with a command and its usage, just type "\<prefix\>command-name". For a list of all commands, type "\<prefix\>help".
 
 ## How to contribute
 If you want to contribute, you can either add new commands, which I've made quite easy, or change the actual core code itself.
@@ -42,13 +42,14 @@ Then, create the command doc in `data\commands.json`, like so:
   "fn": "The name of the function in commands.js that implements the command (functionName)",
   <optional>
   "aliases": ["alias1", "alias2"] <-- aliases for the command,
+  "defaults": A number; if the command has any default parameters, specify how many here.
   "update": "true" if the command changes a server variable,
   "admin": "true" if the user needs to have admin privileges in the server to execute the command
 },
 ...
 ```
 
-You *must* make the command doc otherwise the command will not work. If you do both of these steps correctly, calling the command is as simple as "<prefix>command-name argument1 argument2 etc".
+You *must* make the command doc otherwise the command will not work. If you do both of these steps correctly, calling the command is as simple as "\<prefix\>command-name argument1 argument2 etc".
 
 ### Contributing to the core code
 Feel free to do this if you're experienced with Node.js. I'll gladly look at any pull requests.
