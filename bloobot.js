@@ -138,10 +138,10 @@ client.on('message', (msg) => {
      * Update all variables if we're just starting up; if not then just resolve.
      */
     const varRequest = new Promise((resolve, reject) => {
-        if (!variablesLoaded) {
+        if (!variablesLoaded[channelID]) {
             updateVariables(channelID).then(() => {
                 resolve();
-                variablesLoaded = true;
+                variablesLoaded[channelID] = true;
             });
         } else {
             resolve();
