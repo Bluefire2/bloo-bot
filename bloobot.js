@@ -153,8 +153,9 @@ client.on('message', (msg) => {
         let prefix = allPrefixes[channelID + ''];
 
         if (typeof prefix === 'undefined') {
-            allPrefixes[channelID + ''] = defaults.get('prefix');
-            prefix = defaults.get('prefix');
+            let p = defaults.get('prefix');
+            allPrefixes[channelID + ''] = p;
+            prefix = p;
         }
 
         switch (msg.content) {
