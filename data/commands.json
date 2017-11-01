@@ -17,6 +17,12 @@
     },
     "fn": "uptime"
   },
+  "source": {
+    "desc": "Links to the bot's source code",
+    "params": {
+    },
+    "fn": "source"
+  },
   "ping": {
     "desc": "Pings the bot",
     "fn": "ping"

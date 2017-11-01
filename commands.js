@@ -21,6 +21,8 @@ const ALPHABET = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'.split(''
 const DISCORD_CHAR_LIMIT = 2000;
 const MY_CHAR_LIMIT = 10000;
 
+const sourceCodeURL = 'https://github.com/Bluefire2/bloo-bot';
+
 const uptimeTimer = new Timer();
 
 /**
@@ -244,6 +246,9 @@ commands = {
         console.log(Date.now(), msg.createdTimestamp);
         let pingTime = (Date.now() - msg.createdTimestamp);
         msg.channel.send('Pong! ' + pingTime + 'ms');
+    },
+    source: (msg) => {
+        msg.channel.send(`**Source code at** ${sourceCodeURL}`);
     },
     roll: (msg, sides, dice = 1) => {
         let rolls = [];
