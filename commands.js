@@ -694,56 +694,70 @@ const commands = {
             } else {
                 msg.channel.send('Must be admin to close or delete a poll.');
             }
-        } else if (action === 'tally') {
+        } else if (action === 'tally' || action === 'show') {
             if (pollExists()) {
                 const currPoll = polls[channelID],
                     votes = currPoll.votes,
+                    options = currPoll.options,
                     tally = {},
                     outText = [];
 
-                currPoll.options.forEach(elem => {
+                let totalVotes = 0;
+
+                options.forEach(elem => {
                     tally[elem] = 0;
                 });
 
                 Object.keys(votes).forEach(key => {
                     const vote = votes[key],
-                        optionSelected = currPoll.options[vote - 1];
+                        optionSelected = options[vote - 1];
 
                     tally[optionSelected]++;
+                    totalVotes++;
                 });
 
-                outText.push('Tally of all the votes:\n');
+                outText.push('Poll results so far:\n');
                 console.log(tally);
                 Object.keys(tally).forEach(key => {
-                    const count = tally[key];
+                    const count = tally[key],
+                        percentage = roundTo(count / totalVotes * 100, 2);
 
-                    outText.push(`${key}: ${count} votes`);
+                    outText.push(`${options.indexOf(key) + 1}. ${key}: ${count} votes (${percentage}%)`);
                 });
 
                 return outText;
             } else {
-                msg.channel.send('No poll to tally!');
-            }
-        } else if (action === 'show') {
-            if (pollExists()) {
-                const currPoll = polls[channelID],
-                    outText = [];
-
-                outText.push('Poll options:\n');
-
-                currPoll.options.forEach((elem, index) => {
-                    outText.push(`${index + 1}: ${elem}`);
-                });
-
-                return outText;
-            } else {
-                msg.channel.send('No poll to show!');
+                msg.channel.send('No poll active.');
             }
         } else {
             msg.channel.send(`Invalid poll action "${action}"`);
         }
     },
     vote: (msg, option) => {
+        const channelID = msg.channel.id;
+
+        const pollExists = () => {
+            return typeof polls[channelID] !== 'undefined';
+        };
+
+        const userID = msg.author.id,
+            userName = msg.author.username;
+
+        if (pollExists()) {
+            const poll = polls[channelID],
+                i = poll.options.indexOf(option);
+
+            if (i !== -1) {
+                commands.votei(msg, i + 1);
+            } else {
+                msg.channel.send(`No such option "${option}".`);
+            }
+        } else {
+            // delegate and let votei raise the error
+            commands.votei(msg, -1);
+        }
+    },
+    votei: (msg, optionIndex) => {
         const channelID = msg.channel.id;
 
         const pollExists = () => {
@@ -761,14 +775,14 @@ const commands = {
             if (pollOpen()) {
                 const poll = polls[channelID];
 
-                if (0 < option && option <= poll.options.length) {
+                if (0 < optionIndex && optionIndex <= poll.options.length) {
                     if (typeof poll.votes === 'undefined') {
                         poll.votes = {};
                     }
 
-                    poll.votes[userID] = option;
+                    poll.votes[userID] = optionIndex;
 
-                    msg.channel.send(`**Successfully voted for**: "${poll.options[option - 1]}".`);
+                    msg.channel.send(`**Successfully voted for**: "${poll.options[optionIndex - 1]}".`);
                 } else {
                     msg.channel.send('Invalid option index.');
                 }

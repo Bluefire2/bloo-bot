@@ -218,7 +218,7 @@
   "ree": {
     "desc": "REEEEEs so you don't have to",
     "params": {
-      "i": "How much to REEEEE"
+      "len": "How much to REEEEE"
     },
     "fn": "ree"
   },
@@ -226,7 +226,7 @@
     "desc": "Creates a poll",
     "params": {
       "action": "What to do: open, close, create, delete, show",
-      "options": "The options for the poll, if creating a new poll"
+      "options": "The options for the poll, if creating a new poll, separated by spaces. For multi-word options, use parentheses."
     },
     "fn": "poll",
     "defaults": 1
@@ -234,8 +234,15 @@
   "vote": {
     "desc": "Vote on the current poll",
     "params": {
-      "option": "The index of the option you want to vote for; run 'poll show' to get a list of the indices"
+      "option": "The name of the option you want to vote for; run 'poll show' to get a list of the options"
     },
     "fn": "vote"
+  },
+  "votei": {
+    "desc": "Vote on the current poll, by index",
+    "params": {
+      "option": "The index of the option you want to vote for; run 'poll show' to get a list of the indices"
+    },
+    "fn": "votei"
   }
 }
