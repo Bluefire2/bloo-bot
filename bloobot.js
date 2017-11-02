@@ -192,7 +192,6 @@ client.on('message', (msg) => {
                     console.log(msg.content); // for debugging and just making sure it works
                     let parsedCmd = cmdParse(msg, prefix), // parse out the command and args
                         output;
-
                     if (parsedCmd) {
                         cmdExe(msg, parsedCmd.cmdName, parsedCmd.cmdArgs, prefix).then((out) => {
                             output = out;
