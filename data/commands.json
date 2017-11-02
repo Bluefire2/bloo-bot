@@ -226,7 +226,7 @@
     "desc": "Creates a poll",
     "params": {
       "action": "What to do: open, close, create, delete, show",
-      "options": "The options for the poll, if creating a new poll, separated by spaces. For multi-word options, use parentheses."
+      "options": "The options for the poll, if creating a new poll, separated by semicolons."
     },
     "fn": "poll",
     "defaults": 1

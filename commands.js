@@ -668,7 +668,7 @@ const commands = {
                 if (optionsStr === '') {
                     msg.channel.send('Must specify poll options!');
                 }
-                const options = optionsStr.match(/\([^\)]+\)|\S+/g).map(x => x.replace(/[\(\)]/g, ""));
+                const options = optionsStr.split(';').map(string => string.trim());
                 if (!Array.isArray(options) || options.length < 2) {
                     msg.channel.send('Must have more than one option!');
                     return;
