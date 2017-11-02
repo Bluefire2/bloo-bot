@@ -221,5 +221,21 @@
       "i": "How much to REEEEE"
     },
     "fn": "ree"
+  },
+  "poll": {
+    "desc": "Creates a poll",
+    "params": {
+      "action": "What to do: open, close, create, delete, show",
+      "options": "The options for the poll, if creating a new poll"
+    },
+    "fn": "poll",
+    "defaults": 1
+  },
+  "vote": {
+    "desc": "Vote on the current poll",
+    "params": {
+      "option": "The index of the option you want to vote for; run 'poll show' to get a list of the indices"
+    },
+    "fn": "vote"
   }
 }

@@ -27,14 +27,6 @@ const uptimeTimer = new Timer();
 
 const polls = {};
 
-const pollOpen = (channelID) => {
-    return typeof polls[channelID] !== 'undefined';
-};
-
-const closePoll = (channelID) => {
-    delete polls[channelID];
-};
-
 /**
  * Outputs the descstring for a command.
  * TODO: rewrite this to not use the prefix?
@@ -52,7 +44,7 @@ const descString = (prefix, cmdName) => {
         admin = typeof currCmd.admin === 'undefined' ? false : currCmd.admin;
     let usageStr = prefix + cmdName;
 
-    if (Object.keys(cmdParams) === 0) {
+    if (Object.keys(cmdParams).length !== 0) {
         usageStr += " <" + Object.keys(cmdParams).join("> <") + ">";
     }
 
@@ -593,6 +585,161 @@ const commands = {
         }).catch(err => {
             msg.channel.send("Oops, something went wrong. Check that your currencies are both valid!");
         });
+    },
+    poll: (msg, action, optionsStr = '') => {
+        const channelID = msg.channel.id;
+
+        const pollExists = () => {
+            return typeof polls[channelID] !== 'undefined';
+        };
+
+        const createPoll = () => {
+            polls[channelID] = {};
+            return polls[channelID];
+        };
+
+        const deletePoll = () => {
+            delete polls[channelID];
+        };
+
+        const pollOpen = () => {
+            polls[channelID].open = true;
+        };
+
+        const openPoll = () => {
+            polls[channelID].open = true;
+        };
+
+        const closePoll = () => {
+            polls[channelID].open = false;
+        };
+
+        if (action === 'open') {
+            if (pollExists()) {
+                openPoll();
+                msg.channel.send('**Poll opened.**');
+            } else {
+                msg.channel.send('No poll to open!');
+            }
+        } else if (action === 'close') {
+            if (pollExists()) {
+                closePoll();
+                msg.channel.send('**Poll closed.**');
+            } else {
+                msg.channel.send('No poll to close!');
+            }
+        } else if (action === 'create') {
+            if (!pollExists()) {
+                // validate input:
+                if (optionsStr === '') {
+                    msg.channel.send('Must specify poll options!');
+                }
+                const options = optionsStr.match(/\([^\)]+\)|\S+/g).map(x => x.replace(/[\(\)]/g, ""));
+                if (!Array.isArray(options) || options.length < 2) {
+                    msg.channel.send('Must have more than one option!');
+                    return;
+                }
+                // do stuff
+                polls[channelID] = {
+                    open: true,
+                    votes: {},
+                    options: options
+                };
+                msg.channel.send('**New poll created and opened.**');
+            } else {
+                msg.channel.send('Delete the current poll before creating a new one!');
+            }
+        } else if (action === 'delete') {
+            if (pollExists()) {
+                deletePoll();
+                msg.channel.send('**Current poll deleted.**');
+            } else {
+                msg.channel.send('No poll to delete!');
+            }
+        } else if (action === 'tally') {
+            if (pollExists()) {
+                const currPoll = polls[channelID],
+                    votes = currPoll.votes,
+                    tally = {},
+                    outText = [];
+
+                currPoll.options.forEach(elem => {
+                    tally[elem] = 0;
+                });
+
+                Object.keys(votes).forEach(key => {
+                    const vote = votes[key],
+                        optionSelected = currPoll.options[vote - 1];
+
+                    tally[optionSelected]++;
+                });
+
+                outText.push('Tally of all the votes:\n');
+                console.log(tally);
+                Object.keys(tally).forEach(key => {
+                    const count = tally[key];
+
+                    outText.push(`${key}: ${count} votes`);
+                });
+
+                return outText;
+            } else {
+                msg.channel.send('No poll to tally!');
+            }
+        } else if (action === 'show') {
+            if (pollExists()) {
+                const currPoll = polls[channelID],
+                    outText = [];
+
+                outText.push('Poll options:\n');
+
+                currPoll.options.forEach((elem, index) => {
+                    outText.push(`${index + 1}: ${elem}`);
+                });
+
+                return outText;
+            } else {
+                msg.channel.send('No poll to show!');
+            }
+        } else {
+            msg.channel.send(`Invalid poll action "${action}"`);
+        }
+    },
+    vote: (msg, option) => {
+        const channelID = msg.channel.id;
+
+        const pollExists = () => {
+            return typeof polls[channelID] !== 'undefined';
+        };
+
+        const pollOpen = () => {
+            return polls[channelID].open;
+        };
+
+        const userID = msg.author.id,
+            userName = msg.author.username;
+
+        if (pollExists()) {
+            if (pollOpen()) {
+                const poll = polls[channelID];
+
+                if (0 < option && option <= poll.options.length) {
+                    if (typeof poll.votes === 'undefined') {
+                        poll.votes = {};
+                    }
+
+                    poll.votes[userID] = option;
+
+                    msg.channel.send(`**Successfully voted for**: "${poll.options[option - 1]}".`);
+                } else {
+                    msg.channel.send('Invalid option index.');
+                }
+            } else {
+                msg.channel.send('Current poll is closed.');
+            }
+        } else {
+            msg.channel.send('No poll active!');
+        }
     }
 };
 
