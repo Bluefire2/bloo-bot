@@ -294,6 +294,13 @@ const commands = {
         msg.channel.send(`**Source code at** ${sourceCodeURL}`);
     },
     roll: (msg, sides, dice = 1) => {
+        // validate input:
+        // TODO: specify parameter types in commands.json and perform type checking in cmdExe
+        if (typeof sides !== 'number' || typeof dice !== number) {
+            msg.channel.send('Invalid input.');
+            return;
+        }
+
         let rolls = [];
 
         for (let i = 0; i < dice; i++) {
