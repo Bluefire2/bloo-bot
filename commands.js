@@ -722,7 +722,14 @@ const commands = {
                     const count = tally[key],
                         percentage = roundTo(count / totalVotes * 100, 2);
 
-                    outText.push(`${options.indexOf(key) + 1}. ${key}: ${count} votes (${percentage}%)`);
+                    let currentCountString = `${options.indexOf(key) + 1}. ${key}: ${count} votes`;
+
+                    if (!isNaN(percentage)) {
+                        // if no votes have been case, percentage gets evaluated to NaN
+                        currentCountString += ' ' + `(${percentage}%)`;
+                    }
+
+                    outText.push(currentCountString);
                 });
 
                 return outText;
