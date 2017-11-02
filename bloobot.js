@@ -12,36 +12,6 @@ const test = process.argv[2] === 'test';
 const loginToken = test ? config.test_token : config.token;
 
 /**
- * Determines if the message was sent by a server admin.
- *
- * @param msg The message sent.
- * @returns {boolean} true if sent by an admin, false otherwise.
- */
-const sentByAdmin = (msg) => {
-    return msg.member.hasPermission('ADMINISTRATOR');
-};
-
-/**
- * Determines if the message was sent by a me (user running the bot).
- *
- * @param msg The message sent.
- * @returns {boolean} true if sent by me, false otherwise.
- */
-const sentByMe = (msg) => {
-    return msg.member.id === config.admin_snowflake;
-};
-
-/**
- * Determines if the message was sent by a server admin, or by me (user running the bot).
- *
- * @param msg The message sent.
- * @returns {boolean} true if sent by an admin or me, false otherwise.
- */
-const sentByAdminOrMe = (msg) => {
-    return sentByAdmin(msg) || sentByMe(msg);
-};
-
-/**
  * A function to deal with retrieving channel variables. If the variable is undefined, this function returns its
  * default value.
  *
@@ -172,7 +142,7 @@ client.on('message', (msg) => {
                 // Master command that resets the prefix to ~.
 
                 // admins only (and me)
-                if (sentByAdminOrMe(msg)) {
+                if (cmd.sentByAdminOrMe(msg)) {
                     cmd.setPrefix(msg, '~').then(() => {
                         return updateVariables(channelID);
                     }).then(() => {
@@ -251,7 +221,7 @@ function cmdExe(msg, cmdName, args, prefix) {
                 outText = cmd.descString(prefix, cmdName);
                 res();
             } else {
-                if (currCmd.admin && !sentByAdminOrMe(msg)) { // check for privileges if the command requires them
+                if (currCmd.admin && !cmd.sentByAdminOrMe(msg)) { // check for privileges if the command requires them
                     outText = ['The command ' + cmdName + ' requires administrator privileges.'];
                     res();
                 } else if (args.length < paramsCount - defaultsCount) { // check if the number of args is correct

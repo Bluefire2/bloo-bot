@@ -28,6 +28,36 @@ const uptimeTimer = new Timer();
 const polls = {};
 
 /**
+ * Determines if the message was sent by a server admin.
+ *
+ * @param msg The message sent.
+ * @returns {boolean} true if sent by an admin, false otherwise.
+ */
+const sentByAdmin = (msg) => {
+    return msg.member.hasPermission('ADMINISTRATOR');
+};
+
+/**
+ * Determines if the message was sent by a me (user running the bot).
+ *
+ * @param msg The message sent.
+ * @returns {boolean} true if sent by me, false otherwise.
+ */
+const sentByMe = (msg) => {
+    return msg.member.id === config.admin_snowflake;
+};
+
+/**
+ * Determines if the message was sent by a server admin, or by me (user running the bot).
+ *
+ * @param msg The message sent.
+ * @returns {boolean} true if sent by an admin or me, false otherwise.
+ */
+const sentByAdminOrMe = (msg) => {
+    return sentByAdmin(msg) || sentByMe(msg);
+};
+
+/**
  * Outputs the descstring for a command.
  * TODO: rewrite this to not use the prefix?
  *
@@ -622,11 +652,15 @@ const commands = {
                 msg.channel.send('No poll to open!');
             }
         } else if (action === 'close') {
-            if (pollExists()) {
-                closePoll();
-                msg.channel.send('**Poll closed.**');
+            if (sentByAdminOrMe(msg)) {
+                if (pollExists()) {
+                    closePoll();
+                    msg.channel.send('**Poll closed.**');
+                } else {
+                    msg.channel.send('No poll to close!');
+                }
             } else {
-                msg.channel.send('No poll to close!');
+                msg.channel.send('Must be admin to close or delete a poll.');
             }
         } else if (action === 'create') {
             if (!pollExists()) {
@@ -650,11 +684,15 @@ const commands = {
                 msg.channel.send('Delete the current poll before creating a new one!');
             }
         } else if (action === 'delete') {
-            if (pollExists()) {
-                deletePoll();
-                msg.channel.send('**Current poll deleted.**');
+            if (sentByAdminOrMe(msg)) {
+                if (pollExists()) {
+                    deletePoll();
+                    msg.channel.send('**Current poll deleted.**');
+                } else {
+                    msg.channel.send('No poll to delete!');
+                }
             } else {
-                msg.channel.send('No poll to delete!');
+                msg.channel.send('Must be admin to close or delete a poll.');
             }
         } else if (action === 'tally') {
             if (pollExists()) {
@@ -748,3 +786,6 @@ module.exports = commands;
 module.exports.descString = descString;
 module.exports.safeSendMsg = safeSendMsg;
 module.exports.MY_CHAR_LIMIT = MY_CHAR_LIMIT;
+module.exports.sentByAdmin = sentByAdmin;
+module.exports.sentByMe = sentByMe;
+module.exports.sentByAdminOrMe = sentByAdminOrMe;
