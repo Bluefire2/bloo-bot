@@ -240,7 +240,7 @@ const mathVariables = {},
  * should take those parameters, in the order that they're documented in.
  */
 const commands = {
-    listcmd: (msg, writeln) => {
+    listcmd: (msg, sendmsg) => {
         let outText = 'Available commands:\n\n',
             commandsArray = [],
             cmdNames = Object.keys(commandDesc);
@@ -267,38 +267,38 @@ const commands = {
         outText += commandsArray.join(', ');
         return outText;
     },
-    help: (msg, writeln, cmdName) => {
+    help: (msg, sendmsg, cmdName) => {
         let prefix = '<prefix>';
         console.log(cmdData[cmdName]);
         if (typeof cmdData[cmdName] === 'undefined') {
-            writeln('**Undefined command name** "' + cmdName + '"');
+            sendmsg('**Undefined command name** "' + cmdName + '"');
         } else {
-            writeln('```' + descString(prefix, cmdName).join('\n') + '```');
+            sendmsg('```' + descString(prefix, cmdName).join('\n') + '```');
         }
     },
-    uptime: (msg, writeln) => {
+    uptime: (msg, sendmsg) => {
         const timeOnline = uptimeTimer.timeElapsedDhms();
 
-        writeln(`Online for ${timeOnline.days} days, ${timeOnline.hours} hours, ${timeOnline.minutes} minutes and ${timeOnline.seconds} seconds.`);
+        sendmsg(`Online for ${timeOnline.days} days, ${timeOnline.hours} hours, ${timeOnline.minutes} minutes and ${timeOnline.seconds} seconds.`);
     },
-    import_fn: (msg, writeln, text) => {
+    import_fn: (msg, sendmsg, text) => {
         if (text === 'this') {
             return exports.cmd.pasta(msg, 'pyzen');
         }
     },
-    ping: (msg, writeln) => {
+    ping: (msg, sendmsg) => {
         console.log(Date.now(), msg.createdTimestamp);
         let pingTime = (Date.now() - msg.createdTimestamp);
-        writeln('Pong! ' + pingTime + 'ms');
+        sendmsg('Pong! ' + pingTime + 'ms');
     },
-    source: (msg, writeln) => {
-        writeln(`**Source code at** ${sourceCodeURL}`);
+    source: (msg, sendmsg) => {
+        sendmsg(`**Source code at** ${sourceCodeURL}`);
     },
-    roll: (msg, writeln, sides, dice = 1) => {
+    roll: (msg, sendmsg, sides, dice = 1) => {
         // validate input:
         // TODO: specify parameter types in commands.json and perform type checking in cmdExe
         if (typeof sides !== 'number' || typeof dice !== 'number') {
-            writeln('Invalid input.');
+            sendmsg('Invalid input.');
             return;
         }
 
@@ -333,21 +333,21 @@ const commands = {
 
         return `${rollsString};\n\n${dataString}`;
     },
-    flipcoin: (msg, writeln) => {
+    flipcoin: (msg, sendmsg) => {
         let HorT = randomInRange(0, 1) === 1 ? 'heads' : 'tails';
         msg.reply(HorT);
     },
-    pasta: (msg, writeln, pastaName) => {
+    pasta: (msg, sendmsg, pastaName) => {
         let pastaData = require("./data/pastas.json");
         if (pastaName !== 'list') {
             pastaText = pastaData[pastaName];
 
-            writeln(pastaText);
+            sendmsg(pastaText);
         } else {
             return Object.keys(pastaData).slice(0);
         }
     },
-    priceCheck: (msg, writeln, item, amount = 1) => {
+    priceCheck: (msg, sendmsg, item, amount = 1) => {
         const baseUrl = 'http://runescape.wikia.com/wiki/Exchange:';
 
         axios.get(baseUrl + item).then(response => {
@@ -355,21 +355,21 @@ const commands = {
                 price = parseInt($('#GEPrice').text().replace(/,/g, '')),
                 totalPrice = numberWithCommas(price * amount);
 
-            writeln(item + ' x ' + amount + ': ' + totalPrice + 'gp');
+            sendmsg(item + ' x ' + amount + ': ' + totalPrice + 'gp');
         }).catch((error) => {
             console.log(error);
         });
 
         return false;
     },
-    slayer: (msg, writeln, monster, amount = 1, aura = 0) => {
+    slayer: (msg, sendmsg, monster, amount = 1, aura = 0) => {
         const baseUrl = 'http://runescape.wikia.com/wiki/';
 
         let auraMultiplier = slayerAuraChance(aura),
             expectedAmount;
 
         if (!auraMultiplier) {
-            writeln('**Invalid aura tier **' + aura);
+            sendmsg('**Invalid aura tier **' + aura);
             return;
         }
 
@@ -387,13 +387,13 @@ const commands = {
                 xpHp = processXpText($('.mob-hp-xp').text()),
                 xpSlayer = processXpText($('.mob-slay-xp').text());
 
-            writeln(monsterName + ' x ' + expectedAmount + ': ' + xpSlayer
+            sendmsg(monsterName + ' x ' + expectedAmount + ': ' + xpSlayer
                 + ' slayer xp, ' + xpCombat + ' combat xp and ' + xpHp + ' hp xp.');
         }).catch((error) => {
             console.log(error);
         });
     },
-    wikipedia: (msg, writeln, article, lang = 'en') => {
+    wikipedia: (msg, sendmsg, article, lang = 'en') => {
         let baseUrl = 'https://' + lang + '.wikipedia.org/w/api.php?action=query&list=search&format=json&srsearch=',
             baseLinkUrl = 'https://' + lang + '.wikipedia.org/wiki/';
 
@@ -402,18 +402,18 @@ const commands = {
                 let firstResult = response.data.query.search[0],
                     firstResultTitle = firstResult.title.replace(/ /g, '_');
 
-                writeln('Wikipedia link: ' + baseLinkUrl + firstResultTitle);
+                sendmsg('Wikipedia link: ' + baseLinkUrl + firstResultTitle);
             } else {
-                writeln('No search results found for "' + article + '"');
+                sendmsg('No search results found for "' + article + '"');
             }
         }).catch((error) => {
             console.log(error);
             if (error.code === 'ENOTFOUND') {
-                writeln('**Invalid language code** "' + lang + '"');
+                sendmsg('**Invalid language code** "' + lang + '"');
             }
         });
     },
-    translate: (msg, writeln, langFrom, langInto, ...text) => {
+    translate: (msg, sendmsg, langFrom, langInto, ...text) => {
         let textJoined = text.join(' ');
 
         gtranslate(textJoined, {from: langFrom, to: langInto}).then((res) => {
@@ -425,31 +425,31 @@ const commands = {
 
             out += res.text;
 
-            writeln(out);
+            sendmsg(out);
         }).catch(err => {
             console.error(err);
-            writeln('**' + err.message + '**');
+            sendmsg('**' + err.message + '**');
         });
     },
-    onerm: (msg, writeln, weight, reps) => {
+    onerm: (msg, sendmsg, weight, reps) => {
         // using Epley formula:
         let max = Math.floor(weight * (1 + reps / 30));
 
-        writeln('Estimated one rep max: ' + max);
+        sendmsg('Estimated one rep max: ' + max);
     },
-    convert: (msg, writeln, number, unitsFrom, unitsTo, dp = 2) => {
+    convert: (msg, sendmsg, number, unitsFrom, unitsTo, dp = 2) => {
         let converted;
         try {
             converted = roundTo(convertUnits(number).from(unitsFrom).to(unitsTo), dp);
-            writeln('**' + number + UNITSPACE + unitsFrom + '** is **' + converted + UNITSPACE + unitsTo + '**');
+            sendmsg('**' + number + UNITSPACE + unitsFrom + '** is **' + converted + UNITSPACE + unitsTo + '**');
         } catch (e) {
-            writeln('**Error**: ' + e.message);
+            sendmsg('**Error**: ' + e.message);
         }
     },
-    b: (msg, writeln) => {
-        writeln(':b:');
+    b: (msg, sendmsg) => {
+        sendmsg(':b:');
     },
-    youtube: (msg, writeln, query) => {
+    youtube: (msg, sendmsg, query) => {
         let baseYoutubeUrl = 'https://www.googleapis.com/youtube/v3/search';
 
         axios.get(baseYoutubeUrl, {
@@ -471,12 +471,12 @@ const commands = {
                 return `**No results found for** "${query}"`;
             }
 
-            writeln(youtubeIDToLink(firstVideoID));
+            sendmsg(youtubeIDToLink(firstVideoID));
         }).catch((response) => {
             console.log(response);
         });
     },
-    prettify: (msg, writeln, text) => {
+    prettify: (msg, sendmsg, text) => {
         let prettifiedText = (text + '').split(' ').map((word) => {
             return word.split('').map((char) => {
                 if (ALPHABET.indexOf(char) !== -1) {
@@ -489,9 +489,9 @@ const commands = {
             }).join('');
         }).join('  ');
 
-        writeln(prettifiedText);
+        sendmsg(prettifiedText);
     },
-    cyrillify: (msg, writeln, text) => {
+    cyrillify: (msg, sendmsg, text) => {
         let cyrillifiedText = text.split('').map((elem) => {
             let mappedChar = cyrillicMap[elem];
             if (typeof mappedChar === 'undefined') {
@@ -501,24 +501,24 @@ const commands = {
             }
         }).join('');
 
-        writeln(cyrillifiedText);
+        sendmsg(cyrillifiedText);
     },
-    setPrefix: (msg, writeln, value) => {
+    setPrefix: (msg, sendmsg, value) => {
         let channelID = msg.channel.id;
 
         console.log('setting for ' + channelID);
         return new Promise((resolve, reject) => {
             scv.set(channelID, 'prefix', value).then((value) => {
-                writeln("**Prefix set to**: " + value);
+                sendmsg("**Prefix set to**: " + value);
                 console.log(`prefix set to ${value}`);
                 resolve();
             }).catch((err) => {
-                writeln("Failed to set prefix value.");
+                sendmsg("Failed to set prefix value.");
                 reject(err);
             });
         });
     },
-    eval: (msg, writeln, expression) => {
+    eval: (msg, sendmsg, expression) => {
         let channelID = msg.channel.id,
             context = mathVariables[channelID + ''];
 
@@ -528,14 +528,14 @@ const commands = {
 
         try {
             let result = mathjs.eval(expression, context);
-            writeln(`Expression value: ${result}`);
+            sendmsg(`Expression value: ${result}`);
         } catch (e) {
-            writeln('Bad expression. Make sure all variables are defined!');
+            sendmsg('Bad expression. Make sure all variables are defined!');
         }
     },
-    setvar: (msg, writeln, varname, varvalue) => {
+    setvar: (msg, sendmsg, varname, varvalue) => {
         if (Object.keys(mathConstants).indexOf(varname) !== -1) {
-            writeln(`**Unable to set as variable name** ${varname} **is reserved.**`);
+            sendmsg(`**Unable to set as variable name** ${varname} **is reserved.**`);
         } else {
             let varvalueParsed,
                 channelID = msg.channel.id,
@@ -556,15 +556,15 @@ const commands = {
             }
 
             if (typeof channelMathVariables[varname] === 'undefined') {
-                writeln(`**Variable** ${varname} **created and set to** ${varvalueParsed}`);
+                sendmsg(`**Variable** ${varname} **created and set to** ${varvalueParsed}`);
             } else {
-                writeln(`**Variable** ${varname} **changed from** ${mathVariables[varname]} **to** ${varvalueParsed}`);
+                sendmsg(`**Variable** ${varname} **changed from** ${mathVariables[varname]} **to** ${varvalueParsed}`);
             }
 
             channelMathVariables[varname] = varvalueParsed;
         }
     },
-    setvars: (msg, writeln, varnames, varvalues) => {
+    setvars: (msg, sendmsg, varnames, varvalues) => {
         const varnamesArray = removeWhitespace(varnames).split(','),
             varvaluesArray = removeWhitespace(varvalues).split(',');
 
@@ -595,7 +595,7 @@ const commands = {
             }
         });
     },
-    ree: (msg, writeln, i) => {
+    ree: (msg, sendmsg, i) => {
         if (typeof i === 'number' && i >= 0) {
             let reeee = "R";
 
@@ -604,27 +604,27 @@ const commands = {
                 reeee += "E";
             }
             if (!safeSendMsg(msg.channel, reeee)) {
-                writeln("Too long!");
+                sendmsg("Too long!");
             }
         } else {
-            writeln('Bad input');
+            sendmsg('Bad input');
         }
     },
-    currconvert: (msg, writeln, amount, currFrom, currTo, dp = 2) => {
+    currconvert: (msg, sendmsg, amount, currFrom, currTo, dp = 2) => {
         currFromTemp = currFrom.toUpperCase();
         currToTemp = currTo.toUpperCase();
 
         cconvert.convert(amount, currFromTemp, currToTemp).then(val => {
             if (isNaN(val)) {
-                writeln("Oops, something went wrong. Check that your currencies are both valid!");
+                sendmsg("Oops, something went wrong. Check that your currencies are both valid!");
             } else {
-                writeln(`${currFromTemp} ${amount} is ${currToTemp} ${roundTo(val, dp)}.`);
+                sendmsg(`${currFromTemp} ${amount} is ${currToTemp} ${roundTo(val, dp)}.`);
             }
         }).catch(err => {
-            writeln("Oops, something went wrong. Check that your currencies are both valid!");
+            sendmsg("Oops, something went wrong. Check that your currencies are both valid!");
         });
     },
-    poll: (msg, writeln, action, optionsStr = '') => {
+    poll: (msg, sendmsg, action, optionsStr = '') => {
         const channelID = msg.channel.id;
 
         const pollExists = () => {
@@ -655,30 +655,30 @@ const commands = {
         if (action === 'open') {
             if (pollExists()) {
                 openPoll();
-                writeln('**Poll opened.**');
+                sendmsg('**Poll opened.**');
             } else {
-                writeln('No poll to open!');
+                sendmsg('No poll to open!');
             }
         } else if (action === 'close') {
             if (sentByAdminOrMe(msg)) {
                 if (pollExists()) {
                     closePoll();
-                    writeln('**Poll closed.**');
+                    sendmsg('**Poll closed.**');
                 } else {
-                    writeln('No poll to close!');
+                    sendmsg('No poll to close!');
                 }
             } else {
-                writeln('Must be admin to close or delete a poll.');
+                sendmsg('Must be admin to close or delete a poll.');
             }
         } else if (action === 'create') {
             if (!pollExists()) {
                 // validate input:
                 if (optionsStr === '') {
-                    writeln('Must specify poll options!');
+                    sendmsg('Must specify poll options!');
                 }
                 const options = optionsStr.split(';').map(string => string.trim());
                 if (!Array.isArray(options) || options.length < 2) {
-                    writeln('Must have more than one option!');
+                    sendmsg('Must have more than one option!');
                     return;
                 }
                 // do stuff
@@ -687,20 +687,20 @@ const commands = {
                     votes: {},
                     options: options
                 };
-                writeln('**New poll created and opened.**');
+                sendmsg('**New poll created and opened.**');
             } else {
-                writeln('Delete the current poll before creating a new one!');
+                sendmsg('Delete the current poll before creating a new one!');
             }
         } else if (action === 'delete') {
             if (sentByAdminOrMe(msg)) {
                 if (pollExists()) {
                     deletePoll();
-                    writeln('**Current poll deleted.**');
+                    sendmsg('**Current poll deleted.**');
                 } else {
-                    writeln('No poll to delete!');
+                    sendmsg('No poll to delete!');
                 }
             } else {
-                writeln('Must be admin to close or delete a poll.');
+                sendmsg('Must be admin to close or delete a poll.');
             }
         } else if (action === 'tally' || action === 'show') {
             if (pollExists()) {
@@ -742,13 +742,13 @@ const commands = {
 
                 return outText;
             } else {
-                writeln('No poll active.');
+                sendmsg('No poll active.');
             }
         } else {
-            writeln(`Invalid poll action "${action}"`);
+            sendmsg(`Invalid poll action "${action}"`);
         }
     },
-    vote: (msg, writeln, option) => {
+    vote: (msg, sendmsg, option) => {
         const channelID = msg.channel.id;
 
         const pollExists = () => {
@@ -765,14 +765,14 @@ const commands = {
             if (i !== -1) {
                 commands.votei(msg, i + 1);
             } else {
-                writeln(`No such option "${option}".`);
+                sendmsg(`No such option "${option}".`);
             }
         } else {
             // delegate and let votei raise the error
             commands.votei(msg, -1);
         }
     },
-    votei: (msg, writeln, optionIndex) => {
+    votei: (msg, sendmsg, optionIndex) => {
         const channelID = msg.channel.id;
 
         const pollExists = () => {
@@ -797,15 +797,15 @@ const commands = {
 
                     poll.votes[userID] = optionIndex;
 
-                    writeln(`**Successfully voted for**: "${poll.options[optionIndex - 1]}".`);
+                    sendmsg(`**Successfully voted for**: "${poll.options[optionIndex - 1]}".`);
                 } else {
-                    writeln('Invalid option index.');
+                    sendmsg('Invalid option index.');
                 }
             } else {
-                writeln('Current poll is closed.');
+                sendmsg('Current poll is closed.');
             }
         } else {
-            writeln('No poll active!');
+            sendmsg('No poll active!');
         }
     }
 };
