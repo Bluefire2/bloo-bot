@@ -239,7 +239,7 @@ const mathVariables = {},
  * should take those parameters, in the order that they're documented in.
  */
 const commands = {
-    listcmd: (msg) => {
+    listcmd: (msg, writeln) => {
         let outText = 'Available commands:\n\n',
             commandsArray = [],
             cmdNames = Object.keys(commandDesc);
@@ -266,38 +266,38 @@ const commands = {
         outText += commandsArray.join(', ');
         return outText;
     },
-    help: (msg, cmdName) => {
+    help: (msg, writeln, cmdName) => {
         let prefix = '<prefix>';
         console.log(cmdData[cmdName]);
         if (typeof cmdData[cmdName] === 'undefined') {
-            msg.channel.send('**Undefined command name** "' + cmdName + '"');
+            writeln('**Undefined command name** "' + cmdName + '"');
         } else {
-            msg.channel.send('```' + descString(prefix, cmdName).join('\n') + '```');
+            writeln('```' + descString(prefix, cmdName).join('\n') + '```');
         }
     },
-    uptime: (msg) => {
+    uptime: (msg, writeln) => {
         const timeOnline = uptimeTimer.timeElapsedDhms();
 
-        msg.channel.send(`Online for ${timeOnline.days} days, ${timeOnline.hours} hours, ${timeOnline.minutes} minutes and ${timeOnline.seconds} seconds.`);
+        writeln(`Online for ${timeOnline.days} days, ${timeOnline.hours} hours, ${timeOnline.minutes} minutes and ${timeOnline.seconds} seconds.`);
     },
-    import_fn: (msg, text) => {
+    import_fn: (msg, writeln, text) => {
         if (text === 'this') {
             return exports.cmd.pasta(msg, 'pyzen');
         }
     },
-    ping: (msg) => {
+    ping: (msg, writeln) => {
         console.log(Date.now(), msg.createdTimestamp);
         let pingTime = (Date.now() - msg.createdTimestamp);
-        msg.channel.send('Pong! ' + pingTime + 'ms');
+        writeln('Pong! ' + pingTime + 'ms');
     },
-    source: (msg) => {
-        msg.channel.send(`**Source code at** ${sourceCodeURL}`);
+    source: (msg, writeln) => {
+        writeln(`**Source code at** ${sourceCodeURL}`);
     },
-    roll: (msg, sides, dice = 1) => {
+    roll: (msg, writeln, sides, dice = 1) => {
         // validate input:
         // TODO: specify parameter types in commands.json and perform type checking in cmdExe
-        if (typeof sides !== 'number' || typeof dice !== number) {
-            msg.channel.send('Invalid input.');
+        if (typeof sides !== 'number' || typeof dice !== 'number') {
+            writeln('Invalid input.');
             return;
         }
 
@@ -332,21 +332,21 @@ const commands = {
 
         return `${rollsString};\n\n${dataString}`;
     },
-    flipcoin: (msg) => {
+    flipcoin: (msg, writeln) => {
         let HorT = randomInRange(0, 1) === 1 ? 'heads' : 'tails';
         msg.reply(HorT);
     },
-    pasta: (msg, pastaName) => {
+    pasta: (msg, writeln, pastaName) => {
         let pastaData = require("./data/pastas.json");
         if (pastaName !== 'list') {
             pastaText = pastaData[pastaName];
 
-            msg.channel.send(pastaText);
+            writeln(pastaText);
         } else {
             return Object.keys(pastaData).slice(0);
         }
     },
-    priceCheck: (msg, item, amount = 1) => {
+    priceCheck: (msg, writeln, item, amount = 1) => {
         const baseUrl = 'http://runescape.wikia.com/wiki/Exchange:';
 
         axios.get(baseUrl + item).then(response => {
@@ -354,21 +354,21 @@ const commands = {
                 price = parseInt($('#GEPrice').text().replace(/,/g, '')),
                 totalPrice = numberWithCommas(price * amount);
 
-            msg.channel.send(item + ' x ' + amount + ': ' + totalPrice + 'gp');
+            writeln(item + ' x ' + amount + ': ' + totalPrice + 'gp');
         }).catch((error) => {
             console.log(error);
         });
 
         return false;
     },
-    slayer: (msg, monster, amount = 1, aura = 0) => {
+    slayer: (msg, writeln, monster, amount = 1, aura = 0) => {
         const baseUrl = 'http://runescape.wikia.com/wiki/';
 
         let auraMultiplier = slayerAuraChance(aura),
             expectedAmount;
 
         if (!auraMultiplier) {
-            msg.channel.send('**Invalid aura tier **' + aura);
+            writeln('**Invalid aura tier **' + aura);
             return;
         }
 
@@ -386,13 +386,13 @@ const commands = {
                 xpHp = processXpText($('.mob-hp-xp').text()),
                 xpSlayer = processXpText($('.mob-slay-xp').text());
 
-            msg.channel.send(monsterName + ' x ' + expectedAmount + ': ' + xpSlayer
+            writeln(monsterName + ' x ' + expectedAmount + ': ' + xpSlayer
                 + ' slayer xp, ' + xpCombat + ' combat xp and ' + xpHp + ' hp xp.');
         }).catch((error) => {
             console.log(error);
         });
     },
-    wikipedia: (msg, article, lang = 'en') => {
+    wikipedia: (msg, writeln, article, lang = 'en') => {
         let baseUrl = 'https://' + lang + '.wikipedia.org/w/api.php?action=query&list=search&format=json&srsearch=',
             baseLinkUrl = 'https://' + lang + '.wikipedia.org/wiki/';
 
@@ -401,18 +401,18 @@ const commands = {
                 let firstResult = response.data.query.search[0],
                     firstResultTitle = firstResult.title.replace(/ /g, '_');
 
-                msg.channel.send('Wikipedia link: ' + baseLinkUrl + firstResultTitle);
+                writeln('Wikipedia link: ' + baseLinkUrl + firstResultTitle);
             } else {
-                msg.channel.send('No search results found for "' + article + '"');
+                writeln('No search results found for "' + article + '"');
             }
         }).catch((error) => {
             console.log(error);
             if (error.code === 'ENOTFOUND') {
-                msg.channel.send('**Invalid language code** "' + lang + '"');
+                writeln('**Invalid language code** "' + lang + '"');
             }
         });
     },
-    translate: (msg, langFrom, langInto, ...text) => {
+    translate: (msg, writeln, langFrom, langInto, ...text) => {
         let textJoined = text.join(' ');
 
         gtranslate(textJoined, {from: langFrom, to: langInto}).then((res) => {
@@ -424,31 +424,31 @@ const commands = {
 
             out += res.text;
 
-            msg.channel.send(out);
+            writeln(out);
         }).catch(err => {
             console.error(err);
-            msg.channel.send('**' + err.message + '**');
+            writeln('**' + err.message + '**');
         });
     },
-    onerm: (msg, weight, reps) => {
+    onerm: (msg, writeln, weight, reps) => {
         // using Epley formula:
         let max = Math.floor(weight * (1 + reps / 30));
 
-        msg.channel.send('Estimated one rep max: ' + max);
+        writeln('Estimated one rep max: ' + max);
     },
-    convert: (msg, number, unitsFrom, unitsTo, dp = 2) => {
+    convert: (msg, writeln, number, unitsFrom, unitsTo, dp = 2) => {
         let converted;
         try {
             converted = roundTo(convertUnits(number).from(unitsFrom).to(unitsTo), dp);
-            msg.channel.send('**' + number + UNITSPACE + unitsFrom + '** is **' + converted + UNITSPACE + unitsTo + '**');
+            writeln('**' + number + UNITSPACE + unitsFrom + '** is **' + converted + UNITSPACE + unitsTo + '**');
         } catch (e) {
-            msg.channel.send('**Error**: ' + e.message);
+            writeln('**Error**: ' + e.message);
         }
     },
-    b: (msg) => {
-        msg.channel.send(':b:');
+    b: (msg, writeln) => {
+        writeln(':b:');
     },
-    youtube: (msg, query) => {
+    youtube: (msg, writeln, query) => {
         let baseYoutubeUrl = 'https://www.googleapis.com/youtube/v3/search';
 
         axios.get(baseYoutubeUrl, {
@@ -470,12 +470,12 @@ const commands = {
                 return `**No results found for** "${query}"`;
             }
 
-            msg.channel.send(youtubeIDToLink(firstVideoID));
+            writeln(youtubeIDToLink(firstVideoID));
         }).catch((response) => {
             console.log(response);
         });
     },
-    prettify: (msg, text) => {
+    prettify: (msg, writeln, text) => {
         let prettifiedText = (text + '').split(' ').map((word) => {
             return word.split('').map((char) => {
                 if (ALPHABET.indexOf(char) !== -1) {
@@ -488,9 +488,9 @@ const commands = {
             }).join('');
         }).join('  ');
 
-        msg.channel.send(prettifiedText);
+        writeln(prettifiedText);
     },
-    cyrillify: (msg, text) => {
+    cyrillify: (msg, writeln, text) => {
         let cyrillifiedText = text.split('').map((elem) => {
             let mappedChar = cyrillicMap[elem];
             if (typeof mappedChar === 'undefined') {
@@ -500,24 +500,24 @@ const commands = {
             }
         }).join('');
 
-        msg.channel.send(cyrillifiedText);
+        writeln(cyrillifiedText);
     },
-    setPrefix: (msg, value) => {
+    setPrefix: (msg, writeln, value) => {
         let channelID = msg.channel.id;
 
         console.log('setting for ' + channelID);
         return new Promise((resolve, reject) => {
             scv.set(channelID, 'prefix', value).then((value) => {
-                msg.channel.send("**Prefix set to**: " + value);
+                writeln("**Prefix set to**: " + value);
                 console.log(`prefix set to ${value}`);
                 resolve();
             }).catch((err) => {
-                msg.channel.send("Failed to set prefix value.");
+                writeln("Failed to set prefix value.");
                 reject(err);
             });
         });
     },
-    eval: (msg, expression) => {
+    eval: (msg, writeln, expression) => {
         let channelID = msg.channel.id,
             context = mathVariables[channelID + ''];
 
@@ -527,14 +527,14 @@ const commands = {
 
         try {
             let result = mathjs.eval(expression, context);
-            msg.channel.send(`Expression value: ${result}`);
+            writeln(`Expression value: ${result}`);
         } catch (e) {
-            msg.channel.send('Bad expression. Make sure all variables are defined!');
+            writeln('Bad expression. Make sure all variables are defined!');
         }
     },
-    setvar: (msg, varname, varvalue) => {
+    setvar: (msg, writeln, varname, varvalue) => {
         if (Object.keys(mathConstants).indexOf(varname) !== -1) {
-            msg.channel.send(`**Unable to set as variable name** ${varname} **is reserved.**`);
+            writeln(`**Unable to set as variable name** ${varname} **is reserved.**`);
         } else {
             let varvalueParsed,
                 channelID = msg.channel.id,
@@ -555,15 +555,15 @@ const commands = {
             }
 
             if (typeof channelMathVariables[varname] === 'undefined') {
-                msg.channel.send(`**Variable** ${varname} **created and set to** ${varvalueParsed}`);
+                writeln(`**Variable** ${varname} **created and set to** ${varvalueParsed}`);
             } else {
-                msg.channel.send(`**Variable** ${varname} **changed from** ${mathVariables[varname]} **to** ${varvalueParsed}`);
+                writeln(`**Variable** ${varname} **changed from** ${mathVariables[varname]} **to** ${varvalueParsed}`);
             }
 
             channelMathVariables[varname] = varvalueParsed;
         }
     },
-    setvars: (msg, varnames, varvalues) => {
+    setvars: (msg, writeln, varnames, varvalues) => {
         const varnamesArray = removeWhitespace(varnames).split(','),
             varvaluesArray = removeWhitespace(varvalues).split(',');
 
@@ -594,7 +594,7 @@ const commands = {
             }
         });
     },
-    ree: (msg, i) => {
+    ree: (msg, writeln, i) => {
         if (typeof i === 'number' && i >= 0) {
             let reeee = "R";
 
@@ -603,27 +603,27 @@ const commands = {
                 reeee += "E";
             }
             if (!safeSendMsg(msg.channel, reeee)) {
-                msg.channel.send("Too long!");
+                writeln("Too long!");
             }
         } else {
-            msg.channel.send('Bad input');
+            writeln('Bad input');
         }
     },
-    currconvert: (msg, amount, currFrom, currTo, dp = 2) => {
+    currconvert: (msg, writeln, amount, currFrom, currTo, dp = 2) => {
         currFromTemp = currFrom.toUpperCase();
         currToTemp = currTo.toUpperCase();
 
         cconvert.convert(amount, currFromTemp, currToTemp).then(val => {
             if (isNaN(val)) {
-                msg.channel.send("Oops, something went wrong. Check that your currencies are both valid!");
+                writeln("Oops, something went wrong. Check that your currencies are both valid!");
             } else {
-                msg.channel.send(`${currFromTemp} ${amount} is ${currToTemp} ${roundTo(val, dp)}.`);
+                writeln(`${currFromTemp} ${amount} is ${currToTemp} ${roundTo(val, dp)}.`);
             }
         }).catch(err => {
-            msg.channel.send("Oops, something went wrong. Check that your currencies are both valid!");
+            writeln("Oops, something went wrong. Check that your currencies are both valid!");
         });
     },
-    poll: (msg, action, optionsStr = '') => {
+    poll: (msg, writeln, action, optionsStr = '') => {
         const channelID = msg.channel.id;
 
         const pollExists = () => {
@@ -654,30 +654,30 @@ const commands = {
         if (action === 'open') {
             if (pollExists()) {
                 openPoll();
-                msg.channel.send('**Poll opened.**');
+                writeln('**Poll opened.**');
             } else {
-                msg.channel.send('No poll to open!');
+                writeln('No poll to open!');
             }
         } else if (action === 'close') {
             if (sentByAdminOrMe(msg)) {
                 if (pollExists()) {
                     closePoll();
-                    msg.channel.send('**Poll closed.**');
+                    writeln('**Poll closed.**');
                 } else {
-                    msg.channel.send('No poll to close!');
+                    writeln('No poll to close!');
                 }
             } else {
-                msg.channel.send('Must be admin to close or delete a poll.');
+                writeln('Must be admin to close or delete a poll.');
             }
         } else if (action === 'create') {
             if (!pollExists()) {
                 // validate input:
                 if (optionsStr === '') {
-                    msg.channel.send('Must specify poll options!');
+                    writeln('Must specify poll options!');
                 }
                 const options = optionsStr.split(';').map(string => string.trim());
                 if (!Array.isArray(options) || options.length < 2) {
-                    msg.channel.send('Must have more than one option!');
+                    writeln('Must have more than one option!');
                     return;
                 }
                 // do stuff
@@ -686,20 +686,20 @@ const commands = {
                     votes: {},
                     options: options
                 };
-                msg.channel.send('**New poll created and opened.**');
+                writeln('**New poll created and opened.**');
             } else {
-                msg.channel.send('Delete the current poll before creating a new one!');
+                writeln('Delete the current poll before creating a new one!');
             }
         } else if (action === 'delete') {
             if (sentByAdminOrMe(msg)) {
                 if (pollExists()) {
                     deletePoll();
-                    msg.channel.send('**Current poll deleted.**');
+                    writeln('**Current poll deleted.**');
                 } else {
-                    msg.channel.send('No poll to delete!');
+                    writeln('No poll to delete!');
                 }
             } else {
-                msg.channel.send('Must be admin to close or delete a poll.');
+                writeln('Must be admin to close or delete a poll.');
             }
         } else if (action === 'tally' || action === 'show') {
             if (pollExists()) {
@@ -741,13 +741,13 @@ const commands = {
 
                 return outText;
             } else {
-                msg.channel.send('No poll active.');
+                writeln('No poll active.');
             }
         } else {
-            msg.channel.send(`Invalid poll action "${action}"`);
+            writeln(`Invalid poll action "${action}"`);
         }
     },
-    vote: (msg, option) => {
+    vote: (msg, writeln, option) => {
         const channelID = msg.channel.id;
 
         const pollExists = () => {
@@ -764,14 +764,14 @@ const commands = {
             if (i !== -1) {
                 commands.votei(msg, i + 1);
             } else {
-                msg.channel.send(`No such option "${option}".`);
+                writeln(`No such option "${option}".`);
             }
         } else {
             // delegate and let votei raise the error
             commands.votei(msg, -1);
         }
     },
-    votei: (msg, optionIndex) => {
+    votei: (msg, writeln, optionIndex) => {
         const channelID = msg.channel.id;
 
         const pollExists = () => {
@@ -796,15 +796,15 @@ const commands = {
 
                     poll.votes[userID] = optionIndex;
 
-                    msg.channel.send(`**Successfully voted for**: "${poll.options[optionIndex - 1]}".`);
+                    writeln(`**Successfully voted for**: "${poll.options[optionIndex - 1]}".`);
                 } else {
-                    msg.channel.send('Invalid option index.');
+                    writeln('Invalid option index.');
                 }
             } else {
-                msg.channel.send('Current poll is closed.');
+                writeln('Current poll is closed.');
             }
         } else {
-            msg.channel.send('No poll active!');
+            writeln('No poll active!');
         }
     }
 };

@@ -229,8 +229,11 @@ function cmdExe(msg, cmdName, args, prefix) {
                     res();
                 } else {
                     const func = cmd[currCmd.fn],
-                        fullArgs = args.slice(0);
+                        fullArgs = args.slice(0),
+                        sendingFunction = (text) => msg.channel.send.call(msg.channel, text);
+                    // for some reason this is necessary, instead of just msg.channel.send :(
 
+                    fullArgs.unshift(sendingFunction);
                     fullArgs.unshift(msg);
 
                     // call the command function:
@@ -272,6 +275,8 @@ function cmdExe(msg, cmdName, args, prefix) {
             }).then(() => {
                 resolve(outText);
             });
+        }).catch((err) => {
+            throw err;
         });
     });
 }
