@@ -3,6 +3,7 @@ const axios = require('axios');
 const gtranslate = require('google-translate-api');
 const convertUnits = require('convert-units');
 const mathjs = require('mathjs');
+const Promise = require("bluebird");
 
 const scv = require('./modules/scv.js');
 const cconvert = require('./modules/cconvert');

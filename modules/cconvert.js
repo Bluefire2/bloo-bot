@@ -3,6 +3,7 @@
  */
 
 const axios = require('axios');
+const Promise = require("bluebird");
 
 const fns = {
     /**
