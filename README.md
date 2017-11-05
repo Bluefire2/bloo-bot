@@ -36,8 +36,12 @@ Then, create the command doc in `data\commands.json`, like so:
 "commandName": {
   "desc": "A quick description of the command",
   "params": {
-    "parameter1": "Quick description of this parameter",
-    "parameter2": "etc etc",
+    "parameter1": {
+        "desc": "Quick description of this parameter",
+        "type": "The type of the parameter: int, number, string or all"
+    },
+    "parameter2": {
+        "desc": "etc etc"...
     ...
   },
   "fn": "The name of the function in commands.js that implements the command (functionName)",
@@ -50,7 +54,7 @@ Then, create the command doc in `data\commands.json`, like so:
 ...
 ```
 
-You *must* make the command doc otherwise the command will not work. If you do both of these steps correctly, calling the command is as simple as "\<prefix\>command-name argument1 argument2 etc". Note: command names are **case insensitive**!
+There are four parameter types currently defined. `int` means an integer (a whole number), `number` means any number, such as `5` or `7.32`. `string` means a string, and `all` means any type. You *must* make the command doc otherwise the command *will not work*. If you do both of these steps correctly, calling the command is as simple as "\<prefix\>command-name argument1 argument2 etc". Bear in mind that command names are **case insensitive**!
 
 ### Contributing to the core code
 Feel free to do this if you're experienced with Node.js. I'll gladly look at any pull requests.
