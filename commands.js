@@ -581,14 +581,15 @@ const commands = {
         let eeee = "",
             reeee;
 
-        // can't use array shorthand for some reason
-        for (let j = 0; j < i; j++) {
-            eeee += "E";
-        }
-
         if (i >= 0) {
+            for (let j = 0; j < i; j++) {
+                eeee += "E";
+            }
             reeee = "R" + eeee;
         } else {
+            for (let j = i; j > 0; j--) {
+                eeee += "E";
+            }
             reeee = eeee + "R";
         }
 
