@@ -639,11 +639,15 @@ const commands = {
         };
 
         if (action === 'open') {
-            if (pollExists()) {
-                openPoll();
-                sendmsg('**Poll opened.**');
+            if (sentByAdminOrMe(msg)) {
+                if (pollExists()) {
+                    openPoll();
+                    sendmsg('**Poll opened.**');
+                } else {
+                    sendmsg('No poll to open!');
+                }
             } else {
-                sendmsg('No poll to open!');
+                sendmsg('Must be admin to open, close or delete a poll.');
             }
         } else if (action === 'close') {
             if (sentByAdminOrMe(msg)) {
@@ -654,7 +658,7 @@ const commands = {
                     sendmsg('No poll to close!');
                 }
             } else {
-                sendmsg('Must be admin to close or delete a poll.');
+                sendmsg('Must be admin to open, close or delete a poll.');
             }
         } else if (action === 'create') {
             if (!pollExists()) {
@@ -686,7 +690,7 @@ const commands = {
                     sendmsg('No poll to delete!');
                 }
             } else {
-                sendmsg('Must be admin to close or delete a poll.');
+                sendmsg('Must be admin to open, close or delete a poll.');
             }
         } else if (action === 'tally' || action === 'show') {
             if (pollExists()) {
