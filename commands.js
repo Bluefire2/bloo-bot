@@ -587,7 +587,7 @@ const commands = {
             }
             reeee = "R" + eeee;
         } else {
-            for (let j = i; j > 0; j--) {
+            for (let j = i; j < 0; j++) {
                 eeee += "E";
             }
             reeee = eeee + "R";
