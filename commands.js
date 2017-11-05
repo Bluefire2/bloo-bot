@@ -598,8 +598,8 @@ const commands = {
         }
     },
     currconvert: (msg, sendmsg, amount, currFrom, currTo, dp = 2) => {
-        currFromTemp = currFrom.toUpperCase();
-        currToTemp = currTo.toUpperCase();
+        const currFromTemp = currFrom.toUpperCase(),
+            currToTemp = currTo.toUpperCase();
 
         cconvert.convert(amount, currFromTemp, currToTemp).then(val => {
             if (isNaN(val)) {
