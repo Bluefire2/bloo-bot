@@ -9,6 +9,7 @@ const defaults = require('./modules/defaults');
 const config = require('./config.json');
 const cmdData = require('./data/commands.json');
 
+// If the command line argument 'test' is given, log in to the test account
 const test = process.argv[2] === 'test';
 const loginToken = test ? config.test_token : config.token;
 
@@ -88,6 +89,13 @@ const checkForAlias = (alias) => {
     }
 };
 
+const TypeCheck = {
+    string: p => true,
+    int: p => Number.isInteger(parseInt(p)),
+    number: p => !isNaN(p),
+    all: p => true
+};
+
 // Global variables
 let variablesLoaded = {},
     allPrefixes = {};
@@ -144,7 +152,8 @@ client.on('message', (msg) => {
 
                 // admins only (and me)
                 if (cmd.sentByAdminOrMe(msg)) {
-                    cmd.setPrefix(msg, '~').then(() => {
+                    const sendingFunction = (text) => msg.channel.send.call(msg.channel, text);
+                    cmd.setPrefix(msg, sendingFunction, '~').then(() => {
                         return updateVariables(channelID);
                     }).then(() => {
                         // done
@@ -212,6 +221,7 @@ function cmdExe(msg, cmdName, args, prefix) {
         // note: paramsCount DOES include default parameters!!!
         paramsCount = typeof currCmd.params === 'undefined' ? 0 : Object.keys(currCmd.params).length,
         defaultsCount = typeof currCmd.defaults === 'undefined' ? 0 : currCmd.defaults,
+        argsCount = args.length,
         channelID = msg.channel.id;
 
     let outText = [];
@@ -230,32 +240,83 @@ function cmdExe(msg, cmdName, args, prefix) {
                     res();
                 } else {
                     const func = cmd[currCmd.fn],
+                        fnParams = currCmd.params,
                         fullArgs = args.slice(0),
                         sendingFunction = (text) => msg.channel.send.call(msg.channel, text);
                     // for some reason this is necessary, instead of just msg.channel.send :(
 
-                    fullArgs.unshift(sendingFunction);
-                    fullArgs.unshift(msg);
+                    // type checking:
+                    let typeMismatch = false,
+                        typeMismatchDesc = {}; // initialising so WebStorm doesn't complain
 
-                    // call the command function:
-                    const moreText = func.apply(this, fullArgs);
+                    if (typeof fnParams !== 'undefined') {
+                        let i = 0, // TODO: this seems to work, but just in case, rewrite the API to not rely on key ordering
+                            paramNames = Object.keys(fnParams);
 
-                    // process result
-                    if (typeof moreText === 'string') {
-                        outText.push(moreText);
-                        res();
-                    } else if (Array.isArray(moreText)) {
-                        outText = outText.concat(moreText);
-                        res();
-                    } else if (moreText instanceof Promise) {
-                        moreText.then((out) => {
-                            if (typeof out === 'string') {
-                                outText.push(out);
-                            } else if (Array.isArray(out)) {
-                                outText = outText.concat(out);
+                        // using every instead of forEach lets me break out of the loop when a mismatch is detected
+                        paramNames.every(key => {
+                            if (i === argsCount) {
+                                // If a default argument has not been provided, we don't need to typecheck. That means,
+                                // we need to break out of the loop as soon as we have processed all provided arguments.
+                                return false;
                             }
-                            res();
+                            const value = fnParams[key].type,
+                                typesArray = Array.isArray(value) ? value : [value],
+                                argument = fullArgs[i++],
+                                t = typesArray.filter(elem => TypeCheck[elem](argument));
+
+                            // There is a type mismatch if and only if the argument input does not match any of the
+                            // types specified for it. In this case, the filter above will trim all elements from the
+                            // array, and return [].
+                            typeMismatch = t.length === 0;
+
+                            if (typeMismatch) {
+                                typeMismatchDesc = {
+                                    argument: argument,
+                                    parameter: key,
+                                    expected: typesArray
+                                };
+                                return false;
+                            } else {
+                                return true;
+                            }
                         });
+                    }
+
+                    console.log(typeMismatchDesc);
+
+                    if (!typeMismatch) {
+                        // input passed type checking
+                        fullArgs.unshift(sendingFunction);
+                        fullArgs.unshift(msg);
+
+                        // call the command function:
+                        const moreText = func.apply(this, fullArgs);
+
+                        // process result
+                        if (typeof moreText === 'string') {
+                            outText.push(moreText);
+                            res();
+                        } else if (Array.isArray(moreText)) {
+                            outText = outText.concat(moreText);
+                            res();
+                        } else if (moreText instanceof Promise) {
+                            moreText.then((out) => {
+                                if (typeof out === 'string') {
+                                    outText.push(out);
+                                } else if (Array.isArray(out)) {
+                                    outText = outText.concat(out);
+                                }
+                                res();
+                            });
+                        }
+                    } else {
+                        // input failed type checking, handle the error
+                        const p = typeMismatchDesc.parameter,
+                            a = typeMismatchDesc.argument,
+                            expected = typeMismatchDesc.expected,
+                            t = Array.isArray(expected) ? expected.join(', ') : expected;
+                        msg.channel.send(`Invalid input "${a}" for parameter **${p}** (${t} expected).`);
                     }
                 }
             }

@@ -281,11 +281,6 @@ const commands = {
 
         sendmsg(`Online for ${timeOnline.days} days, ${timeOnline.hours} hours, ${timeOnline.minutes} minutes and ${timeOnline.seconds} seconds.`);
     },
-    import_fn: (msg, sendmsg, text) => {
-        if (text === 'this') {
-            return exports.cmd.pasta(msg, 'pyzen');
-        }
-    },
     ping: (msg, sendmsg) => {
         console.log(Date.now(), msg.createdTimestamp);
         let pingTime = (Date.now() - msg.createdTimestamp);
@@ -295,13 +290,6 @@ const commands = {
         sendmsg(`**Source code at** ${sourceCodeURL}`);
     },
     roll: (msg, sendmsg, sides, dice = 1) => {
-        // validate input:
-        // TODO: specify parameter types in commands.json and perform type checking in cmdExe
-        if (typeof sides !== 'number' || typeof dice !== 'number') {
-            sendmsg('Invalid input.');
-            return;
-        }
-
         let rolls = [];
 
         for (let i = 0; i < dice; i++) {
@@ -430,12 +418,6 @@ const commands = {
             console.error(err);
             sendmsg('**' + err.message + '**');
         });
-    },
-    onerm: (msg, sendmsg, weight, reps) => {
-        // using Epley formula:
-        let max = Math.floor(weight * (1 + reps / 30));
-
-        sendmsg('Estimated one rep max: ' + max);
     },
     convert: (msg, sendmsg, number, unitsFrom, unitsTo, dp = 2) => {
         let converted;
@@ -596,18 +578,22 @@ const commands = {
         });
     },
     ree: (msg, sendmsg, i) => {
-        if (typeof i === 'number' && i >= 0) {
-            let reeee = "R";
+        let eeee = "",
+            reeee;
 
-            // can't use array shorthand for some reason
-            for (let j = 0; j < i; j++) {
-                reeee += "E";
-            }
-            if (!safeSendMsg(msg.channel, reeee)) {
-                sendmsg("Too long!");
-            }
+        // can't use array shorthand for some reason
+        for (let j = 0; j < i; j++) {
+            eeee += "E";
+        }
+
+        if (i >= 0) {
+            reeee = "R" + eeee;
         } else {
-            sendmsg('Bad input');
+            reeee = eeee + "R";
+        }
+
+        if (!safeSendMsg(msg.channel, reeee)) {
+            sendmsg("Too long!");
         }
     },
     currconvert: (msg, sendmsg, amount, currFrom, currTo, dp = 2) => {

@@ -6,20 +6,19 @@
   "help": {
     "desc": "Gives usage information on a specific command",
     "params": {
-      "cmd-name": "The command to get help with"
+      "cmd-name": {
+        "desc": "The command to get help with",
+        "type": "string"
+      }
     },
     "fn": "help"
   },
   "uptime": {
     "desc": "Says how long the bot has been online for",
-    "params": {
-    },
     "fn": "uptime"
   },
   "source": {
     "desc": "Links to the bot's source code",
-    "params": {
-    },
     "fn": "source"
   },
   "ping": {
@@ -29,16 +28,20 @@
   "roll": {
     "desc": "Rolls some dice",
     "params": {
-      "sides": "The amount of sides per die",
-      "dice": "The amount of dice to roll, defaults to 1"
+      "sides": {
+        "desc": "The amount of sides per die",
+        "type": "int"
+      },
+      "dice": {
+        "desc": "The amount of dice to roll, defaults to 1",
+        "type": "int"
+      }
     },
     "fn": "roll",
     "defaults": 1
   },
   "flipcoin": {
     "desc": "Flips a coin",
-    "params": {
-    },
     "fn": "flipcoin",
     "aliases": [
       "coin",
@@ -49,15 +52,24 @@
   "pasta": {
     "desc": "Outputs a copypasta specified by the input parameters",
     "params": {
-      "pasta-name": "The name of the copypasta to be outputted"
+      "pasta-name": {
+        "desc": "The name of the copypasta to be outputted",
+        "type": "string"
+      }
     },
     "fn": "pasta"
   },
   "pricecheck": {
     "desc": "Price checks an item on the ge",
     "params": {
-      "item": "The name of the item to be price checked",
-      "amount": "The amount of this item, defaults to 1"
+      "item": {
+        "desc": "The name of the item to be price checked",
+        "type": "string"
+      },
+      "amount": {
+        "desc": "The amount of this item, defaults to 1",
+        "type": "int"
+      }
     },
     "fn": "priceCheck",
     "aliases": [
@@ -68,9 +80,18 @@
   "slayer": {
     "desc": "Calculates xp gained from your slayer task",
     "params": {
-      "monster": "The monster to kill",
-      "amount": "The number of kills assigned, defaults to 1",
-      "aura": "The tier of the slayer aura used, defaults to 0"
+      "monster": {
+        "desc": "The monster to kill",
+        "type": "string"
+      },
+      "amount": {
+        "desc": "The number of kills assigned, defaults to 1",
+        "type": "int"
+      },
+      "aura": {
+        "desc": "The tier of the slayer aura used, defaults to 0",
+        "type": "int"
+      }
     },
     "fn": "slayer",
     "defaults": 2
@@ -78,8 +99,14 @@
   "wikipedia": {
     "desc": "Links to the first result on wikipedia",
     "params": {
-      "article": "The article to link to or search for",
-      "lang": "The wikipedia language, defaults to en"
+      "article": {
+        "desc": "The article to link to or search for",
+        "type": "string"
+      },
+      "lang": {
+        "desc": "The wikipedia language, defaults to en",
+        "type": "string"
+      }
     },
     "fn": "wikipedia",
     "aliases": [
@@ -90,30 +117,43 @@
   "translate": {
     "desc": "Translates a phrase from one language to another",
     "params": {
-      "lang-from": "The language to translate from",
-      "lang-into": "The language to translate into",
-      "text": "The text to be translated"
+      "lang-from": {
+        "desc": "The language to translate from",
+        "type": "string"
+      },
+      "lang-into": {
+        "desc": "The language to translate into",
+        "type": "string"
+      },
+      "text": {
+        "desc": "The text to translate",
+        "type": "string"
+      }
     },
     "fn": "translate",
     "aliases": [
       "t"
     ]
   },
-  "1rm": {
-    "desc": "Calculates one rep max using the Epley formula",
-    "params": {
-      "weight": "The weight lifted",
-      "reps": "The amount of full reps performed"
-    },
-    "fn": "onerm"
-  },
   "convert": {
     "desc": "Converts values from one unit to another",
     "params": {
-      "number": "The value to convert",
-      "units-from": "The units to convert from",
-      "units-to": "The units to convert to",
-      "dp": "How many decimal places to round to, defaults to 2"
+      "number": {
+        "desc": "The value to convert",
+        "type": "number"
+      },
+      "units-from": {
+        "desc": "The units to convert from",
+        "type": "string"
+      },
+      "units-to": {
+        "desc": "The units to convert to",
+        "type": "string"
+      },
+      "dp": {
+        "desc": "How many decimal places to round to, defaults to 2",
+        "type": "int"
+      }
     },
     "fn": "convert",
     "aliases": [
@@ -124,10 +164,22 @@
   "currency": {
     "desc": "Converts money from one currency to another",
     "params": {
-      "value": "The amount of money",
-      "curr-from": "The currency to convert from",
-      "curr-to": "The currency to convert to",
-      "dp": "How many decimal places to round to, defaults to 2"
+      "value": {
+        "desc": "The amount of money",
+        "type": "number"
+      },
+      "curr-from": {
+        "desc": "The currency to convert from",
+        "type": "string"
+      },
+      "curr-to": {
+        "desc": "The currency to convert to",
+        "type": "string"
+      },
+      "dp": {
+        "desc": "How many decimal places to round to, defaults to 2",
+        "type": "int"
+      }
     },
     "fn": "currconvert",
     "aliases": [
@@ -138,14 +190,15 @@
   },
   "b": {
     "desc": "B",
-    "params": {
-    },
     "fn": "b"
   },
   "youtube": {
     "desc": "Gets videos from youtube based on a search query",
     "params": {
-      "query": "What to search for"
+      "query": {
+        "desc": "What to search for",
+        "type": "string"
+      }
     },
     "fn": "youtube",
     "aliases": [
@@ -155,7 +208,10 @@
   "prettify": {
     "desc": "Prettifies text!",
     "params": {
-      "text": "The text to be prettified"
+      "text": {
+        "desc": "The text to be prettified",
+        "type": "string"
+      }
     },
     "fn": "prettify",
     "aliases": [
@@ -165,7 +221,10 @@
   "cyrillify": {
     "desc": "Turns latin text into Cyrillic",
     "params": {
-      "text": "Text to be Cyrillified"
+      "text": {
+        "desc": "The text to be Cyrillified",
+        "type": "string"
+      }
     },
     "fn": "cyrillify",
     "aliases": [
@@ -175,7 +234,10 @@
   "setprefix": {
     "desc": "Sets the command prefix for this channel",
     "params": {
-      "value": "What to set the command prefix to"
+      "value": {
+        "desc": "What to set the command prefix to",
+        "type": "string"
+      }
     },
     "fn": "setPrefix",
     "admin": true,
@@ -184,7 +246,10 @@
   "eval": {
     "desc": "Evaluates a mathematical expression. Not literally eval()!",
     "params": {
-      "expression": "The expression to be evaluated"
+      "expression": {
+        "desc": "The expression to be evaluated",
+        "type": "string"
+      }
     },
     "fn": "eval",
     "aliases": [
@@ -195,38 +260,52 @@
   "setvar": {
     "desc": "Sets a variable for the evaluation context",
     "params": {
-      "varname": "The name of the variable to be assigned to",
-      "value": "The new value of the variable"
+      "varname": {
+        "desc": "The name of the variable to be assigned to",
+        "type": "string"
+      },
+      "value": {
+        "desc": "An expression for the new value of the variable",
+        "type": "string"
+      }
     },
     "fn": "setvar"
   },
   "setvars": {
     "desc": "Same as setvar, but sets multiple variables in one command",
     "params": {
-      "varnames": "The names of the variables, for instance \"x, y, z\"",
-      "value": "The values of the variables, for instance \"1, e, sqrt(x)\""
+      "varnames": {
+        "desc": "The names of the variables, for instance \"x, y, z\"",
+        "type": "string"
+      },
+      "value": {
+        "desc": "The values of the variables, for instance \"1, e, sqrt(x)\"",
+        "type": "string"
+      }
     },
     "fn": "setvars"
-  },
-  "import": {
-    "desc": "Zen",
-    "params": {
-      "this": "This."
-    },
-    "fn": "import_fn"
   },
   "ree": {
     "desc": "REEEEEs so you don't have to",
     "params": {
-      "len": "How much to REEEEE"
+      "len": {
+        "desc": "How much to REEEEE",
+        "type": "int"
+      }
     },
     "fn": "ree"
   },
   "poll": {
     "desc": "Creates a poll",
     "params": {
-      "action": "What to do: open, close, create, delete, show",
-      "options": "The options for the poll, if creating a new poll, separated by semicolons."
+      "action": {
+        "desc": "What to do: open, close, create, delete, show",
+        "type": "string"
+      },
+      "options": {
+        "desc": "The options for the poll, if creating a new poll, separated by semicolons.",
+        "type": "string"
+      }
     },
     "fn": "poll",
     "defaults": 1
@@ -234,14 +313,20 @@
   "vote": {
     "desc": "Vote on the current poll",
     "params": {
-      "option": "The name of the option you want to vote for; run 'poll show' to get a list of the options"
+      "option": {
+        "desc": "The name of the option you want to vote for; run 'poll show' to get a list of the options",
+        "type": "string"
+      }
     },
     "fn": "vote"
   },
   "votei": {
     "desc": "Vote on the current poll, by index",
     "params": {
-      "option": "The index of the option you want to vote for; run 'poll show' to get a list of the indices"
+      "option": {
+        "desc": "The index of the option you want to vote for; run 'poll show' to get a list of the indices",
+        "type": "int"
+      }
     },
     "fn": "votei"
   }
