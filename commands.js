@@ -6,12 +6,11 @@ const mathjs = require('mathjs');
 const Promise = require("bluebird");
 const xkcd = require('relevant-xkcd');
 
-const util = require('./util.js');
+const util = require('./util');
 
-const scv = require('./modules/scv.js');
+const scv = require('./modules/scv');
 const cconvert = require('./modules/cconvert');
 const Timer = require('./modules/timer');
-const cmdData = require('./data/commands.json');
 
 const config = require('./config.json');
 
@@ -38,11 +37,20 @@ const polls = {};
  */
 const descString = (prefix, cmdName) => {
     // output the command docstring
-    let currCmd = cmdData[cmdName],
+    let currCmd = commandDesc[cmdName],
         outText = [];
     // signature and descstring
-    const cmdParams = typeof currCmd.params === 'undefined' ? {} : currCmd.params, // huh
-        admin = typeof currCmd.admin === 'undefined' ? false : currCmd.admin;
+    const cmdParams = typeof currCmd.params === 'undefined' ? {} : currCmd.params; // huh
+    let admin = false,
+        me = false;
+
+    if (typeof currCmd.permissions !== 'undefined') {
+        if (currCmd.permissions === 'me') {
+            me = true;
+        } else if (currCmd.permissions === 'admin') {
+            admin = true;
+        }
+    }
     let usageStr = prefix + cmdName;
 
     if (Object.keys(cmdParams).length !== 0) {
@@ -67,8 +75,10 @@ const descString = (prefix, cmdName) => {
     }
 
     outText.push(usageStr);
-    if (admin) {
-        outText.push(currCmd.desc + ' (requires admin privileges)');
+    if (me) {
+        outText.push(currCmd.desc + ' (bot admin only)');
+    } else if (admin) {
+        outText.push(currCmd.desc + ' (requires channel admin privileges)');
     } else {
         outText.push(currCmd.desc);
     }
@@ -150,9 +160,11 @@ const commands = {
             let commandName = cmdNames[i],
                 commandEntry = '',
                 aliasesArray = commandDesc[commandName].aliases,
-                admin = typeof commandDesc[commandName].admin === 'undefined' ? false : commandDesc[commandName].admin;
+                admin = typeof commandDesc[commandName].permissions === 'undefined' ? false : commandDesc[commandName].permissions;
 
-            if (admin) {
+            if (admin === 'me') {
+                break; // don't display the command if it's bot admin only
+            } else if (admin === 'admin') {
                 commandEntry += commandName.toUpperCase();
             } else {
                 commandEntry += commandName;
@@ -170,8 +182,8 @@ const commands = {
     },
     help: (msg, sendmsg, cmdName) => {
         let prefix = '<prefix>';
-        console.log(cmdData[cmdName]);
-        if (typeof cmdData[cmdName] === 'undefined') {
+        console.log(commandDesc[cmdName]);
+        if (typeof commandDesc[cmdName] === 'undefined') {
             sendmsg('**Undefined command name** "' + cmdName + '"');
         } else {
             sendmsg('```' + descString(prefix, cmdName).join('\n') + '```');
@@ -189,6 +201,11 @@ const commands = {
     },
     source: (msg, sendmsg) => {
         sendmsg(`**Source code at** ${sourceCodeURL}`);
+    },
+    restart: (msg, sendmsg) => {
+        sendmsg('Restarting bot.').then(() => {
+            process.exit(1); // pm2 will restart if the exit code is not 0
+        });
     },
     roll: (msg, sendmsg, sides, dice = 1) => {
         let rolls = [];

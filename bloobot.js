@@ -2,8 +2,8 @@ const Promise = require("bluebird");
 const Discord = require('discord.js');
 const client = new Discord.Client();
 
-const util = require('./util.js');
-const cmd = require('./commands.js');
+const util = require('./util');
+const cmd = require('./commands');
 const scv = require('./modules/scv');
 const defaults = require('./modules/defaults');
 
@@ -226,8 +226,11 @@ function cmdExe(msg, cmdName, args, prefix) {
                 outText = cmd.descString(prefix, cmdName);
                 res();
             } else {
-                if (currCmd.admin && !util.sentByAdminOrMe(msg)) { // check for privileges if the command requires them
+                if (currCmd.permissions === 'admin' && !util.sentByAdminOrMe(msg)) { // check for privileges if the command requires them
                     outText = ['The command ' + cmdName + ' requires administrator privileges.'];
+                    res();
+                } else if (currCmd.permissions === 'me' && !util.sentByMe(msg)) { // check for privileges if the command requires them
+                    outText = ['The command ' + cmdName + ' can only be run by the bot admin.'];
                     res();
                 } else if (args.length < paramsCount - defaultsCount) { // check if the number of args is correct
                     outText = [`The command ${cmdName} requires at least ${paramsCount - defaultsCount} arguments; received ${args.length}.`];

@@ -1,10 +1,12 @@
 const DISCORD_CHAR_LIMIT = 2000;
 const MY_CHAR_LIMIT = 10000;
 
+const config = require('./config.json');
+
 module.exports.MY_CHAR_LIMIT = 1000;
 
 /**
- * Checks if an object is empty, that is, if it is {}
+ * Checks if an object is empty, that is, if it is {}.
  *
  * @param obj The object.
  * @returns {boolean} Whether the object is empty.

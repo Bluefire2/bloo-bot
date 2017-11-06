@@ -50,7 +50,7 @@ Then, create the command doc in `data\commands.json`, like so:
   "aliases": ["alias1", "alias2"] <-- aliases for the command,
   "defaults": A number; if the command has any default parameters, specify how many here, defaults to 0,
   "update": "true" if the command changes a server variable, defaults to false,
-  "admin": "true" if the user needs to have admin privileges in the server to execute the command, defaults to false
+  "permissions": "admin" if the user needs to have admin privileges in the server to execute the command, defaults to false
 },
 ...
 ```

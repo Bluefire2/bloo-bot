@@ -25,6 +25,11 @@
     "desc": "Pings the bot",
     "fn": "ping"
   },
+  "restart": {
+    "desc": "Restarts the bot",
+    "fn": "restart",
+    "permissions": "me"
+  },
   "roll": {
     "desc": "Rolls some dice",
     "params": {
@@ -247,7 +252,7 @@
       }
     },
     "fn": "setPrefix",
-    "admin": true,
+    "permissions": "admin",
     "update": true
   },
   "eval": {
