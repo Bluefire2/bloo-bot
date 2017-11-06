@@ -6,6 +6,8 @@ const mathjs = require('mathjs');
 const Promise = require("bluebird");
 const xkcd = require('relevant-xkcd');
 
+const utils = require('./utils.js');
+
 const scv = require('./modules/scv.js');
 const cconvert = require('./modules/cconvert');
 const Timer = require('./modules/timer');
@@ -106,10 +108,13 @@ const descString = (prefix, cmdName) => {
     outText.push('\n');
 
     // parameters
-    Object.keys(cmdParams).forEach(key => {
-        let parameter = cmdParams[key];
-        outText.push(key + ": " + parameter.desc);
-    });
+    if (!utils.objectIsEmpty(cmdParams)) {
+        outText.push('Parameters:');
+        Object.keys(cmdParams).forEach(key => {
+            let parameter = cmdParams[key];
+            outText.push(key + ": " + parameter.desc);
+        });
+    }
 
     // aliases
     let aliases = currCmd.aliases;
@@ -830,7 +835,7 @@ const commands = {
     }
 };
 
-// export some stuff
+// export stuff
 module.exports = commands;
 module.exports.descString = descString;
 module.exports.safeSendMsg = safeSendMsg;
