@@ -34,7 +34,8 @@
       },
       "dice": {
         "desc": "The amount of dice to roll, defaults to 1",
-        "type": "int"
+        "type": "int",
+        "default": 1
       }
     },
     "fn": "roll",
@@ -68,7 +69,8 @@
       },
       "amount": {
         "desc": "The amount of this item, defaults to 1",
-        "type": "int"
+        "type": "int",
+        "default": 1
       }
     },
     "fn": "priceCheck",
@@ -86,11 +88,13 @@
       },
       "amount": {
         "desc": "The number of kills assigned, defaults to 1",
-        "type": "int"
+        "type": "int",
+        "default": 1
       },
       "aura": {
         "desc": "The tier of the slayer aura used, defaults to 0",
-        "type": "int"
+        "type": "int",
+        "default": 0
       }
     },
     "fn": "slayer",
@@ -105,7 +109,8 @@
       },
       "lang": {
         "desc": "The wikipedia language, defaults to en",
-        "type": "string"
+        "type": "string",
+        "default": "en"
       }
     },
     "fn": "wikipedia",
@@ -152,7 +157,8 @@
       },
       "dp": {
         "desc": "How many decimal places to round to, defaults to 2",
-        "type": "int"
+        "type": "int",
+        "default": 2
       }
     },
     "fn": "convert",
@@ -178,7 +184,8 @@
       },
       "dp": {
         "desc": "How many decimal places to round to, defaults to 2",
-        "type": "int"
+        "type": "int",
+        "default": 2
       }
     },
     "fn": "currconvert",
@@ -304,7 +311,8 @@
       },
       "options": {
         "desc": "The options for the poll, if creating a new poll, separated by semicolons.",
-        "type": "string"
+        "type": "string",
+        "default": "none"
       }
     },
     "fn": "poll",

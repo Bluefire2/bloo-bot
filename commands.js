@@ -77,7 +77,24 @@ const descString = (prefix, cmdName) => {
     let usageStr = prefix + cmdName;
 
     if (Object.keys(cmdParams).length !== 0) {
-        usageStr += " <" + Object.keys(cmdParams).join("> <") + ">";
+        const defaults = typeof currCmd.defaults === 'undefined' ? 0 : currCmd.defaults,
+            numParams = Object.keys(cmdParams).length;
+
+        const pDocs = Object.keys(cmdParams).map(key => {
+            const parameter = cmdParams[key];
+            let pString = `${key}`;
+
+            if (typeof parameter.default !== 'undefined') {
+                // a default parameter
+                pString += `=${parameter.default}`;
+            }
+
+            pString += ` (${Array.isArray(parameter.type) ? parameter.type.join(', ') : parameter.type})`;
+
+            return pString;
+        });
+
+        usageStr += " <" + pDocs.join("> <") + ">";
     }
 
     outText.push(usageStr);
@@ -89,10 +106,10 @@ const descString = (prefix, cmdName) => {
     outText.push('\n');
 
     // parameters
-    for (let paramName in cmdParams) {
-        let paramDesc = cmdParams[paramName];
-        outText.push(paramName + ": " + paramDesc);
-    }
+    Object.keys(cmdParams).forEach(key => {
+        let parameter = cmdParams[key];
+        outText.push(key + ": " + parameter.desc);
+    });
 
     // aliases
     let aliases = currCmd.aliases;
