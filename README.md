@@ -38,7 +38,8 @@ Then, create the command doc in `data\commands.json`, like so:
   "params": {
     "parameter1": {
         "desc": "Quick description of this parameter",
-        "type": "The type of the parameter: int, number, string or all"
+        "type": "The type of the parameter: int, number, string or all",
+        "default": "If the parameter has a default value, put it here"
     },
     "parameter2": {
         "desc": "etc etc"...
