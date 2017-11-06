@@ -2,6 +2,7 @@ const Promise = require("bluebird");
 const Discord = require('discord.js');
 const client = new Discord.Client();
 
+const utils = require('./utils.js');
 const cmd = require('./commands.js');
 const scv = require('./modules/scv');
 const defaults = require('./modules/defaults');
@@ -151,7 +152,7 @@ client.on('message', (msg) => {
                 // Master command that resets the prefix to ~.
 
                 // admins only (and me)
-                if (cmd.sentByAdminOrMe(msg)) {
+                if (utils.sentByAdminOrMe(msg)) {
                     const sendingFunction = (text) => msg.channel.send.call(msg.channel, text);
                     cmd.setPrefix(msg, sendingFunction, '~').then(() => {
                         return updateVariables(channelID);
@@ -180,8 +181,8 @@ client.on('message', (msg) => {
                             // if we need to output something that was returned from the command, then do so
                             if (output.length !== 0) {
                                 // send the message
-                                if (!cmd.safeSendMsg(msg.channel, output.join('\n'), '```')) {
-                                    msg.channel.send(`Outbound message length greater than ${cmd.MY_CHAR_LIMIT} character limit.`);
+                                if (!utils.safeSendMsg(msg.channel, output.join('\n'), '```')) {
+                                    msg.channel.send(`Outbound message length greater than ${utils.MY_CHAR_LIMIT} character limit.`);
                                 }
                             }
                         });
@@ -232,7 +233,7 @@ function cmdExe(msg, cmdName, args, prefix) {
                 outText = cmd.descString(prefix, cmdName);
                 res();
             } else {
-                if (currCmd.admin && !cmd.sentByAdminOrMe(msg)) { // check for privileges if the command requires them
+                if (currCmd.admin && !utils.sentByAdminOrMe(msg)) { // check for privileges if the command requires them
                     outText = ['The command ' + cmdName + ' requires administrator privileges.'];
                     res();
                 } else if (args.length < paramsCount - defaultsCount) { // check if the number of args is correct

@@ -22,44 +22,11 @@ const NUMBERS = require('./data/numbers.json');
 const UNITSPACE = '\u202F';
 const ALPHABET = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
 
-const DISCORD_CHAR_LIMIT = 2000;
-const MY_CHAR_LIMIT = 10000;
-
 const sourceCodeURL = 'https://github.com/Bluefire2/bloo-bot';
 
 const uptimeTimer = new Timer();
 
 const polls = {};
-
-/**
- * Determines if the message was sent by a server admin.
- *
- * @param msg The message sent.
- * @returns {boolean} true if sent by an admin, false otherwise.
- */
-const sentByAdmin = (msg) => {
-    return msg.member.hasPermission('ADMINISTRATOR');
-};
-
-/**
- * Determines if the message was sent by a me (user running the bot).
- *
- * @param msg The message sent.
- * @returns {boolean} true if sent by me, false otherwise.
- */
-const sentByMe = (msg) => {
-    return msg.member.id === config.admin_snowflake;
-};
-
-/**
- * Determines if the message was sent by a server admin, or by me (user running the bot).
- *
- * @param msg The message sent.
- * @returns {boolean} true if sent by an admin or me, false otherwise.
- */
-const sentByAdminOrMe = (msg) => {
-    return sentByAdmin(msg) || sentByMe(msg);
-};
 
 /**
  * Outputs the descstring for a command.
@@ -136,74 +103,6 @@ const descString = (prefix, cmdName) => {
 };
 
 /**
- * Removes *all* whitespace from a string.
- *
- * @param str The string.
- */
-const removeWhitespace = (str) => {
-    return str.replace(/ /g, '');
-};
-
-/**
- * Send a message that may or may not be longer than Discord's char limit. If it is not longer then just send it; if it
- * is longer then split it into several sub-limit chunks, sending each one individually, and wrapping them all with a
- * wrapper if needed (for example ``` ```) for code. However, if the message is way too long (longer than "my" char
- * limit) then don't send it.
- *
- * @param channel The current channel (access using msg.channel from commands).
- * @param text The text of the message to send.
- * @param surround The wrapper for the message(s).
- * @returns {boolean} true if the message was sent, false if it was not (due to excessive size).
- */
-const safeSendMsg = (channel, text, surround = '') => {
-    // TODO: Implement optional "smart" mode where it tries to not cut off in the middle of words
-    let localCharLim = DISCORD_CHAR_LIMIT - 2 * surround.length;
-
-    if (text.length > MY_CHAR_LIMIT) {
-        return false;
-    } else if (text.length < localCharLim) {
-        channel.send(surround + text + surround);
-        return true;
-    } else {
-        let textTemp = text;
-
-        for (let i = 0; i <= textTemp.length % localCharLim; i++) {
-            channel.send(surround + textTemp.slice(0, localCharLim) + surround);
-
-            textTemp = textTemp.slice(localCharLim);
-        }
-        return true;
-    }
-};
-
-/**
- * Rounds a float to a specified number of digits.
- *
- * @param n The number to round.
- * @param digits The number of digits (not decimal places) to round to.
- * @returns {number} The rounded value.
- */
-const roundTo = (n, digits) => {
-    if (digits === undefined) {
-        digits = 0;
-    }
-
-    let multiplicator = Math.pow(10, digits);
-    n = parseFloat((n * multiplicator).toFixed(11));
-    let test = (Math.round(n) / multiplicator);
-    return +(test.toFixed(digits));
-};
-
-/**
- * Formats a number with commas, e.g. 1234567 => 1,234,567
- * @param x The number.
- * @returns {string} The number formatted with commas.
- */
-const numberWithCommas = (x) => {
-    return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
-};
-
-/**
  * Maps the aura tier name to its slayer kill multiplier. Used in the `slayer` command.
  *
  * @param tier The name of the aura tier.
@@ -227,27 +126,6 @@ const slayerAuraChance = (tier) => {
 
     multiplier = auraToTier[index];
     return 1 / (2 - multiplier); // expected value of geometric distribution
-};
-
-/**
- * Generates a random integer in a specified range.
- *
- * @param min The lower bound for the range.
- * @param max The upper bound for the range.
- * @returns {number} The random integer.
- */
-const randomInRange = (min, max) => {
-    return Math.floor(Math.random() * (max + 1 - min)) + min;
-};
-
-/**
- * Provides the link to a youtube video, given its youtube ID.
- *
- * @param id The video id.
- * @returns {string} The link.
- */
-const youtubeIDToLink = (id) => {
-    return 'https://www.youtube.com/watch?v=' + id;
 };
 
 // Store the current math variables. These will expire on restart but will persist if the bot is kicked and then reinvited.
@@ -316,7 +194,7 @@ const commands = {
         let rolls = [];
 
         for (let i = 0; i < dice; i++) {
-            rolls.push(randomInRange(1, sides));
+            rolls.push(utils.randomInRange(1, sides));
         }
 
         let data = {
@@ -336,7 +214,7 @@ const commands = {
                     if (key === 'mode') {
                         return `[${data[key](val)}]`;
                     }
-                    return roundTo(data[key](val), 3);
+                    return utils.roundTo(data[key](val), 3);
                 };
 
                 return `${key}: ${func(rolls)}`;
@@ -345,7 +223,7 @@ const commands = {
         return `${rollsString};\n\n${dataString}`;
     },
     flipcoin: (msg, sendmsg) => {
-        let HorT = randomInRange(0, 1) === 1 ? 'heads' : 'tails';
+        let HorT = utils.randomInRange(0, 1) === 1 ? 'heads' : 'tails';
         msg.reply(HorT);
     },
     pasta: (msg, sendmsg, pastaName) => {
@@ -445,7 +323,7 @@ const commands = {
     convert: (msg, sendmsg, number, unitsFrom, unitsTo, dp = 2) => {
         let converted;
         try {
-            converted = roundTo(convertUnits(number).from(unitsFrom).to(unitsTo), dp);
+            converted = utils.roundTo(convertUnits(number).from(unitsFrom).to(unitsTo), dp);
             sendmsg('**' + number + UNITSPACE + unitsFrom + '** is **' + converted + UNITSPACE + unitsTo + '**');
         } catch (e) {
             sendmsg('**Error**: ' + e.message);
@@ -476,7 +354,7 @@ const commands = {
                 return `**No results found for** "${query}"`;
             }
 
-            sendmsg(youtubeIDToLink(firstVideoID));
+            sendmsg(utils.youtubeIDToLink(firstVideoID));
         }).catch((response) => {
             console.log(response);
         });
@@ -570,8 +448,8 @@ const commands = {
         }
     },
     setvars: (msg, sendmsg, varnames, varvalues) => {
-        const varnamesArray = removeWhitespace(varnames).split(','),
-            varvaluesArray = removeWhitespace(varvalues).split(',');
+        const varnamesArray = utils.removeWhitespace(varnames).split(','),
+            varvaluesArray = utils.removeWhitespace(varvalues).split(',');
 
         varnamesArray.forEach((elem, index) => {
             let value = varvaluesArray[index];
@@ -616,7 +494,7 @@ const commands = {
             reeee = eeee + "R";
         }
 
-        if (!safeSendMsg(msg.channel, reeee)) {
+        if (!utils.safeSendMsg(msg.channel, reeee)) {
             sendmsg("Too long!");
         }
     },
@@ -628,7 +506,7 @@ const commands = {
             if (isNaN(val)) {
                 sendmsg("Oops, something went wrong. Check that your currencies are both valid!");
             } else {
-                sendmsg(`${currFromTemp} ${amount} is ${currToTemp} ${roundTo(val, dp)}.`);
+                sendmsg(`${currFromTemp} ${amount} is ${currToTemp} ${utils.roundTo(val, dp)}.`);
             }
         }).catch(err => {
             sendmsg("Oops, something went wrong. Check that your currencies are both valid!");
@@ -663,7 +541,7 @@ const commands = {
         };
 
         if (action === 'open') {
-            if (sentByAdminOrMe(msg)) {
+            if (utils.sentByAdminOrMe(msg)) {
                 if (pollExists()) {
                     openPoll();
                     sendmsg('**Poll opened.**');
@@ -674,7 +552,7 @@ const commands = {
                 sendmsg('Must be admin to open, close or delete a poll.');
             }
         } else if (action === 'close') {
-            if (sentByAdminOrMe(msg)) {
+            if (utils.sentByAdminOrMe(msg)) {
                 if (pollExists()) {
                     closePoll();
                     sendmsg('**Poll closed.**');
@@ -706,7 +584,7 @@ const commands = {
                 sendmsg('Delete the current poll before creating a new one!');
             }
         } else if (action === 'delete') {
-            if (sentByAdminOrMe(msg)) {
+            if (utils.sentByAdminOrMe(msg)) {
                 if (pollExists()) {
                     deletePoll();
                     sendmsg('**Current poll deleted.**');
@@ -742,7 +620,7 @@ const commands = {
                 console.log(tally);
                 Object.keys(tally).forEach(key => {
                     const count = tally[key],
-                        percentage = roundTo(count / totalVotes * 100, 2);
+                        percentage = utils.roundTo(count / totalVotes * 100, 2);
 
                     let currentCountString = `${options.indexOf(key) + 1}. ${key}: ${count} votes`;
 
@@ -838,8 +716,3 @@ const commands = {
 // export stuff
 module.exports = commands;
 module.exports.descString = descString;
-module.exports.safeSendMsg = safeSendMsg;
-module.exports.MY_CHAR_LIMIT = MY_CHAR_LIMIT;
-module.exports.sentByAdmin = sentByAdmin;
-module.exports.sentByMe = sentByMe;
-module.exports.sentByAdminOrMe = sentByAdminOrMe;
