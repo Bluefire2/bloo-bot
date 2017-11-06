@@ -6,7 +6,7 @@ const mathjs = require('mathjs');
 const Promise = require("bluebird");
 const xkcd = require('relevant-xkcd');
 
-const utils = require('./utils.js');
+const util = require('./util.js');
 
 const scv = require('./modules/scv.js');
 const cconvert = require('./modules/cconvert');
@@ -75,7 +75,7 @@ const descString = (prefix, cmdName) => {
     outText.push('\n');
 
     // parameters
-    if (!utils.objectIsEmpty(cmdParams)) {
+    if (!util.objectIsEmpty(cmdParams)) {
         outText.push('Parameters:');
         Object.keys(cmdParams).forEach(key => {
             let parameter = cmdParams[key];
@@ -194,7 +194,7 @@ const commands = {
         let rolls = [];
 
         for (let i = 0; i < dice; i++) {
-            rolls.push(utils.randomInRange(1, sides));
+            rolls.push(util.randomInRange(1, sides));
         }
 
         let data = {
@@ -214,7 +214,7 @@ const commands = {
                     if (key === 'mode') {
                         return `[${data[key](val)}]`;
                     }
-                    return utils.roundTo(data[key](val), 3);
+                    return util.roundTo(data[key](val), 3);
                 };
 
                 return `${key}: ${func(rolls)}`;
@@ -223,7 +223,7 @@ const commands = {
         return `${rollsString};\n\n${dataString}`;
     },
     flipcoin: (msg, sendmsg) => {
-        let HorT = utils.randomInRange(0, 1) === 1 ? 'heads' : 'tails';
+        let HorT = util.randomInRange(0, 1) === 1 ? 'heads' : 'tails';
         msg.reply(HorT);
     },
     pasta: (msg, sendmsg, pastaName) => {
@@ -323,7 +323,7 @@ const commands = {
     convert: (msg, sendmsg, number, unitsFrom, unitsTo, dp = 2) => {
         let converted;
         try {
-            converted = utils.roundTo(convertUnits(number).from(unitsFrom).to(unitsTo), dp);
+            converted = util.roundTo(convertUnits(number).from(unitsFrom).to(unitsTo), dp);
             sendmsg('**' + number + UNITSPACE + unitsFrom + '** is **' + converted + UNITSPACE + unitsTo + '**');
         } catch (e) {
             sendmsg('**Error**: ' + e.message);
@@ -354,7 +354,7 @@ const commands = {
                 return `**No results found for** "${query}"`;
             }
 
-            sendmsg(utils.youtubeIDToLink(firstVideoID));
+            sendmsg(util.youtubeIDToLink(firstVideoID));
         }).catch((response) => {
             console.log(response);
         });
@@ -448,8 +448,8 @@ const commands = {
         }
     },
     setvars: (msg, sendmsg, varnames, varvalues) => {
-        const varnamesArray = utils.removeWhitespace(varnames).split(','),
-            varvaluesArray = utils.removeWhitespace(varvalues).split(',');
+        const varnamesArray = util.removeWhitespace(varnames).split(','),
+            varvaluesArray = util.removeWhitespace(varvalues).split(',');
 
         varnamesArray.forEach((elem, index) => {
             let value = varvaluesArray[index];
@@ -494,7 +494,7 @@ const commands = {
             reeee = eeee + "R";
         }
 
-        if (!utils.safeSendMsg(msg.channel, reeee)) {
+        if (!util.safeSendMsg(msg.channel, reeee)) {
             sendmsg("Too long!");
         }
     },
@@ -506,7 +506,7 @@ const commands = {
             if (isNaN(val)) {
                 sendmsg("Oops, something went wrong. Check that your currencies are both valid!");
             } else {
-                sendmsg(`${currFromTemp} ${amount} is ${currToTemp} ${utils.roundTo(val, dp)}.`);
+                sendmsg(`${currFromTemp} ${amount} is ${currToTemp} ${util.roundTo(val, dp)}.`);
             }
         }).catch(err => {
             sendmsg("Oops, something went wrong. Check that your currencies are both valid!");
@@ -541,7 +541,7 @@ const commands = {
         };
 
         if (action === 'open') {
-            if (utils.sentByAdminOrMe(msg)) {
+            if (util.sentByAdminOrMe(msg)) {
                 if (pollExists()) {
                     openPoll();
                     sendmsg('**Poll opened.**');
@@ -552,7 +552,7 @@ const commands = {
                 sendmsg('Must be admin to open, close or delete a poll.');
             }
         } else if (action === 'close') {
-            if (utils.sentByAdminOrMe(msg)) {
+            if (util.sentByAdminOrMe(msg)) {
                 if (pollExists()) {
                     closePoll();
                     sendmsg('**Poll closed.**');
@@ -584,7 +584,7 @@ const commands = {
                 sendmsg('Delete the current poll before creating a new one!');
             }
         } else if (action === 'delete') {
-            if (utils.sentByAdminOrMe(msg)) {
+            if (util.sentByAdminOrMe(msg)) {
                 if (pollExists()) {
                     deletePoll();
                     sendmsg('**Current poll deleted.**');
@@ -620,7 +620,7 @@ const commands = {
                 console.log(tally);
                 Object.keys(tally).forEach(key => {
                     const count = tally[key],
-                        percentage = utils.roundTo(count / totalVotes * 100, 2);
+                        percentage = util.roundTo(count / totalVotes * 100, 2);
 
                     let currentCountString = `${options.indexOf(key) + 1}. ${key}: ${count} votes`;
 

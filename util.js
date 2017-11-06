@@ -137,3 +137,10 @@ module.exports.safeSendMsg = (channel, text, surround = '') => {
         return true;
     }
 };
+
+module.exports.TypeCheck = {
+    string: p => true,
+    int: p => Number.isInteger(parseInt(p)),
+    number: p => !isNaN(p),
+    all: p => true
+};

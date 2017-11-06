@@ -2,7 +2,7 @@ const Promise = require("bluebird");
 const Discord = require('discord.js');
 const client = new Discord.Client();
 
-const utils = require('./utils.js');
+const util = require('./util.js');
 const cmd = require('./commands.js');
 const scv = require('./modules/scv');
 const defaults = require('./modules/defaults');
@@ -90,13 +90,6 @@ const checkForAlias = (alias) => {
     }
 };
 
-const TypeCheck = {
-    string: p => true,
-    int: p => Number.isInteger(parseInt(p)),
-    number: p => !isNaN(p),
-    all: p => true
-};
-
 // Global variables
 let variablesLoaded = {},
     allPrefixes = {};
@@ -152,7 +145,7 @@ client.on('message', (msg) => {
                 // Master command that resets the prefix to ~.
 
                 // admins only (and me)
-                if (utils.sentByAdminOrMe(msg)) {
+                if (util.sentByAdminOrMe(msg)) {
                     const sendingFunction = (text) => msg.channel.send.call(msg.channel, text);
                     cmd.setPrefix(msg, sendingFunction, '~').then(() => {
                         return updateVariables(channelID);
@@ -181,8 +174,8 @@ client.on('message', (msg) => {
                             // if we need to output something that was returned from the command, then do so
                             if (output.length !== 0) {
                                 // send the message
-                                if (!utils.safeSendMsg(msg.channel, output.join('\n'), '```')) {
-                                    msg.channel.send(`Outbound message length greater than ${utils.MY_CHAR_LIMIT} character limit.`);
+                                if (!util.safeSendMsg(msg.channel, output.join('\n'), '```')) {
+                                    msg.channel.send(`Outbound message length greater than ${util.MY_CHAR_LIMIT} character limit.`);
                                 }
                             }
                         });
@@ -233,7 +226,7 @@ function cmdExe(msg, cmdName, args, prefix) {
                 outText = cmd.descString(prefix, cmdName);
                 res();
             } else {
-                if (currCmd.admin && !utils.sentByAdminOrMe(msg)) { // check for privileges if the command requires them
+                if (currCmd.admin && !util.sentByAdminOrMe(msg)) { // check for privileges if the command requires them
                     outText = ['The command ' + cmdName + ' requires administrator privileges.'];
                     res();
                 } else if (args.length < paramsCount - defaultsCount) { // check if the number of args is correct
@@ -257,14 +250,14 @@ function cmdExe(msg, cmdName, args, prefix) {
                         // using every instead of forEach lets me break out of the loop when a mismatch is detected
                         paramNames.every(key => {
                             if (i === argsCount) {
-                                // If a default argument has not been provided, we don't need to typecheck. That means,
+                                // If a default argument has not been provided, we don't need to util.TypeCheck. That means,
                                 // we need to break out of the loop as soon as we have processed all provided arguments.
                                 return false;
                             }
                             const value = fnParams[key].type,
                                 typesArray = Array.isArray(value) ? value : [value],
                                 argument = fullArgs[i++],
-                                t = typesArray.filter(elem => TypeCheck[elem](argument));
+                                t = typesArray.filter(elem => util.TypeCheck[elem](argument));
 
                             // There is a type mismatch if and only if the argument input does not match any of the
                             // types specified for it. In this case, the filter above will trim all elements from the
