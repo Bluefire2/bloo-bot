@@ -4,6 +4,7 @@ const gtranslate = require('google-translate-api');
 const convertUnits = require('convert-units');
 const mathjs = require('mathjs');
 const Promise = require("bluebird");
+const xkcd = require('relevant-xkcd');
 
 const scv = require('./modules/scv.js');
 const cconvert = require('./modules/cconvert');
@@ -798,6 +799,17 @@ const commands = {
         } else {
             sendmsg('No poll active!');
         }
+    },
+    xkcd: (msg, sendmsg, keywords) => {
+        xkcd.fetchRelevant(keywords).then(response => {
+            let outString = '';
+
+            outString += `Relevant XKCD found: **${response.safeTitle}**\n\n`;
+            outString += response.imageURL;
+            //outString += response.altText;
+
+            sendmsg(outString);
+        });
     }
 };
 

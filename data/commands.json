@@ -329,5 +329,15 @@
       }
     },
     "fn": "votei"
+  },
+  "xkcd": {
+    "desc": "Finds a relevant xkcd by keywords",
+    "params": {
+      "keywords": {
+        "desc": "The keywords",
+        "type": "string"
+      }
+    },
+    "fn": "xkcd"
   }
 }

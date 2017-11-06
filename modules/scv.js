@@ -7,7 +7,7 @@
  */
 const sql = require('sqlite');
 const path = require('path');
-const Promise = require("bluebird");
+const Promise = require('bluebird');
 
 const CVTableName = 'guildsCV';
 const CVDBFilePath = path.join(__dirname, '..', 'data', 'CV.sqlite');
