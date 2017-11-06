@@ -1,6 +1,8 @@
 const DISCORD_CHAR_LIMIT = 2000;
 const MY_CHAR_LIMIT = 10000;
 
+module.exports.MY_CHAR_LIMIT = 1000;
+
 /**
  * Checks if an object is empty, that is, if it is {}
  *
