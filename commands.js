@@ -163,7 +163,7 @@ const commands = {
                 admin = typeof commandDesc[commandName].permissions === 'undefined' ? false : commandDesc[commandName].permissions;
 
             if (admin === 'me') {
-                break; // don't display the command if it's bot admin only
+                continue; // don't display the command if it's bot admin only
             } else if (admin === 'admin') {
                 commandEntry += commandName.toUpperCase();
             } else {
