@@ -762,7 +762,6 @@ const commands = {
 
                 const h = new Hangman();
 
-                // TODO: verify input is valid
                 h.init(hmArgs);
 
                 hangmen[channelID] = h;
