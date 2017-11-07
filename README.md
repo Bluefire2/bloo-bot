@@ -16,14 +16,15 @@ First, create the function that implements the command, and put it into the big 
 
 ```
 ...
-functionName: (msg, writeln, parameter1, parameter2, et cetera) => {
+functionName: (client, msg, writeln, parameter1, parameter2, et cetera) => {
     // implement the command
     // you don't have to return a value, but if you do it must be either a string, an array of strings, or a promise
     // if it is a string, the bot will message it inside ``` ```
     // if it is an array of strings the bot will message them all inside ``` ``` line by line
     // if it is a promise, the bot will do the above ^^^ to the resolved value of the promise once it resolves
-    // msg will always be the first parameter and it contains the message that requested the command; to send a message use msg.channel.send
-    // sendmsg will always be the second parameter and it contains the function that sends messages to the channel
+    // client will always be the first parameter, and it represents the Discord client (from Discord.js)
+    // msg will always be the second parameter and it contains the message that requested the command; to send a message use msg.channel.send
+    // sendmsg will always be the third parameter and it contains the function that sends messages to the channel
     // more parameters will be passed if you need them, as specified in the next step
 },
 ...
