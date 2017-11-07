@@ -10,7 +10,7 @@ const util = require('./util');
 
 const scv = require('./modules/scv');
 const cconvert = require('./modules/cconvert');
-const Timer = require('./modules/timer');
+const Timer = require('./classes/Timer');
 
 const config = require('./config.json');
 

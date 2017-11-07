@@ -5,6 +5,8 @@
  * and more data, but the interface will remain the same. The idea is to blackbox this
  * part of the code and not worry about it in my other modules.
  */
+
+// TODO: tbh this is complete garbage, just rewrite this completely
 const sql = require('sqlite');
 const path = require('path');
 const Promise = require('bluebird');
