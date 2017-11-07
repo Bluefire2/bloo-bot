@@ -8,6 +8,7 @@
   },
   "author": "Bluefire2",
   "license": "MIT",
+  "repository": "git://github.com/Bluefire2/bloo-bot.git",
   "dependencies": {
     "axios": "^0.17.0",
     "bluebird": "^3.5.1",
