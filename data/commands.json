@@ -367,6 +367,9 @@
       }
     },
     "fn": "hangman",
-    "defaults": 1
+    "defaults": 1,
+    "aliases": [
+      "hm"
+    ]
   }
 }
