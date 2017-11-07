@@ -166,18 +166,23 @@ client.on('message', (msg) => {
                     let parsedCmd = cmdParse(msg, prefix), // parse out the command and args
                         output;
                     if (parsedCmd) {
-                        cmdExe(msg, parsedCmd.cmdName, parsedCmd.cmdArgs, prefix).then((out) => {
-                            output = out;
-                            console.log(parsedCmd); // same as above
+                        cmdExe(msg, parsedCmd.cmdName, parsedCmd.cmdArgs, prefix)
+                            .then(out => {
+                                output = out;
+                                console.log(parsedCmd); // same as above
 
-                            // if we need to output something that was returned from the command, then do so
-                            if (output.length !== 0) {
-                                // send the message
-                                if (!util.safeSendMsg(msg.channel, output.join('\n'), '```')) {
-                                    msg.channel.send(`Outbound message length greater than ${util.MY_CHAR_LIMIT} character limit.`);
+                                // if we need to output something that was returned from the command, then do so
+                                if (output.length !== 0) {
+                                    // send the message
+                                    if (!util.safeSendMsg(msg.channel, output.join('\n'), '```')) {
+                                        msg.channel.send(`Outbound message length greater than ${util.MY_CHAR_LIMIT} character limit.`);
+                                    }
                                 }
-                            }
-                        });
+                            })
+                            .catch(err => {
+                                // an error was caught by cmdExe (most likely a permissions error)
+                                util.sendErrorMessage(msg.channel, err);
+                            });
                     } else {
                         // do nothing? idk
                     }
@@ -225,15 +230,13 @@ function cmdExe(msg, cmdName, args, prefix) {
                 outText = cmd.descString(prefix, cmdName);
                 res();
             } else {
+                // Check for a permissions error, and if positive reject the promise:
                 if (currCmd.permissions === 'admin' && !util.sentByAdminOrMe(msg)) { // check for privileges if the command requires them
-                    outText = ['The command ' + cmdName + ' requires administrator privileges.'];
-                    res();
+                    rej(`The command "${cmdName}" requires administrator privileges.`);
                 } else if (currCmd.permissions === 'me' && !util.sentByMe(msg)) { // check for privileges if the command requires them
-                    outText = ['The command ' + cmdName + ' can only be run by the bot admin.'];
-                    res();
+                    rej(`The command "${cmdName}" can only be run by the bot admin.`);
                 } else if (args.length < paramsCount - defaultsCount) { // check if the number of args is correct
-                    outText = [`The command "${cmdName}" requires at least ${paramsCount - defaultsCount} arguments; received ${args.length}.`];
-                    res();
+                    rej(`The command "${cmdName}" requires at least ${paramsCount - defaultsCount} arguments; received ${args.length}.`);
                 } else {
                     const func = cmd[currCmd.fn],
                         fnParams = currCmd.params,
@@ -333,8 +336,8 @@ function cmdExe(msg, cmdName, args, prefix) {
             }).then(() => {
                 resolve(outText);
             });
-        }).catch((err) => {
-            throw err;
+        }).catch(err => {
+            reject(err);
         });
     });
 }

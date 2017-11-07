@@ -148,14 +148,11 @@ module.exports.TypeCheck = {
     number: p => !isNaN(p),
     all: p => true
 };
-/*
-class InputException {
-    msg;
 
-    constructor(message) {
-        this.msg = message;
-    }
-}
+module.exports.sendErrorMessage = (channel, errorMsg) => {
+    channel.send(`Error: ${errorMsg}`);
+};
 
-module.exports.InputException = InputException;
-*/
+module.exports.isPM = msg => {
+    return msg.channel.type === 'dm' || !msg.guild;
+};
