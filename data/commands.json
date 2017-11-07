@@ -196,7 +196,8 @@
     "fn": "currconvert",
     "aliases": [
       "cc",
-      "curr"
+      "ex",
+      "exchange"
     ],
     "defaults": 1
   },

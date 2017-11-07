@@ -1,4 +1,4 @@
-const Promise = require("bluebird");
+const Promise = require('bluebird');
 const Discord = require('discord.js');
 const client = new Discord.Client();
 
@@ -13,6 +13,8 @@ const cmdData = require('./data/commands.json');
 // If the command line argument 'test' is given, log in to the test account
 const test = process.argv[2] === 'test';
 const loginToken = test ? config.test_token : config.token;
+
+//import
 
 /**
  * A function to deal with retrieving channel variables. If the variable is undefined, this function returns its
@@ -95,10 +97,7 @@ let variablesLoaded = {},
     allPrefixes = {};
 
 client.on('ready', () => {
-    console.log('Hello world!');
-    // scv.drop();
-    // scv.create();
-    // scv.listTable();
+    console.log('Bot is online!');
 });
 
 /*
@@ -233,7 +232,7 @@ function cmdExe(msg, cmdName, args, prefix) {
                     outText = ['The command ' + cmdName + ' can only be run by the bot admin.'];
                     res();
                 } else if (args.length < paramsCount - defaultsCount) { // check if the number of args is correct
-                    outText = [`The command ${cmdName} requires at least ${paramsCount - defaultsCount} arguments; received ${args.length}.`];
+                    outText = [`The command "${cmdName}" requires at least ${paramsCount - defaultsCount} arguments; received ${args.length}.`];
                     res();
                 } else {
                     const func = cmd[currCmd.fn],

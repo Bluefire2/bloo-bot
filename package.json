@@ -1,6 +1,6 @@
 {
   "name": "BlooBot",
-  "version": "1.2.1",
+  "version": "2.0.0",
   "description": "A Discord bot",
   "main": "bloobot.js",
   "scripts": {
@@ -9,18 +9,15 @@
   "author": "Bluefire2",
   "license": "MIT",
   "dependencies": {
-    "@types/node": "^8.0.47",
-    "axios": "^0.16.2",
+    "axios": "^0.17.0",
     "bluebird": "^3.5.1",
     "cheerio": "^1.0.0-rc.2",
     "convert-units": "^2.3.1",
     "discord.js": "^11.2.1",
     "google-translate-api": "^2.3.0",
-    "mathjs": "^3.16.4",
-    "node-wikia": "0.0.3",
+    "mathjs": "^3.16.5",
     "path": "^0.12.7",
     "relevant-xkcd": "^1.1.1",
-    "runescape-api": "^1.0.9",
     "sqlite": "^2.8.0"
   }
 }

@@ -148,3 +148,14 @@ module.exports.TypeCheck = {
     number: p => !isNaN(p),
     all: p => true
 };
+/*
+class InputException {
+    msg;
+
+    constructor(message) {
+        this.msg = message;
+    }
+}
+
+module.exports.InputException = InputException;
+*/
