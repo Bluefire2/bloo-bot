@@ -144,6 +144,7 @@ module.exports.safeSendMsg = (channel, text, surround = '') => {
 
 module.exports.TypeCheck = {
     string: p => true,
+    char: p => p.length === 1,
     int: p => Number.isInteger(parseInt(p)),
     number: p => !isNaN(p),
     all: p => true

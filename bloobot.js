@@ -14,8 +14,6 @@ const cmdData = require('./data/commands.json');
 const test = process.argv[2] === 'test';
 const loginToken = test ? config.test_token : config.token;
 
-//import
-
 /**
  * A function to deal with retrieving channel variables. If the variable is undefined, this function returns its
  * default value.
@@ -103,7 +101,7 @@ client.on('ready', () => {
 /*
  * This triggers on every message. Use this to listen to commands and master commands.
  */
-client.on('message', (msg) => {
+client.on('message', msg => {
     const channelID = msg.channel.id;
 
     /*
@@ -282,12 +280,11 @@ function cmdExe(msg, cmdName, args, prefix) {
                         });
                     }
 
-                    console.log(typeMismatchDesc);
-
                     if (!typeMismatch) {
                         // input passed type checking
                         fullArgs.unshift(sendingFunction);
                         fullArgs.unshift(msg);
+                        fullArgs.unshift(client);
 
                         // call the command function:
                         const moreText = func.apply(this, fullArgs);

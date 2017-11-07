@@ -353,5 +353,20 @@
       }
     },
     "fn": "xkcd"
+  },
+  "hangman": {
+    "desc": "Play hangman!",
+    "params": {
+      "action": {
+        "desc": "What to do: start, guess or hint",
+        "type": "string"
+      },
+      "guess": {
+        "desc": "The letter to guess, if guessing",
+        "type": "char"
+      }
+    },
+    "fn": "hangman",
+    "defaults": 1
   }
 }

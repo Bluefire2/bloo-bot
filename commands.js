@@ -11,6 +11,7 @@ const util = require('./util');
 const scv = require('./modules/scv');
 const cconvert = require('./modules/cconvert');
 const Timer = require('./classes/Timer');
+const Hangman = require('./classes/Hangman');
 
 const config = require('./config.json');
 
@@ -25,7 +26,8 @@ const sourceCodeURL = 'https://github.com/Bluefire2/bloo-bot';
 
 const uptimeTimer = new Timer();
 
-const polls = {};
+const polls = {},
+    hangmen = {};
 
 /**
  * Outputs the descstring for a command.
@@ -151,7 +153,7 @@ const mathVariables = {},
  * should take those parameters, in the order that they're documented in.
  */
 const commands = {
-    listcmd: (msg, sendmsg) => {
+    listcmd: (client, msg, sendMsg) => {
         let outText = 'Available commands:\n\n',
             commandsArray = [],
             cmdNames = Object.keys(commandDesc);
@@ -180,34 +182,34 @@ const commands = {
         outText += commandsArray.join(', ');
         return outText;
     },
-    help: (msg, sendmsg, cmdName) => {
+    help: (client, msg, sendMsg, cmdName) => {
         let prefix = '<prefix>';
         console.log(commandDesc[cmdName]);
         if (typeof commandDesc[cmdName] === 'undefined') {
-            sendmsg('**Undefined command name** "' + cmdName + '"');
+            sendMsg('**Undefined command name** "' + cmdName + '"');
         } else {
-            sendmsg('```' + descString(prefix, cmdName).join('\n') + '```');
+            sendMsg('```' + descString(prefix, cmdName).join('\n') + '```');
         }
     },
-    uptime: (msg, sendmsg) => {
+    uptime: (client, msg, sendMsg) => {
         const timeOnline = uptimeTimer.timeElapsedDhms();
 
-        sendmsg(`Online for ${timeOnline.days} days, ${timeOnline.hours} hours, ${timeOnline.minutes} minutes and ${timeOnline.seconds} seconds.`);
+        sendMsg(`Online for ${timeOnline.days} days, ${timeOnline.hours} hours, ${timeOnline.minutes} minutes and ${timeOnline.seconds} seconds.`);
     },
-    ping: (msg, sendmsg) => {
+    ping: (client, msg, sendMsg) => {
         console.log(Date.now(), msg.createdTimestamp);
         let pingTime = (Date.now() - msg.createdTimestamp);
-        sendmsg('Pong! ' + pingTime + 'ms');
+        sendMsg('Pong! ' + pingTime + 'ms');
     },
-    source: (msg, sendmsg) => {
-        sendmsg(`**Source code at** ${sourceCodeURL}`);
+    source: (client, msg, sendMsg) => {
+        sendMsg(`**Source code at** ${sourceCodeURL}`);
     },
-    restart: (msg, sendmsg) => {
-        sendmsg('Restarting bot.').then(() => {
+    restart: (client, msg, sendMsg) => {
+        sendMsg('Restarting bot.').then(() => {
             process.exit(1); // pm2 will restart if the exit code is not 0
         });
     },
-    roll: (msg, sendmsg, sides, dice = 1) => {
+    roll: (client, msg, sendMsg, sides, dice = 1) => {
         let rolls = [];
 
         for (let i = 0; i < dice; i++) {
@@ -239,21 +241,21 @@ const commands = {
 
         return `${rollsString};\n\n${dataString}`;
     },
-    flipcoin: (msg, sendmsg) => {
+    flipcoin: (client, msg, sendMsg) => {
         let HorT = util.randomInRange(0, 1) === 1 ? 'heads' : 'tails';
         msg.reply(HorT);
     },
-    pasta: (msg, sendmsg, pastaName) => {
+    pasta: (client, msg, sendMsg, pastaName) => {
         let pastaData = require("./data/pastas.json");
         if (pastaName !== 'list') {
             pastaText = pastaData[pastaName];
 
-            sendmsg(pastaText);
+            sendMsg(pastaText);
         } else {
             return Object.keys(pastaData).slice(0);
         }
     },
-    priceCheck: (msg, sendmsg, item, amount = 1) => {
+    priceCheck: (client, msg, sendMsg, item, amount = 1) => {
         const baseUrl = 'http://runescape.wikia.com/wiki/Exchange:';
 
         axios.get(baseUrl + item).then(response => {
@@ -261,21 +263,21 @@ const commands = {
                 price = parseInt($('#GEPrice').text().replace(/,/g, '')),
                 totalPrice = numberWithCommas(price * amount);
 
-            sendmsg(item + ' x ' + amount + ': ' + totalPrice + 'gp');
+            sendMsg(item + ' x ' + amount + ': ' + totalPrice + 'gp');
         }).catch((error) => {
             console.log(error);
         });
 
         return false;
     },
-    slayer: (msg, sendmsg, monster, amount = 1, aura = 0) => {
+    slayer: (client, msg, sendMsg, monster, amount = 1, aura = 0) => {
         const baseUrl = 'http://runescape.wikia.com/wiki/';
 
         let auraMultiplier = slayerAuraChance(aura),
             expectedAmount;
 
         if (!auraMultiplier) {
-            sendmsg('**Invalid aura tier **' + aura);
+            sendMsg('**Invalid aura tier **' + aura);
             return;
         }
 
@@ -293,13 +295,13 @@ const commands = {
                 xpHp = processXpText($('.mob-hp-xp').text()),
                 xpSlayer = processXpText($('.mob-slay-xp').text());
 
-            sendmsg(monsterName + ' x ' + expectedAmount + ': ' + xpSlayer
+            sendMsg(monsterName + ' x ' + expectedAmount + ': ' + xpSlayer
                 + ' slayer xp, ' + xpCombat + ' combat xp and ' + xpHp + ' hp xp.');
         }).catch((error) => {
             console.log(error);
         });
     },
-    wikipedia: (msg, sendmsg, article, lang = 'en') => {
+    wikipedia: (client, msg, sendMsg, article, lang = 'en') => {
         let baseUrl = 'https://' + lang + '.wikipedia.org/w/api.php?action=query&list=search&format=json&srsearch=',
             baseLinkUrl = 'https://' + lang + '.wikipedia.org/wiki/';
 
@@ -308,18 +310,18 @@ const commands = {
                 let firstResult = response.data.query.search[0],
                     firstResultTitle = firstResult.title.replace(/ /g, '_');
 
-                sendmsg('Wikipedia link: ' + baseLinkUrl + firstResultTitle);
+                sendMsg('Wikipedia link: ' + baseLinkUrl + firstResultTitle);
             } else {
-                sendmsg('No search results found for "' + article + '"');
+                sendMsg('No search results found for "' + article + '"');
             }
         }).catch((error) => {
             console.log(error);
             if (error.code === 'ENOTFOUND') {
-                sendmsg('**Invalid language code** "' + lang + '"');
+                sendMsg('**Invalid language code** "' + lang + '"');
             }
         });
     },
-    translate: (msg, sendmsg, langFrom, langInto, ...text) => {
+    translate: (client, msg, sendMsg, langFrom, langInto, ...text) => {
         let textJoined = text.join(' ');
 
         gtranslate(textJoined, {from: langFrom, to: langInto}).then((res) => {
@@ -331,25 +333,25 @@ const commands = {
 
             out += res.text;
 
-            sendmsg(out);
+            sendMsg(out);
         }).catch(err => {
             console.error(err);
-            sendmsg('**' + err.message + '**');
+            sendMsg('**' + err.message + '**');
         });
     },
-    convert: (msg, sendmsg, number, unitsFrom, unitsTo, dp = 2) => {
+    convert: (client, msg, sendMsg, number, unitsFrom, unitsTo, dp = 2) => {
         let converted;
         try {
             converted = util.roundTo(convertUnits(number).from(unitsFrom).to(unitsTo), dp);
-            sendmsg('**' + number + UNITSPACE + unitsFrom + '** is **' + converted + UNITSPACE + unitsTo + '**');
+            sendMsg('**' + number + UNITSPACE + unitsFrom + '** is **' + converted + UNITSPACE + unitsTo + '**');
         } catch (e) {
-            sendmsg('**Error**: ' + e.message);
+            sendMsg('**Error**: ' + e.message);
         }
     },
-    b: (msg, sendmsg) => {
-        sendmsg(':b:');
+    b: (client, msg, sendMsg) => {
+        sendMsg(':b:');
     },
-    youtube: (msg, sendmsg, query) => {
+    youtube: (client, msg, sendMsg, query) => {
         let baseYoutubeUrl = 'https://www.googleapis.com/youtube/v3/search';
 
         axios.get(baseYoutubeUrl, {
@@ -371,12 +373,12 @@ const commands = {
                 return `**No results found for** "${query}"`;
             }
 
-            sendmsg(util.youtubeIDToLink(firstVideoID));
+            sendMsg(util.youtubeIDToLink(firstVideoID));
         }).catch((response) => {
             console.log(response);
         });
     },
-    prettify: (msg, sendmsg, text) => {
+    prettify: (client, msg, sendMsg, text) => {
         let prettifiedText = (text + '').split(' ').map((word) => {
             return word.split('').map((char) => {
                 if (ALPHABET.indexOf(char) !== -1) {
@@ -389,9 +391,9 @@ const commands = {
             }).join('');
         }).join('  ');
 
-        sendmsg(prettifiedText);
+        sendMsg(prettifiedText);
     },
-    cyrillify: (msg, sendmsg, text) => {
+    cyrillify: (client, msg, sendMsg, text) => {
         let cyrillifiedText = text.split('').map((elem) => {
             let mappedChar = cyrillicMap[elem];
             if (typeof mappedChar === 'undefined') {
@@ -401,24 +403,24 @@ const commands = {
             }
         }).join('');
 
-        sendmsg(cyrillifiedText);
+        sendMsg(cyrillifiedText);
     },
-    setPrefix: (msg, sendmsg, value) => {
+    setPrefix: (client, msg, sendMsg, value) => {
         let channelID = msg.channel.id;
 
         console.log('setting for ' + channelID);
         return new Promise((resolve, reject) => {
             scv.set(channelID, 'prefix', value).then((value) => {
-                sendmsg("**Prefix set to**: " + value);
+                sendMsg("**Prefix set to**: " + value);
                 console.log(`prefix set to ${value}`);
                 resolve();
             }).catch((err) => {
-                sendmsg("Failed to set prefix value.");
+                sendMsg("Failed to set prefix value.");
                 reject(err);
             });
         });
     },
-    eval: (msg, sendmsg, expression) => {
+    eval: (client, msg, sendMsg, expression) => {
         let channelID = msg.channel.id,
             context = mathVariables[channelID + ''];
 
@@ -428,14 +430,14 @@ const commands = {
 
         try {
             let result = mathjs.eval(expression, context);
-            sendmsg(`Expression value: ${result}`);
+            sendMsg(`Expression value: ${result}`);
         } catch (e) {
-            sendmsg('Bad expression. Make sure all variables are defined!');
+            sendMsg('Bad expression. Make sure all variables are defined!');
         }
     },
-    setvar: (msg, sendmsg, varname, varvalue) => {
+    setvar: (client, msg, sendMsg, varname, varvalue) => {
         if (Object.keys(mathConstants).indexOf(varname) !== -1) {
-            sendmsg(`**Unable to set as variable name** ${varname} **is reserved.**`);
+            sendMsg(`**Unable to set as variable name** ${varname} **is reserved.**`);
         } else {
             let varvalueParsed,
                 channelID = msg.channel.id,
@@ -456,15 +458,15 @@ const commands = {
             }
 
             if (typeof channelMathVariables[varname] === 'undefined') {
-                sendmsg(`**Variable** ${varname} **created and set to** ${varvalueParsed}`);
+                sendMsg(`**Variable** ${varname} **created and set to** ${varvalueParsed}`);
             } else {
-                sendmsg(`**Variable** ${varname} **changed from** ${mathVariables[varname]} **to** ${varvalueParsed}`);
+                sendMsg(`**Variable** ${varname} **changed from** ${mathVariables[varname]} **to** ${varvalueParsed}`);
             }
 
             channelMathVariables[varname] = varvalueParsed;
         }
     },
-    setvars: (msg, sendmsg, varnames, varvalues) => {
+    setvars: (client, msg, sendMsg, varnames, varvalues) => {
         const varnamesArray = util.removeWhitespace(varnames).split(','),
             varvaluesArray = util.removeWhitespace(varvalues).split(',');
 
@@ -495,7 +497,7 @@ const commands = {
             }
         });
     },
-    ree: (msg, sendmsg, i) => {
+    ree: (client, msg, sendMsg, i) => {
         let eeee = "",
             reeee;
 
@@ -511,25 +513,25 @@ const commands = {
             reeee = eeee + "R";
         }
 
-        if (!util.safeSendMsg(msg.channel, reeee)) {
-            sendmsg("Too long!");
+        if (!util.safesendMsg(msg.channel, reeee)) {
+            sendMsg("Too long!");
         }
     },
-    currconvert: (msg, sendmsg, amount, currFrom, currTo, dp = 2) => {
+    currconvert: (client, msg, sendMsg, amount, currFrom, currTo, dp = 2) => {
         const currFromTemp = currFrom.toUpperCase(),
             currToTemp = currTo.toUpperCase();
 
         cconvert.convert(amount, currFromTemp, currToTemp).then(val => {
             if (isNaN(val)) {
-                sendmsg("Oops, something went wrong. Check that your currencies are both valid!");
+                sendMsg("Oops, something went wrong. Check that your currencies are both valid!");
             } else {
-                sendmsg(`${currFromTemp} ${amount} is ${currToTemp} ${util.roundTo(val, dp)}.`);
+                sendMsg(`${currFromTemp} ${amount} is ${currToTemp} ${util.roundTo(val, dp)}.`);
             }
         }).catch(err => {
-            sendmsg("Oops, something went wrong. Check that your currencies are both valid!");
+            sendMsg("Oops, something went wrong. Check that your currencies are both valid!");
         });
     },
-    poll: (msg, sendmsg, action, optionsStr = '') => {
+    poll: (client, msg, sendMsg, action, optionsStr = '') => {
         const channelID = msg.channel.id;
 
         const pollExists = () => {
@@ -561,33 +563,33 @@ const commands = {
             if (util.sentByAdminOrMe(msg)) {
                 if (pollExists()) {
                     openPoll();
-                    sendmsg('**Poll opened.**');
+                    sendMsg('**Poll opened.**');
                 } else {
-                    sendmsg('No poll to open!');
+                    sendMsg('No poll to open!');
                 }
             } else {
-                sendmsg('Must be admin to open, close or delete a poll.');
+                sendMsg('Must be admin to open, close or delete a poll.');
             }
         } else if (action === 'close') {
             if (util.sentByAdminOrMe(msg)) {
                 if (pollExists()) {
                     closePoll();
-                    sendmsg('**Poll closed.**');
+                    sendMsg('**Poll closed.**');
                 } else {
-                    sendmsg('No poll to close!');
+                    sendMsg('No poll to close!');
                 }
             } else {
-                sendmsg('Must be admin to open, close or delete a poll.');
+                sendMsg('Must be admin to open, close or delete a poll.');
             }
         } else if (action === 'create') {
             if (!pollExists()) {
                 // validate input:
                 if (optionsStr === '') {
-                    sendmsg('Must specify poll options!');
+                    sendMsg('Must specify poll options!');
                 }
                 const options = optionsStr.split(';').map(string => string.trim());
                 if (!Array.isArray(options) || options.length < 2) {
-                    sendmsg('Must have more than one option!');
+                    sendMsg('Must have more than one option!');
                     return;
                 }
                 // do stuff
@@ -596,20 +598,20 @@ const commands = {
                     votes: {},
                     options: options
                 };
-                sendmsg('**New poll created and opened.**');
+                sendMsg('**New poll created and opened.**');
             } else {
-                sendmsg('Delete the current poll before creating a new one!');
+                sendMsg('Delete the current poll before creating a new one!');
             }
         } else if (action === 'delete') {
             if (util.sentByAdminOrMe(msg)) {
                 if (pollExists()) {
                     deletePoll();
-                    sendmsg('**Current poll deleted.**');
+                    sendMsg('**Current poll deleted.**');
                 } else {
-                    sendmsg('No poll to delete!');
+                    sendMsg('No poll to delete!');
                 }
             } else {
-                sendmsg('Must be admin to open, close or delete a poll.');
+                sendMsg('Must be admin to open, close or delete a poll.');
             }
         } else if (action === 'tally' || action === 'show') {
             if (pollExists()) {
@@ -651,13 +653,13 @@ const commands = {
 
                 return outText;
             } else {
-                sendmsg('No poll active.');
+                sendMsg('No poll active.');
             }
         } else {
-            sendmsg(`Invalid poll action "${action}"`);
+            sendMsg(`Invalid poll action "${action}"`);
         }
     },
-    vote: (msg, sendmsg, option) => {
+    vote: (client, msg, sendMsg, option) => {
         const channelID = msg.channel.id;
 
         const pollExists = () => {
@@ -674,14 +676,14 @@ const commands = {
             if (i !== -1) {
                 commands.votei(msg, i + 1);
             } else {
-                sendmsg(`No such option "${option}".`);
+                sendMsg(`No such option "${option}".`);
             }
         } else {
             // delegate and let votei raise the error
             commands.votei(msg, -1);
         }
     },
-    votei: (msg, sendmsg, optionIndex) => {
+    votei: (client, msg, sendMsg, optionIndex) => {
         const channelID = msg.channel.id;
 
         const pollExists = () => {
@@ -706,18 +708,18 @@ const commands = {
 
                     poll.votes[userID] = optionIndex;
 
-                    sendmsg(`**Successfully voted for**: "${poll.options[optionIndex - 1]}".`);
+                    sendMsg(`**Successfully voted for**: "${poll.options[optionIndex - 1]}".`);
                 } else {
-                    sendmsg('Invalid option index.');
+                    sendMsg('Invalid option index.');
                 }
             } else {
-                sendmsg('Current poll is closed.');
+                sendMsg('Current poll is closed.');
             }
         } else {
-            sendmsg('No poll active!');
+            sendMsg('No poll active!');
         }
     },
-    xkcd: (msg, sendmsg, keywords) => {
+    xkcd: (client, msg, sendMsg, keywords) => {
         xkcd.fetchRelevant(keywords).then(response => {
             let outString = '';
 
@@ -725,8 +727,89 @@ const commands = {
             outString += response.imageURL;
             //outString += response.altText;
 
-            sendmsg(outString);
+            sendMsg(outString);
         });
+    },
+    hangman: (client, msg, sendMsg, action, guess = '') => {
+        const channelID = msg.channel.id,
+            hm = hangmen[channelID];
+
+        if (action === 'start') {
+            sendMsg('Please PM me the game setting in the form "phrase, max_guesses".');
+
+            new Promise((resolve, reject) => {
+                client.on('message', initMsg => {
+                    if (util.isPM(initMsg) && initMsg.author.id === msg.author.id) {
+                        // we got a PM, and it's from the correct user
+                        // verify that it's valid input
+
+                        const initMsgSplit = initMsg.content.split(',');
+
+                        if (initMsgSplit.length === 2 && util.TypeCheck.int(initMsgSplit[1].trim())) {
+                            const phrase = initMsgSplit[0].trim(),
+                                limit = initMsgSplit[1].trim();
+
+
+                            initMsg.channel.send(`Starting hangman with phrase "${phrase}" and ${limit} wrong guesses.`);
+                            resolve({phrase: phrase, max_score: limit});
+                        } else {
+                            initMsg.channel.send('Please specify the parameters in the correct format: "phrase, max_guesses".');
+                        }
+                    }
+                });
+            }).then(hmArgs => {
+                sendMsg(`Hangman game started, with ${hmArgs.max_score} wrong guesses.`);
+
+                const h = new Hangman();
+
+                // TODO: verify input is valid
+                h.init(hmArgs);
+
+                hangmen[channelID] = h;
+            });
+        } else if (action === 'guess' || action === 'hint') {
+            // check game exists
+            if (typeof hm !== 'undefined') {
+                // check game is not over
+                if (!hm.isFinished()) {
+                    // if not, then do the thing
+                    if (action === 'guess') {
+                        if (guess === '') {
+                            sendMsg('No letter specified.');
+                        } else {
+                            const result = hm.action('guess', [guess]);
+
+                            if (result) {
+                                sendMsg('Good guess!');
+                                sendMsg(`Current phrase: \`${hm.action('hint', [])}\``);
+
+                                // check if we won
+                                if (hm.isWon()) {
+                                    sendMsg('Congratulations! You win!');
+                                }
+                            } else {
+                                // check if we lost
+                                if (hm.isLost()) {
+                                    sendMsg('Oops... you guessed wrong and that was your last wrong guess. Game over :(');
+                                } else {
+                                    sendMsg(`Oops... you guessed wrong. ${hm.remaining()} wrong guesses left!`);
+                                }
+                            }
+                        }
+                    } else if (action === 'hint') {
+                        sendMsg(`Current word/phrase: \`${hm.action('hint', [])}\``);
+                    } else {
+                        sendMsg(`Undefined action ${action}`);
+                    }
+                } else {
+                    sendMsg('Current game is over, you must start a new one.');
+                }
+            } else {
+                sendMsg('No game initialised, you must first start one.');
+            }
+        } else {
+            sendMsg(`No such action "${action}".`);
+        }
     }
 };
 
