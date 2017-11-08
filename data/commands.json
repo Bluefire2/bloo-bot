@@ -358,12 +358,12 @@
     "desc": "Play hangman!",
     "params": {
       "action": {
-        "desc": "What to do: start, guess or hint",
+        "desc": "What to do: start, guess, guessphrase or hint",
         "type": "string"
       },
       "guess": {
-        "desc": "The letter to guess, if guessing",
-        "type": "char"
+        "desc": "The letter/phrase to guess, if guessing",
+        "type": "string"
       }
     },
     "fn": "hangman",

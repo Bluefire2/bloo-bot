@@ -143,9 +143,9 @@ const slayerAuraChance = (tier) => {
 // Store the current math variables. These will expire on restart but will persist if the bot is kicked and then reinvited.
 const mathVariables = {},
     mathConstants = {
-    pi: Math.PI,
-    e: Math.E
-};
+        pi: Math.PI,
+        e: Math.E
+    };
 
 /*
  * The object that stores all the commands. Command functions must take at least one param, msg, which is the message
@@ -730,14 +730,15 @@ const commands = {
             sendMsg(outString);
         });
     },
-    hangman: (client, msg, sendMsg, action, guess = '') => {
+    hangman: (client, msg, sendMsg, action, guessLetter = '') => {
         const channelID = msg.channel.id,
             hm = hangmen[channelID];
 
         if (action === 'start') {
-            sendMsg('Please PM me the game setting in the form "phrase, max_guesses".');
+            sendMsg(`<@${msg.author.id}>, please PM me the game settings in the form "phrase, max_guesses".`);
 
             new Promise((resolve, reject) => {
+                const pmTimeout = setTimeout(reject, 60000);
                 client.on('message', initMsg => {
                     if (util.isPM(initMsg) && initMsg.author.id === msg.author.id) {
                         // we got a PM, and it's from the correct user
@@ -751,6 +752,7 @@ const commands = {
 
 
                             initMsg.channel.send(`Starting hangman with phrase "${phrase}" and ${limit} wrong guesses.`);
+                            clearTimeout(pmTimeout);
                             resolve({phrase: phrase, max_score: limit});
                         } else {
                             initMsg.channel.send('Please specify the parameters in the correct format: "phrase, max_guesses".');
@@ -765,49 +767,76 @@ const commands = {
                 h.init(hmArgs);
 
                 hangmen[channelID] = h;
+            }).catch(err => {
+                sendMsg('You took too long to send the PM :( Try again if you want to start.');
             });
-        } else if (action === 'guess' || action === 'hint') {
-            // check game exists
-            if (typeof hm !== 'undefined') {
-                // check game is not over
-                if (!hm.isFinished()) {
-                    // if not, then do the thing
-                    if (action === 'guess') {
-                        if (guess === '') {
-                            sendMsg('No letter specified.');
-                        } else {
-                            const result = hm.action('guess', [guess]);
+        } else if (typeof hm !== 'undefined') {
+            // check game is not over
+            if (!hm.isFinished()) {
+                // if not, then do the thing
+                if (action === 'guess') {
+                    if (guessLetter === '') {
+                        sendMsg('No letter/phrase specified.');
+                    } else {
+                        if (guessLetter.length === 1) {
+                            // if it's a char then we guess one letter:
 
-                            if (result) {
-                                sendMsg('Good guess!');
-                                sendMsg(`Current phrase: \`${hm.action('hint', [])}\``);
-
-                                // check if we won
-                                if (hm.isWon()) {
-                                    sendMsg('Congratulations! You win!');
-                                }
+                            // verify that it's a letter
+                            if (ALPHABET.indexOf(guessLetter) === -1) {
+                                sendMsg('Letter must be... a letter.');
                             } else {
-                                // check if we lost
-                                if (hm.isLost()) {
-                                    sendMsg('Oops... you guessed wrong and that was your last wrong guess. Game over :(');
+                                const result = hm.action('guess', [guessLetter]);
+
+                                if (result) {
+                                    sendMsg('Good guess!');
+                                    sendMsg(`Current phrase: \`${hm.action('hint', [])}\``);
+
+                                    // check if we won
+                                    if (hm.isWon()) {
+                                        sendMsg('Congratulations! You win!');
+                                    }
                                 } else {
-                                    sendMsg(`Oops... you guessed wrong. ${hm.remaining()} wrong guesses left!`);
+                                    // check if we lost
+                                    if (hm.isLost()) {
+                                        sendMsg('Oops... you guessed wrong and that was your last wrong guess. Game over :(');
+                                    } else {
+                                        sendMsg(`Oops... you guessed wrong. ${hm.remaining()} wrong guesses left!`);
+                                    }
+                                }
+                            }
+                        } else {
+                            // if it's a string, we guess the entire phrase:
+                            const guessString = guessLetter;
+
+                            if (guessString.split('').some(elem => ALPHABET.indexOf(elem) === -1 && elem !== ' ')) {
+                                // one or more characters are not letters or spaces
+                                sendMsg('Guess must only contain letters.');
+                            } else {
+                                const result = hm.action('guessPhrase', [guessString]);
+
+                                if (result) {
+                                    sendMsg(`Well done! You guessed the correct phrase "${guessString}".`);
+                                } else {
+                                    if (hm.isLost()) {
+                                        sendMsg('Oops... you guessed wrong and that was your last wrong guess. Game over :(');
+                                    } else {
+                                        console.log(hm.score);
+                                        sendMsg(`Oops... you guessed wrong. ${hm.remaining()} wrong guesses left!`);
+                                    }
                                 }
                             }
                         }
-                    } else if (action === 'hint') {
-                        sendMsg(`Current word/phrase: \`${hm.action('hint', [])}\``);
-                    } else {
-                        sendMsg(`Undefined action ${action}`);
                     }
+                } else if (action === 'hint') {
+                    sendMsg(`Current word/phrase: \`${hm.action('hint', [])}\``);
                 } else {
-                    sendMsg('Current game is over, you must start a new one.');
+                    sendMsg(`Undefined action ${action}`);
                 }
             } else {
-                sendMsg('No game initialised, you must first start one.');
+                sendMsg('Current game is over, you must start a new one.');
             }
         } else {
-            sendMsg(`No such action "${action}".`);
+            sendMsg('No game initialised, you must first start one.');
         }
     }
 };

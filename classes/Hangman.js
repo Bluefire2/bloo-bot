@@ -1,15 +1,6 @@
-class Hangman {
-    // ALPHABET;
-    // lettersGuessedMap;
-    // phrase;
-    // guessedCorrectly;
-    // score;
-    // MAX_SCORE;
-    //
-    // done;
-    // win;
-    // lose;
+const util = require('../util');
 
+class Hangman {
     constructor() {
         this.ALPHABET = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
         this.lettersGuessedMap = {};
@@ -37,6 +28,19 @@ class Hangman {
                     if (this.unguessed === 0) {
                         this.done = this.win = true;
                     }
+                    return true;
+                } else {
+                    this.score++;
+
+                    if (this.score === this.MAX_SCORE) {
+                        this.done = this.lose = true;
+                    }
+                    return false;
+                }
+            },
+            guessPhrase: phrase => {
+                if (util.arraysEqual(phrase.split('').map(elem => elem.toUpperCase()), this.phrase)) {
+                    this.done = this.win = true;
                     return true;
                 } else {
                     this.score++;
