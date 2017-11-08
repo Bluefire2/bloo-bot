@@ -211,7 +211,13 @@ const commands = {
     },
     eval_js: (client, msg, sendMsg, code) => {
         const e = eval(code);
-        sendMsg(typeof e === 'undefined' ? 'undefined' : e);
+
+        if (typeof e === 'undefined') {
+            sendMsg('No returned value');
+        } else {
+            console.log(e.toString());
+            sendMsg(e.toString());
+        }
     },
     roll: (client, msg, sendMsg, sides, dice = 1) => {
         let rolls = [];
