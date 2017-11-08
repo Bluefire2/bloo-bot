@@ -30,6 +30,17 @@
     "fn": "restart",
     "permissions": "me"
   },
+  "eval_js": {
+    "desc": "Executes js code",
+    "params": {
+      "code": {
+        "desc": "The code to execute",
+        "type": "string"
+      }
+    },
+    "fn": "eval_js",
+    "permissions": "me"
+  },
   "roll": {
     "desc": "Rolls some dice",
     "params": {

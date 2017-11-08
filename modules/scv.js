@@ -6,7 +6,7 @@
  * part of the code and not worry about it in my other modules.
  */
 
-// TODO: tbh this is complete garbage, just rewrite this completely
+// TODO: tbh this is complete garbage, just rewrite this completely, maybe use MongoDB or something
 const sql = require('sqlite');
 const path = require('path');
 const Promise = require('bluebird');
@@ -18,7 +18,8 @@ const CVDBFilePath = path.join(__dirname, '..', 'data', 'CV.sqlite');
 sql.open(CVDBFilePath.toString());
 
 const allowedVariables = [
-    'prefix'
+    'prefix',
+    'aliases'
 ];
 
 const scvFunctions = {

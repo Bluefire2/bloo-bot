@@ -209,6 +209,10 @@ const commands = {
             process.exit(1); // pm2 will restart if the exit code is not 0
         });
     },
+    eval_js: (client, msg, sendMsg, code) => {
+        const e = eval(code);
+        sendMsg(typeof e === 'undefined' ? 'undefined' : e);
+    },
     roll: (client, msg, sendMsg, sides, dice = 1) => {
         let rolls = [];
 
