@@ -267,6 +267,21 @@
     "permissions": "admin",
     "update": true
   },
+  "addalias": {
+    "desc": "Adds a custom alias for a command, with persistence",
+    "params": {
+      "cmdname": {
+        "desc": "The name of the command",
+        "type": "string"
+      },
+      "alias": {
+        "desc": "The alias to set for the command",
+        "type": "string"
+      }
+    },
+    "fn": "addCustomAlias",
+    "update": true
+  },
   "eval": {
     "desc": "Evaluates a mathematical expression. Not literally eval()!",
     "params": {

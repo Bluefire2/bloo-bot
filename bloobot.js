@@ -14,6 +14,12 @@ const cmdData = require('./data/commands.json');
 const test = process.argv[2] === 'test';
 const loginToken = test ? config.test_token : config.token;
 
+
+// Global variables
+let variablesLoaded = {},
+    allPrefixes = {},
+    allCustomAliases = {};
+
 /**
  * A function to deal with retrieving channel variables. If the variable is undefined, this function returns its
  * default value.
@@ -62,37 +68,51 @@ const updateVariables = (channelID) => {
 };
 
 /**
- * Checks if the string is an alias for some command.
+ * Checks if the string is an alias for some command. This checks the default aliases in commands.json, and the custom
+ * channel aliases from SCV.
  * TODO: make this return a special string in case of no applicable command being found, for consistency
  *
- * @param alias The string to be cross-checked.
+ * @param channelID The current channel ID.
+ * @param keyword The string to be cross-checked.
  * @returns {*} The relevant command name if the string is an alias for some command, or false if not.
  */
-const checkForAlias = (alias) => {
-    let cmdNames = Object.keys(cmdData),
+const checkForAlias = (channelID, keyword) => {
+    const cmdNames = Object.keys(cmdData);
+
+    let aliasFound = false,
         out = '';
 
+    // first, check the default aliases
     for (let i in cmdNames) {
         let cmdName = cmdNames[i],
             cmdObj = cmdData[cmdName],
             aliases = cmdObj.aliases;
         if (Array.isArray(aliases)) {
-            if (aliases.indexOf(alias) !== -1) {
+            if (aliases.indexOf(keyword) !== -1) {
+                aliasFound = true;
                 out = cmdName;
             }
         }
     }
 
-    if (out === '') {
+    // if(!aliasFound) {
+    //     // haven't found any matching default aliases, so now check SCV
+    //     const customAliases = allCustomAliases[channelID];
+    //
+    //     scv.get(channelID, 'aliases').then(val => {
+    //         if(!val) {
+    //             // no custom aliases defined
+    //         } else {
+    //             // do stuff with custom aliases
+    //         }
+    //     });
+    // }
+    if (!aliasFound) {
         return false;
     } else {
         return out;
     }
 };
-
-// Global variables
-let variablesLoaded = {},
-    allPrefixes = {};
 
 client.on('ready', () => {
     console.log('Bot is online!');
@@ -359,7 +379,7 @@ function cmdParse(msg, prefix) {
         commandName = cmdText.slice(0, firstSpace).toLowerCase();  // get the command name
 
         if (typeof cmdData[commandName] === 'undefined') {
-            const aliasCommand = checkForAlias(commandName);
+            const aliasCommand = checkForAlias(msg.channel.id, commandName);
             if (aliasCommand) {
                 commandName = aliasCommand;
             } else {
@@ -397,7 +417,7 @@ function cmdParse(msg, prefix) {
         commandArgs = [];
 
         if (typeof cmdData[commandName] === 'undefined') {
-            const aliasCommand = checkForAlias(commandName);
+            const aliasCommand = checkForAlias(msg.channel.id, commandName);
             console.log(commandName, aliasCommand);
             if (aliasCommand) {
                 commandName = aliasCommand;

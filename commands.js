@@ -430,6 +430,9 @@ const commands = {
             });
         });
     },
+    addCustomAlias: (client, msg, sendMsg, command, alias) => {
+
+    },
     eval: (client, msg, sendMsg, expression) => {
         let channelID = msg.channel.id,
             context = mathVariables[channelID + ''];
