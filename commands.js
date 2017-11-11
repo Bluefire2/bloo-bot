@@ -761,7 +761,7 @@ const commands = {
 
                         if (initMsgSplit.length === 2 && util.TypeCheck.int(initMsgSplit[1].trim())) {
                             const phrase = initMsgSplit[0].trim(),
-                                limit = initMsgSplit[1].trim();
+                                limit = parseInt(initMsgSplit[1].trim());
 
 
                             initMsg.channel.send(`Starting hangman with phrase "${phrase}" and ${limit} wrong guesses.`);
@@ -802,7 +802,7 @@ const commands = {
 
                                 if (result) {
                                     sendMsg('Good guess!');
-                                    sendMsg(`Current phrase: \`${hm.action('hint', [])}\``);
+                                    sendMsg(`Full phrase: \`${hm.action('hint', [])}\``);
 
                                     // check if we won
                                     if (hm.isWon()) {
