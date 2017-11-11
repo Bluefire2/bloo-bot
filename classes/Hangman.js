@@ -79,7 +79,7 @@ class Hangman {
 
     action(type, args) {
         const fn = this.actions[type];
-        if (typeof fn !== 'undefined' && !this.isFinished()) {
+        if (typeof fn !== 'undefined') {
             return fn.apply(this, args);
         } else {
             return false;
