@@ -14,10 +14,18 @@ class Datum {
     }
 
     fetch() {
-        if(this.dirty) {
-            this.update().then(val => {this.data = val}).catch(err => {throw err});
-        }
-
-        return this.data
+        return new Promise((resolve, reject) => {
+            if (this.dirty) {
+                // if data is dirty
+                this.update().then(val => {
+                    this.data = val;
+                    resolve(val);
+                }).catch(err => {
+                    reject(err);
+                });
+            } else {
+                resolve(this.data);
+            }
+        });
     }
 }

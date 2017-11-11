@@ -95,18 +95,23 @@ const checkForAlias = (channelID, keyword) => {
         }
     }
 
-    // if(!aliasFound) {
-    //     // haven't found any matching default aliases, so now check SCV
-    //     const customAliases = allCustomAliases[channelID];
-    //
-    //     scv.get(channelID, 'aliases').then(val => {
-    //         if(!val) {
-    //             // no custom aliases defined
-    //         } else {
-    //             // do stuff with custom aliases
-    //         }
-    //     });
-    // }
+    if(!aliasFound) {
+        // haven't found any matching default aliases, so now check SCV
+        const customAliases = allCustomAliases[channelID];
+
+        if(typeof customAliases === 'undefined') {
+            scv.get(channelID, 'aliases').then(val => {
+                if(!val) {
+                    // no aliases defined for this channel
+                    allCustomAliases[channelID] = {};
+                } else {
+                    // aliases are defined, we just haven't fetched them yet
+                    // TODO: implement fetching using the Datum class
+                }
+            });
+        }
+    }
+
     if (!aliasFound) {
         return false;
     } else {
@@ -123,6 +128,9 @@ client.on('ready', () => {
  */
 client.on('message', msg => {
     const channelID = msg.channel.id;
+    scv.get(channelID, 'aliases').then(val => {
+        console.log(val);
+    });
 
     /*
      * Update all variables if we're just starting up; if not then just resolve.
