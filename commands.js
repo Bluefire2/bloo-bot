@@ -20,7 +20,6 @@ const cyrillicMap = require('./data/cyrillic.json');
 const NUMBERS = require('./data/numbers.json');
 
 const UNITSPACE = '\u202F';
-const ALPHABET = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
 
 const sourceCodeURL = 'https://github.com/Bluefire2/bloo-bot';
 
@@ -391,7 +390,7 @@ const commands = {
     prettify: (client, msg, sendMsg, text) => {
         let prettifiedText = (text + '').split(' ').map((word) => {
             return word.split('').map((char) => {
-                if (ALPHABET.indexOf(char) !== -1) {
+                if (util.isLetter(char)) {
                     return ':regional_indicator_' + char.toLowerCase() + ':';
                 } else if (typeof NUMBERS[char] !== 'undefined') {
                     return ':' + NUMBERS[char] + ':';
@@ -764,9 +763,13 @@ const commands = {
                                 limit = parseInt(initMsgSplit[1].trim());
 
 
-                            initMsg.channel.send(`Starting hangman with phrase "${phrase}" and ${limit} wrong guesses.`);
-                            clearTimeout(pmTimeout);
-                            resolve({phrase: phrase, max_score: limit});
+                            if(util.isPhrase(phrase)) {
+                                initMsg.channel.send(`Starting hangman with phrase "${phrase}" and ${limit} wrong guesses.`);
+                                clearTimeout(pmTimeout);
+                                resolve({phrase: phrase, max_score: limit});
+                            } else {
+                                initMsg.channel.send('String must consist of only letters and spaces.');
+                            }
                         } else {
                             initMsg.channel.send('Please specify the parameters in the correct format: "phrase, max_guesses".');
                         }
@@ -782,6 +785,7 @@ const commands = {
                 hangmen[channelID] = h;
             }).catch(err => {
                 sendMsg('You took too long to send the PM :( Try again if you want to start.');
+                reject();
             });
         } else if (typeof hm !== 'undefined') {
             // check game is not over
@@ -795,7 +799,7 @@ const commands = {
                             // if it's a char then we guess one letter:
 
                             // verify that it's a letter
-                            if (ALPHABET.indexOf(guessLetter) === -1) {
+                            if (!util.isLetter(char)) {
                                 sendMsg('Letter must be... a letter.');
                             } else {
                                 const result = hm.action('guess', [guessLetter]);
@@ -822,7 +826,7 @@ const commands = {
                             // if it's a string, we guess the entire phrase:
                             const guessString = guessLetter;
 
-                            if (guessString.split('').some(elem => ALPHABET.indexOf(elem) === -1 && elem !== ' ')) {
+                            if (!util.isPhrase(guessString)) {
                                 // one or more characters are not letters or spaces
                                 sendMsg('Guess must only contain letters.');
                             } else {
