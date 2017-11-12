@@ -525,7 +525,7 @@ const commands = {
             reeee = eeee + "R";
         }
 
-        if (!util.safesendMsg(msg.channel, reeee)) {
+        if (!util.safeSendMsg(msg.channel, reeee)) {
             sendMsg("Too long!");
         }
     },
