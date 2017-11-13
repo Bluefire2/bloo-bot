@@ -755,10 +755,6 @@ const commands = {
 
             sendMsg(`<@${msg.author.id}>, please PM me the game settings in the form "phrase, max_guesses".`);
 
-            // we need this to be declared outside of the promise in order to use it in Promise.finally
-            // TODO: maybe there's a smarter way of doing this
-            let initMsgListener;
-
             new Promise((resolve, reject) => {
                 // remove any present listeners
                 if(typeof hmPMListener !== 'undefined') {
