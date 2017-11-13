@@ -1,7 +1,8 @@
 const DISCORD_CHAR_LIMIT = 2000;
 const MY_CHAR_LIMIT = 10000;
 
-const ALPHABET = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
+const ALPHABET = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'.split(''),
+    LCALPHABET = 'abcdefghijklmnopqrstuvwxyz'.split('');
 
 const config = require('./config.json');
 
@@ -186,6 +187,19 @@ module.exports.isLetter = char => {
 
 module.exports.isPhrase = str => {
     return !str.split('').some(elem => ALPHABET.indexOf(elem) === -1 && elem !== ' ');
+};
+
+module.exports.letterToIndex = char => {
+    return LCALPHABET.indexOf(char.toLowerCase());
+};
+
+module.exports.indexToLetter = num => {
+    let n = num;
+
+    while(n >= 26) {
+        n -= 26;
+    }
+    return LCALPHABET[n];
 };
 
 module.exports.arraysEqual = arraysEqual;

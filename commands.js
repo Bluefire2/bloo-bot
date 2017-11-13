@@ -856,6 +856,26 @@ const commands = {
         } else {
             sendMsg('No game initialised, you must first start one.');
         }
+    },
+    cshift: (client, msg, sendMsg, k, phrase) => {
+        let key;
+        if(Number.isInteger(parseInt(k))) {
+            key = k;
+        } else {
+            key = util.letterToIndex(k);
+        }
+
+        const codetext = phrase.split('').map(char => {
+            if(char === ' ') {
+                return ' ';
+            } else {
+                const i = util.letterToIndex(char);
+
+                return util.indexToLetter(i + key);
+            }
+        }).join('');
+
+        sendMsg(codetext);
     }
 };
 

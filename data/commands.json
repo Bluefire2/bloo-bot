@@ -397,5 +397,19 @@
     "aliases": [
       "hm"
     ]
+  },
+  "cshift": {
+    "desc": "Caesar-shifts a phrase by a specified amount",
+    "params": {
+      "key": {
+        "desc": "The amount to shift by, either a letter or a number",
+        "type": ["char", "number"]
+      },
+      "phrase": {
+        "desc": "The phrase to encode",
+        "type": "string"
+      }
+    },
+    "fn": "cshift"
   }
 }
