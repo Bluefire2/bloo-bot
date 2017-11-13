@@ -129,7 +129,7 @@ client.on('ready', () => {
 client.on('message', msg => {
     const channelID = msg.channel.id;
     scv.get(channelID, 'aliases').then(val => {
-        console.log(val);
+        //console.log(val);
     });
 
     /*

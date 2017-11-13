@@ -26,7 +26,9 @@ const sourceCodeURL = 'https://github.com/Bluefire2/bloo-bot';
 const uptimeTimer = new Timer();
 
 const polls = {},
-    hangmen = {};
+    hangmen = {},
+    hmPMListeners = {},
+    hmPMTimeouts = {};
 
 /**
  * Outputs the descstring for a command.
@@ -747,11 +749,32 @@ const commands = {
             hm = hangmen[channelID];
 
         if (action === 'start') {
+            // current pm listener
+            const hmPMListener = hmPMListeners[channelID],
+                hmPMTimeout = hmPMTimeouts[channelID];
+
             sendMsg(`<@${msg.author.id}>, please PM me the game settings in the form "phrase, max_guesses".`);
 
+            // we need this to be declared outside of the promise in order to use it in Promise.finally
+            // TODO: maybe there's a smarter way of doing this
+            let initMsgListener;
+
             new Promise((resolve, reject) => {
-                const pmTimeout = setTimeout(reject, 60000);
-                client.on('message', initMsg => {
+                // remove any present listeners
+                if(typeof hmPMListener !== 'undefined') {
+                    client.removeListener('message', hmPMListener);
+                }
+
+                // timeout the listener after 60s
+                if(typeof hmPMTimeout !== 'undefined') {
+                    clearTimeout(hmPMTimeout);
+                }
+
+                hmPMTimeouts[channelID] = setTimeout(reject, 60000);
+
+                // this is the function that we use as our onmessage listener
+                // it looks for a PM from the user and checks that it's the right format
+                hmPMListeners[channelID] = initMsg => {
                     if (util.isPM(initMsg) && initMsg.author.id === msg.author.id) {
                         // we got a PM, and it's from the correct user
                         // verify that it's valid input
@@ -763,9 +786,9 @@ const commands = {
                                 limit = parseInt(initMsgSplit[1].trim());
 
 
-                            if(util.isPhrase(phrase)) {
+                            if (util.isPhrase(phrase)) {
                                 initMsg.channel.send(`Starting hangman with phrase "${phrase}" and ${limit} wrong guesses.`);
-                                clearTimeout(pmTimeout);
+                                clearTimeout(hmPMTimeouts[channelID]);
                                 resolve({phrase: phrase, max_score: limit});
                             } else {
                                 initMsg.channel.send('String must consist of only letters and spaces.');
@@ -774,7 +797,9 @@ const commands = {
                             initMsg.channel.send('Please specify the parameters in the correct format: "phrase, max_guesses".');
                         }
                     }
-                });
+                };
+
+                client.on('message', hmPMListeners[channelID]);
             }).then(hmArgs => {
                 sendMsg(`Hangman game started, with ${hmArgs.max_score} wrong guesses.`);
 
@@ -785,8 +810,12 @@ const commands = {
                 hangmen[channelID] = h;
             }).catch(err => {
                 sendMsg('You took too long to send the PM :( Try again if you want to start.');
-                reject();
+            }).finally(() => {
+                // clear the listener; this used to cause a bug where all the previous listeners would accumulate
+                client.removeListener('message', hmPMListeners[channelID]);
+                clearTimeout(hmPMTimeouts[channelID]);
             });
+
         } else if (typeof hm !== 'undefined') {
             // check game is not over
             if (!hm.isFinished()) {
@@ -858,22 +887,16 @@ const commands = {
         }
     },
     cshift: (client, msg, sendMsg, k, phrase) => {
-        let key;
-        if(Number.isInteger(parseInt(k))) {
-            key = k;
-        } else {
-            key = util.letterToIndex(k);
-        }
+        const key = Number.isInteger(parseInt(k)) ? k : util.letterToIndex(k),
+            codetext = phrase.split('').map(char => {
+                if(char === ' ') {
+                    return ' ';
+                } else {
+                    const i = util.letterToIndex(char);
 
-        const codetext = phrase.split('').map(char => {
-            if(char === ' ') {
-                return ' ';
-            } else {
-                const i = util.letterToIndex(char);
-
-                return util.indexToLetter(i + key);
-            }
-        }).join('');
+                    return util.indexToLetter(i + key);
+                }
+            }).join('');
 
         sendMsg(codetext);
     }
