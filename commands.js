@@ -751,9 +751,10 @@ const commands = {
         if (action === 'start') {
             // current pm listener
             const hmPMListener = hmPMListeners[channelID],
-                hmPMTimeout = hmPMTimeouts[channelID];
+                hmPMTimeout = hmPMTimeouts[channelID],
+                user = msg.author;
 
-            sendMsg(`<@${msg.author.id}>, please PM me the game settings in the form "phrase, max_guesses".`);
+            sendMsg(`<@${user.id}>, check your PMs!`);
 
             new Promise((resolve, reject) => {
                 // remove any present listeners
@@ -767,6 +768,12 @@ const commands = {
                 }
 
                 hmPMTimeouts[channelID] = setTimeout(reject, 60000);
+
+                // send the user instructions
+                user.send('Message me the game settings for the game, like so:');
+                user.send('<phrase>, <max_guesses>');
+                user.send('<phrase> is the phrase/word (letters only) to guess, and <max_guesses> is the amount of wrong guesses allowed.');
+                user.send('Don\'t include the <>, and remember to separate the two with a comma.');
 
                 // this is the function that we use as our onmessage listener
                 // it looks for a PM from the user and checks that it's the right format
