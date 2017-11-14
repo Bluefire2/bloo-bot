@@ -824,7 +824,7 @@ const commands = {
                             // if it's a char then we guess one letter:
 
                             // verify that it's a letter
-                            if (!util.isLetter(char)) {
+                            if (!util.isLetter(guessLetter)) {
                                 sendMsg('Letter must be... a letter.');
                             } else {
                                 const result = hm.action('guess', [guessLetter]);
