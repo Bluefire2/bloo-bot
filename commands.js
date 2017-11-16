@@ -432,7 +432,30 @@ const commands = {
         });
     },
     addCustomAlias: (client, msg, sendMsg, command, alias) => {
+        // validate input - make sure `command` is a valid command
+        if(Object.keys(commandDesc).indexOf(command) === -1) {
+            sendMsg(`Undefined command "${command}".`);
+        } else {
+            const channelID = msg.channel.id;
 
+            scv.get(channelID, 'aliases').then(val => {
+                console.log(val);
+                let currentAliases;
+                if(!val) {
+                    currentAliases = {};
+                } else {
+                    console.log(val);
+                }
+
+                if(typeof currentAliases[command] === 'undefined') {
+                    currentAliases[command] = [];
+                }
+
+                currentAliases[command].push(alias);
+
+                scv.set(channelID, 'aliases', currentAliases);
+            });
+        }
     },
     eval: (client, msg, sendMsg, expression) => {
         let channelID = msg.channel.id,
@@ -752,7 +775,8 @@ const commands = {
             // current pm listener
             const hmPMListener = hmPMListeners[channelID],
                 hmPMTimeout = hmPMTimeouts[channelID],
-                user = msg.author;
+                user = msg.author,
+                MAX_PHRASE_LENGTH = 100;
 
             sendMsg(`<@${user.id}>, check your PMs!`);
 
@@ -771,9 +795,9 @@ const commands = {
 
                 // send the user instructions
                 user.send('Message me the game settings for the game, like so:');
-                user.send('<phrase>, <max_guesses>');
-                user.send('<phrase> is the phrase/word (letters only) to guess, and <max_guesses> is the amount of wrong guesses allowed.');
-                user.send('Don\'t include the <>, and remember to separate the two with a comma.');
+                user.send('[phrase], [max_guesses]');
+                user.send('[phrase] is the phrase/word (letters only) to guess, and [max_guesses] is the amount of wrong guesses allowed.');
+                user.send('Don\'t include the [], and remember to separate the two with a comma.');
 
                 // this is the function that we use as our onmessage listener
                 // it looks for a PM from the user and checks that it's the right format
@@ -789,12 +813,14 @@ const commands = {
                                 limit = parseInt(initMsgSplit[1].trim());
 
 
-                            if (util.isPhrase(phrase)) {
+                            if (!util.isPhrase(phrase)) {
+                                initMsg.channel.send('Phrase must consist of only letters and spaces.');
+                            } else if(phrase.length > MAX_PHRASE_LENGTH) {
+                                initMsg.channel.send(`Phrase cannot be longer than ${MAX_PHRASE_LENGTH} characters, currently ${phrase.length} characters.`);
+                            } else {
                                 initMsg.channel.send(`Starting hangman with phrase "${phrase}" and ${limit} wrong guesses.`);
                                 clearTimeout(hmPMTimeouts[channelID]);
                                 resolve({phrase: phrase, max_score: limit});
-                            } else {
-                                initMsg.channel.send('String must consist of only letters and spaces.');
                             }
                         } else {
                             initMsg.channel.send('Please specify the parameters in the correct format: "phrase, max_guesses".');

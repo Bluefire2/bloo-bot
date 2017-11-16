@@ -24,7 +24,7 @@ const allowedVariables = [
 
 const scvFunctions = {
     create: () => {
-        sql.run(`CREATE TABLE ${CVTableName} (id bigint, prefix varchar(255))`);
+        sql.run(`CREATE TABLE ${CVTableName} (id bigint, prefix varchar(255), aliases varchar(1000))`);
     },
     drop: () => {
         sql.run(`DROP TABLE ${CVTableName}`);
@@ -51,7 +51,7 @@ const scvFunctions = {
                     if (!row) {
                         // if the guild has no entry in the db, create one
                         sql.run(`INSERT INTO ${CVTableName} (id) VALUES (?)`, channelID).then(() => {
-                            return sql.run(`UPDATE ${CVTableName} SET ${variable} = ?, WHERE id = "${channelID}"`, value);
+                            return sql.run(`UPDATE ${CVTableName} SET ${variable} = ? WHERE id = "${channelID}"`, value);
                         }).then(() => {
                             resolve(value);
                         });

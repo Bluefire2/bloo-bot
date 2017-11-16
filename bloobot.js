@@ -121,6 +121,7 @@ const checkForAlias = (channelID, keyword) => {
 
 client.on('ready', () => {
     console.log('Bot is online!');
+
 });
 
 /*
@@ -128,6 +129,7 @@ client.on('ready', () => {
  */
 client.on('message', msg => {
     const channelID = msg.channel.id;
+    //scv.listTable();
     scv.get(channelID, 'aliases').then(val => {
         //console.log(val);
     });
@@ -138,8 +140,8 @@ client.on('message', msg => {
     const varRequest = new Promise((resolve, reject) => {
         if (!variablesLoaded[channelID]) {
             updateVariables(channelID).then(() => {
-                resolve();
                 variablesLoaded[channelID] = true;
+                resolve();
             });
         } else {
             resolve();
