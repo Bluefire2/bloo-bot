@@ -203,3 +203,7 @@ module.exports.indexToLetter = num => {
 };
 
 module.exports.arraysEqual = arraysEqual;
+
+module.exports.tagUser = (user) => {
+    return `<@${user.id}>`;
+};

@@ -778,7 +778,7 @@ const commands = {
                 user = msg.author,
                 MAX_PHRASE_LENGTH = 100;
 
-            sendMsg(`<@${user.id}>, check your PMs!`);
+            sendMsg(`${util.tagUser(user)}, check your PMs!`);
 
             new Promise((resolve, reject) => {
                 // remove any present listeners
@@ -838,7 +838,7 @@ const commands = {
 
                 hangmen[channelID] = h;
             }).catch(err => {
-                sendMsg('You took too long to send the PM :( Try again if you want to start.');
+                sendMsg(`${util.tagUser(user)}, you took too long to send the PM :( Try again if you want to start.`);
             }).finally(() => {
                 // clear the listener; this used to cause a bug where all the previous listeners would accumulate
                 client.removeListener('message', hmPMListeners[channelID]);
