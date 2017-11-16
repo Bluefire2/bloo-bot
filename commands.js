@@ -837,6 +837,8 @@ const commands = {
                 h.init(hmArgs);
 
                 hangmen[channelID] = h;
+
+                sendMsg(`Current phrase: \`${hm.action('hint', [])}\``);
             }).catch(err => {
                 sendMsg(`${util.tagUser(user)}, you took too long to send the PM :( Try again if you want to start.`);
             }).finally(() => {
@@ -864,7 +866,7 @@ const commands = {
 
                                 if (result) {
                                     sendMsg('Good guess!');
-                                    sendMsg(`Full phrase: \`${hm.action('hint', [])}\``);
+                                    sendMsg(`Full phrase: \`${hm.action('phrase', [])}\``);
 
                                     // check if we won
                                     if (hm.isWon()) {
@@ -905,7 +907,7 @@ const commands = {
                         }
                     }
                 } else if (action === 'hint') {
-                    sendMsg(`Current word/phrase: \`${hm.action('hint', [])}\``);
+                    sendMsg(`Current phrase: \`${hm.action('hint', [])}\``);
                 } else {
                     sendMsg(`Undefined action ${action}`);
                 }
