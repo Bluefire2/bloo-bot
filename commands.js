@@ -874,7 +874,7 @@ const commands = {
                                     // check if we lost
                                     if (hm.isLost()) {
                                         sendMsg('Oops... you guessed wrong and that was your last wrong guess. Game over :(');
-                                        sendMsg(`The phrase was "${hm.action('hint', [])}"`);
+                                        sendMsg(`The phrase was "${hm.action('phrase', [])}"`);
                                     } else {
                                         sendMsg(`Oops... you guessed wrong. ${hm.remaining()} wrong guesses left!`);
                                     }
@@ -895,6 +895,7 @@ const commands = {
                                 } else {
                                     if (hm.isLost()) {
                                         sendMsg('Oops... you guessed wrong and that was your last wrong guess. Game over :(');
+                                        sendMsg(`The phrase was "${hm.action('phrase', [])}"`);
                                     } else {
                                         console.log(hm.score);
                                         sendMsg(`Oops... you guessed wrong. ${hm.remaining()} wrong guesses left!`);

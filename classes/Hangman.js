@@ -59,6 +59,9 @@ class Hangman {
                         return this.lettersGuessedMap[elem] ? elem + '\u202F' : '_\u202F'; // half space
                     }
                 }).join('');
+            },
+            phrase: () => {
+                return this.phrase.join('');
             }
         };
     }
