@@ -866,7 +866,7 @@ const commands = {
 
                                 if (result) {
                                     sendMsg('Good guess!');
-                                    sendMsg(`Full phrase: \`${hm.action('phrase', [])}\``);
+                                    sendMsg(`Full phrase: \`${hm.action('hint', [])}\``);
 
                                     // check if we won
                                     if (hm.isWon()) {
