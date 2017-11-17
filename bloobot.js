@@ -119,9 +119,9 @@ const checkForAlias = (channelID, keyword) => {
     }
 };
 
-client.on('ready', () => {
+client.once('ready', () => {
     console.log('Bot is online!');
-
+    console.log(`Ready: serving ${client.guilds.size} guilds, in ${client.channels.size} channels, for ${client.users.size} users.`);
 });
 
 /*
