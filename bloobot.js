@@ -11,8 +11,8 @@ const config = require('./config.json');
 const cmdData = require('./data/commands.json');
 
 // If the command line argument 'test' is given, log in to the test account
-const test = process.argv[2] === 'test';
-const loginToken = test ? config.test_token : config.token;
+const test = process.argv[2] === 'test',
+    loginToken = test ? config.test_token : config.token;
 
 
 // Global variables
@@ -174,7 +174,7 @@ client.on('message', msg => {
                 // admins only (and me)
                 if (util.sentByAdminOrMe(msg)) {
                     const sendingFunction = (text) => msg.channel.send.call(msg.channel, text);
-                    cmd.setPrefix(msg, sendingFunction, '~').then(() => {
+                    cmd.setPrefix(client, msg, sendingFunction, '~').then(() => {
                         return updateVariables(channelID);
                     }).then(() => {
                         // done
