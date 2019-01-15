@@ -14,9 +14,6 @@ const Promise = require('bluebird');
 const CVTableName = 'guildsCV';
 const CVDBFilePath = path.join(__dirname, '..', 'data', 'CV.sqlite');
 
-// TODO: be smarter about opening the db, since it's async. Maybe open it every time get/set is called?
-sql.open(CVDBFilePath.toString());
-
 const allowedVariables = [
     'prefix',
     'aliases'
@@ -115,4 +112,14 @@ const scvFunctions = {
     }
 };
 
-module.exports = scvFunctions;
+const scvFunctionsDecorated = {};
+Object.keys(scvFunctions).forEach(key => {
+    const fn = scvFunctions[key];
+    scvFunctionsDecorated[key] = async (...args) => {
+        await sql.open(CVDBFilePath.toString());
+        fn(...args);
+        await sql.close();
+    };
+});
+
+module.exports = scvFunctionsDecorated;
