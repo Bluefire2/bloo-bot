@@ -1,4 +1,4 @@
-const Promise = require('bluebird');
+// const Promise = require('bluebird');
 const Discord = require('discord.js');
 const client = new Discord.Client();
 
@@ -28,25 +28,13 @@ let variablesLoaded = {},
  * @param variable The name of the channel variable to be fetched.
  * @returns {Promise} A promise that resolves with the value to be assigned to this variable in the current context.
  */
-const getVariableWithFallback = (channelID, variable) => {
-    // I HATE THIS ASYNC HYPE GARBAGE
-    // WHY DOES EVERYTHING IN THIS LANGUAGE HAVE TO BE ASYNC
-    // THE SIMPLEST THINGS ABSOLUTELY MUST BE ASYNC
-    // BECAUSE IF THEY'RE NOT THEN IT WOULD ACTUALLY BE CONVENIENT AND WE CAN'T HAVE THAT CAN WE
-    // ASYNC IS USEFUL BUT NOT FOR LITERALLY EVERY LITTLE THING
-    // AND NOW I NEED 10 LAYERS OF PROMISES FOR EVERYTHING I DO TO DEAL WITH ASYNC RACE CONDITIONS
-    // REEEEEEEEEEEEEEEEEEEEEEE
-    return new Promise((resolve, reject) => {
-        scv.get(channelID, variable).then(val => {
-            if (val) {
-                resolve(val);
-            } else {
-                resolve(defaults.get(variable));
-            }
-        }).catch(err => {
-            reject(err);
-        });
-    });
+const getVariableWithFallback = async (channelID, variable) => {
+    let val = await scv.get(channelID, variable);
+    if (val) {
+        return val;
+    } else {
+        return defaults.get(variable);
+    }
 };
 
 /**
@@ -56,15 +44,9 @@ const getVariableWithFallback = (channelID, variable) => {
  * @param channelID The current channel ID.
  * @returns {Promise} A promise that resolves when the variables have been updated.
  */
-const updateVariables = (channelID) => {
-    return new Promise((resolve, reject) => {
-        getVariableWithFallback(channelID, 'prefix').then(val => {
-            allPrefixes[channelID + ''] = val;
-            resolve();
-        }).catch(err => {
-            reject(err);
-        });
-    });
+const updateVariables = async (channelID) => {
+    let val = await getVariableWithFallback(channelID, 'prefix');
+    allPrefixes[channelID + ''] = val;
 };
 
 /**
@@ -127,99 +109,87 @@ client.once('ready', () => {
 /*
  * This triggers on every message. Use this to listen to commands and master commands.
  */
-client.on('message', msg => {
+client.on('message', async msg => {
     const channelID = msg.channel.id;
     //scv.listTable();
     // scv.get(channelID, 'aliases').then(val => {
     //     //console.log(val);
     // });
 
-    /*
-     * Update all variables if we're just starting up; if not then just resolve.
-     */
-    const varRequest = new Promise((resolve, reject) => {
-        if (!variablesLoaded[channelID]) {
-            updateVariables(channelID).then(() => {
-                variablesLoaded[channelID] = true;
-                resolve();
-            });
-        } else {
-            resolve();
-        }
-    });
+    // Update all variables if this is the first command for this channel since starting up
+    if (!variablesLoaded[channelID]) {
+        await updateVariables(channelID);
+        variablesLoaded[channelID] = true;
+    }
 
     // once we've updated our variables (if we need to), try to parse a command
-    varRequest.then(async () => { // TODO: the async annotation will get removed eventually when everything is rewritten as async/await
-        // TODO: find some way to update this after setprefix
-        let prefix = allPrefixes[channelID + ''];
+    // TODO: find some way to update this after setprefix
+    let prefix = allPrefixes[channelID + ''];
 
-        if (typeof prefix === 'undefined') {
-            let p = defaults.get('prefix');
-            allPrefixes[channelID + ''] = p;
-            prefix = p;
-        }
+    if (typeof prefix === 'undefined') {
+        let p = defaults.get('prefix');
+        allPrefixes[channelID + ''] = p;
+        prefix = p;
+    }
 
-        switch (msg.content) {
-            /*
-             * Master commands. These commands do not depend on the prefix.
-             */
-            case 'bloobotprefix':
-                // Master command that lists the prefix. This command must be independent of
-                // the current prefix and therefore cannot be handled by regular command logic.
-                msg.channel.send(`**Command prefix currently in use**: ${prefix}`);
-                break;
+    switch (msg.content) {
+        // Master commands. These commands do not depend on the prefix
+        case 'bloobotprefix':
+            // Master command that lists the prefix. This command must be independent of
+            // the current prefix and therefore cannot be handled by regular command logic.
+            msg.channel.send(`**Command prefix currently in use**: ${prefix}`);
+            break;
 
-            case 'resetprefix':
-                // Master command that resets the prefix to ~.
+        case 'resetprefix':
+            // Master command that resets the prefix to ~.
 
-                // admins only (and me)
-                if (util.sentByAdminOrMe(msg)) {
-                    const sendingFunction = (text) => msg.channel.send.call(msg.channel, text);
-                    cmd.setPrefix(client, msg, sendingFunction, '~').then(() => {
-                        return updateVariables(channelID);
-                    }).then(() => {
-                        // done
-                        // TODO: maybe change this so that execution is paused until promise is complete
-                    });
-                }
-                break;
-            default:
-                if (msg.author === client.user) {
-                    // make sure the bot doesn't respond to its own messages
+            // admins only (and me)
+            if (util.sentByAdminOrMe(msg)) {
+                const sendingFunction = (text) => msg.channel.send.call(msg.channel, text);
+                cmd.setPrefix(client, msg, sendingFunction, '~').then(() => {
+                    return updateVariables(channelID);
+                }).then(() => {
+                    // done
+                    // TODO: maybe change this so that execution is paused until promise is complete
+                });
+            }
+            break;
+        default:
+            if (msg.author === client.user) {
+                // make sure the bot doesn't respond to its own messages
 
-                } else if (!msg.content.startsWith(prefix)) {
-                    // message doesn't start with the prefix so do nothing
+            } else if (!msg.content.startsWith(prefix)) {
+                // message doesn't start with the prefix so do nothing
 
-                } else {
-                    console.log(msg.content); // for debugging and just making sure it works
-                    let parsedCmd = cmdParse(msg, prefix), // parse out the command and args
-                        output;
-                    if (parsedCmd) {
-                        try {
-                            let out = await cmdExe(msg, parsedCmd.cmdName, parsedCmd.cmdArgs, prefix);
-                            output = out;
-                            console.log(parsedCmd); // same as above
+            } else {
+                console.log(msg.content); // for debugging and just making sure it works
+                let parsedCmd = cmdParse(msg, prefix), // parse out the command and args
+                    output;
+                if (parsedCmd) {
+                    try {
+                        let out = await cmdExe(msg, parsedCmd.cmdName, parsedCmd.cmdArgs, prefix);
+                        output = out;
+                        console.log(parsedCmd); // same as above
 
-                            // if we need to output something that was returned from the command, then do so
-                            if (output.length !== 0) {
-                                // send the message
-                                if (!util.safeSendMsg(msg.channel, output.join('\n'), '```')) {
-                                    msg.channel.send(`Outbound message length greater than ${util.MY_CHAR_LIMIT} character limit.`);
-                                }
+                        // if we need to output something that was returned from the command, then do so
+                        if (output.length !== 0) {
+                            // send the message
+                            if (!util.safeSendMsg(msg.channel, output.join('\n'), '```')) {
+                                msg.channel.send(`Outbound message length greater than ${util.MY_CHAR_LIMIT} character limit.`);
                             }
-                        } catch(err) {
-                            // an error was thrown by cmdExe (most likely a permissions error)
-                            console.log(err);
-                            console.log(err.stack);
-                            util.sendErrorMessage(msg.channel, err);
-                        };
-                    } else {
-                        // do nothing? idk
-                    }
+                        }
+                    } catch(err) {
+                        // an error was thrown by cmdExe (most likely a permissions error)
+                        console.log(err);
+                        console.log(err.stack);
+                        util.sendErrorMessage(msg.channel, err);
+                    };
+                } else {
+                    // do nothing? idk
                 }
-                break;
-        }
-    });
+            }
+            break;
+    }
 });
 
 // Create an event listener for new guild members
