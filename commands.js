@@ -309,6 +309,7 @@ const commands = {
                 + ' slayer xp, ' + xpCombat + ' combat xp and ' + xpHp + ' hp xp.');
         } catch (error) {
             //console.log(error);
+            sendMsg(`An error was encountered while fetching slayer data. Does a monster with name "${monster}" exist?`);
         }
     },
     wikipedia: async (client, msg, sendMsg, article, lang = 'en') => {
