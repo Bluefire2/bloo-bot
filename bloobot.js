@@ -159,7 +159,7 @@ client.on('message', async msg => {
 
             } else {
                 console.log(msg.content); // for debugging and just making sure it works
-                let parsedCmd = cmdParse(msg, prefix), // parse out the command and args
+                let parsedCmd = await cmdParse(msg, prefix), // parse out the command and args
                     output;
                 if (parsedCmd) {
                     try {
@@ -329,7 +329,7 @@ async function cmdExe(msg, cmdName, args, prefix) {
  * @returns {*} An object containing the command name and command arguments, to be passed to cmdExe, or false if no such
  * command exists.
  */
-function cmdParse(msg, prefix) {
+async function cmdParse(msg, prefix) {
     const cmdString = msg.content,
         cmdText = cmdString.slice(prefix.length), // take out the prefix
         firstSpace = cmdText.indexOf(' ');
@@ -341,7 +341,7 @@ function cmdParse(msg, prefix) {
         commandName = cmdText.slice(0, firstSpace).toLowerCase();  // get the command name
 
         if (typeof cmdData[commandName] === 'undefined') {
-            const aliasCommand = checkForAlias(msg.channel.id, commandName);
+            const aliasCommand = await checkForAlias(msg.channel.id, commandName);
             if (aliasCommand) {
                 commandName = aliasCommand;
             } else {
@@ -379,7 +379,7 @@ function cmdParse(msg, prefix) {
         commandArgs = [];
 
         if (typeof cmdData[commandName] === 'undefined') {
-            const aliasCommand = checkForAlias(msg.channel.id, commandName);
+            const aliasCommand = await checkForAlias(msg.channel.id, commandName);
             console.log(commandName, aliasCommand);
             if (aliasCommand) {
                 commandName = aliasCommand;
