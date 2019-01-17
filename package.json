@@ -15,7 +15,6 @@
     "cheerio": "^1.0.0-rc.2",
     "convert-units": "^2.3.1",
     "discord.js": "^11.2.1",
-    "google-translate-api": "^2.3.0",
     "mathjs": "^3.18.0",
     "path": "^0.12.7",
     "relevant-xkcd": "^1.1.1",
