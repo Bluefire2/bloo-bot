@@ -818,7 +818,7 @@ const commands = {
 
                 hangmen[channelID] = h;
 
-                sendMsg(`Current phrase: \`${hm.action('hint', [])}\``);
+                sendMsg(`Current phrase: \`${h.action('hint', [])}\``);
             }).catch(err => {
                 sendMsg(`${util.tagUser(user)}, you took too long to send the PM :( Try again if you want to start.`);
             }).finally(() => {
