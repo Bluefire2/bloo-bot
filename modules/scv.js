@@ -9,7 +9,6 @@
 // TODO: tbh this is complete garbage, just rewrite this completely, maybe use MongoDB or something
 const sql = require('sqlite');
 const path = require('path');
-const Promise = require('bluebird');
 
 const CVTableName = 'guildsCV';
 const CVDBFilePath = path.join(__dirname, '..', 'data', 'CV.sqlite');
@@ -19,25 +18,27 @@ const allowedVariables = [
     'aliases'
 ];
 
+sql.open(CVDBFilePath.toString());
+
 const scvFunctions = {
     create: () => {
-        sql.run(`CREATE TABLE ${CVTableName} (id bigint, prefix varchar(255), aliases varchar(1000))`);
+        return sql.run(`CREATE TABLE ${CVTableName} (id bigint, prefix varchar(255), aliases varchar(1000))`);
     },
     drop: () => {
-        sql.run(`DROP TABLE ${CVTableName}`);
+        return sql.run(`DROP TABLE ${CVTableName}`);
     },
     add: (variable, datatype) => {
-        sql.run(`ALTER TABLE ${CVTableName} ADD ${variable} ${datatype}`);
+        return sql.run(`ALTER TABLE ${CVTableName} ADD ${variable} ${datatype}`);
     },
     listTable: () => {
-        sql.all(`SELECT * FROM ${CVTableName}`).then((rows) => {
+        return sql.all(`SELECT * FROM ${CVTableName}`).then((rows) => {
             rows.forEach((row) => {
                 console.log(row);
             });
         });
     },
     truncate: () => {
-        sql.run(`DROP TABLE ${CVTableName}`).then(() => {
+        return sql.run(`DROP TABLE ${CVTableName}`).then(() => {
             module.exports.create();
         });
     },
@@ -112,14 +113,4 @@ const scvFunctions = {
     }
 };
 
-const scvFunctionsDecorated = {};
-Object.keys(scvFunctions).forEach(key => {
-    const fn = scvFunctions[key];
-    scvFunctionsDecorated[key] = async (...args) => {
-        await sql.open(CVDBFilePath.toString());
-        fn(...args);
-        await sql.close();
-    };
-});
-
-module.exports = scvFunctionsDecorated;
+module.exports = scvFunctions;

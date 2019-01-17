@@ -3,7 +3,6 @@ const axios = require('axios');
 const gtranslate = require('google-translate-api');
 const convertUnits = require('convert-units');
 const mathjs = require('mathjs');
-const Promise = require('bluebird');
 const xkcd = require('relevant-xkcd');
 
 const util = require('./util');
@@ -424,6 +423,7 @@ const commands = {
             scv.set(channelID, 'prefix', value).then((value) => {
                 sendMsg("**Prefix set to**: " + value);
                 console.log(`prefix set to ${value}`);
+                scv.listTable();
                 resolve();
             }).catch((err) => {
                 sendMsg("Failed to set prefix value.");

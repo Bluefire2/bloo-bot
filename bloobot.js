@@ -130,9 +130,9 @@ client.once('ready', () => {
 client.on('message', msg => {
     const channelID = msg.channel.id;
     //scv.listTable();
-    scv.get(channelID, 'aliases').then(val => {
-        //console.log(val);
-    });
+    // scv.get(channelID, 'aliases').then(val => {
+    //     //console.log(val);
+    // });
 
     /*
      * Update all variables if we're just starting up; if not then just resolve.
@@ -150,6 +150,7 @@ client.on('message', msg => {
 
     // once we've updated our variables (if we need to), try to parse a command
     varRequest.then(() => {
+        // TODO: find some way to update this after setprefix
         let prefix = allPrefixes[channelID + ''];
 
         if (typeof prefix === 'undefined') {
