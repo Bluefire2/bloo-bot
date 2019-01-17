@@ -333,24 +333,6 @@ const commands = {
             }
         };
     },
-    translate: (client, msg, sendMsg, langFrom, langInto, ...text) => {
-        let textJoined = text.join(' ');
-
-        gtranslate(textJoined, {from: langFrom, to: langInto}).then((res) => {
-            let out = '';
-
-            if (res.from.text.autoCorrected || res.from.text.didYouMean) {
-                out += '**Autocorrected** "' + textJoined + '" **to** "' + res.from.text.value + '"\n\n';
-            }
-
-            out += res.text;
-
-            sendMsg(out);
-        }).catch(err => {
-            console.error(err);
-            sendMsg('**' + err.message + '**');
-        });
-    },
     convert: (client, msg, sendMsg, number, unitsFrom, unitsTo, dp = 2) => {
         let converted;
         try {

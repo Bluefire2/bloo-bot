@@ -135,27 +135,6 @@
     ],
     "defaults": 1
   },
-  "translate": {
-    "desc": "Translates a phrase from one language to another",
-    "params": {
-      "lang-from": {
-        "desc": "The language to translate from",
-        "type": "string"
-      },
-      "lang-into": {
-        "desc": "The language to translate into",
-        "type": "string"
-      },
-      "text": {
-        "desc": "The text to translate",
-        "type": "string"
-      }
-    },
-    "fn": "translate",
-    "aliases": [
-      "t"
-    ]
-  },
   "convert": {
     "desc": "Converts values from one unit to another",
     "params": {
