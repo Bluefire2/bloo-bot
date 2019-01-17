@@ -81,15 +81,14 @@ const checkForAlias = (channelID, keyword) => {
         const customAliases = allCustomAliases[channelID];
 
         if(typeof customAliases === 'undefined') {
-            scv.get(channelID, 'aliases').then(val => {
-                if(!val) {
-                    // no aliases defined for this channel
-                    allCustomAliases[channelID] = {};
-                } else {
-                    // aliases are defined, we just haven't fetched them yet
-                    // TODO: implement fetching using the Datum class
-                }
-            });
+            let val = await scv.get(channelID, 'aliases');
+            if(!val) {
+                // no aliases defined for this channel
+                allCustomAliases[channelID] = {};
+            } else {
+                // aliases are defined, we just haven't fetched them yet
+                // TODO: implement fetching using the Datum class
+            }
         }
     }
 
@@ -145,12 +144,10 @@ client.on('message', async msg => {
             // admins only (and me)
             if (util.sentByAdminOrMe(msg)) {
                 const sendingFunction = (text) => msg.channel.send.call(msg.channel, text);
-                cmd.setPrefix(client, msg, sendingFunction, '~').then(() => {
-                    return updateVariables(channelID);
-                }).then(() => {
-                    // done
-                    // TODO: maybe change this so that execution is paused until promise is complete
-                });
+                await cmd.setPrefix(client, msg, sendingFunction, '~');
+                await updateVariables(channelID);
+                // done
+                // TODO: maybe change this so that execution is paused until promise is complete
             }
             break;
         default:
