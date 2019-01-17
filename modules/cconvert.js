@@ -1,44 +1,36 @@
 /**
  * A currency conversion module.
  */
+// TODO: this API endpoint is deprecated, use a new one
 
 const axios = require('axios');
-const Promise = require('bluebird');
 
 const fns = {
     /**
      * Fetches the currency conversion rate.
      *
+     * @async
      * @param from The currency to convert from.
      * @param to The currency to convert to.
      * @returns {Promise} A promise that resolves with the rate.
      */
-    rate: (from, to) => {
-        return new Promise((resolve, reject) => {
-            const url = `http://api.fixer.io/latest?base=${from}&symbols=${to}`;
-            axios.get(url).then(response => {
-                resolve(response.data.rates[to]);
-            }).catch(err => {
-                reject(err);
-            });
-        });
+    rate: async (from, to) => {
+        const url = `http://api.fixer.io/latest?base=${from}&symbols=${to}`;
+        let response = await axios.get(url);
+        return response.data.rates[to];
     },
     /**
      * Converts an amount of one currency into another.
      *
+     * @async
      * @param from The currency to convert from.
      * @param to The currency to convert to.
      * @param amount The amount to convert.
      * @returns {Promise} A promise that resolves with the amount in the new currency.
      */
-    convert: (amount, from, to) => {
-        return new Promise((resolve, reject) => {
-            fns.rate(from, to).then(exRate => {
-                resolve(exRate * amount);
-            }).catch(err => {
-                reject(err);
-            });
-        });
+    convert: async (amount, from, to) => {
+        let exRate = await fns.rate(from, to);
+        return exRate * amount;
     }
 };
 

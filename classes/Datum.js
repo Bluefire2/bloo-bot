@@ -13,19 +13,14 @@ class Datum {
         this.dirty = true;
     }
 
-    fetch() {
-        return new Promise((resolve, reject) => {
-            if (this.dirty) {
-                // if data is dirty
-                this.update().then(val => {
-                    this.data = val;
-                    resolve(val);
-                }).catch(err => {
-                    reject(err);
-                });
-            } else {
-                resolve(this.data);
-            }
-        });
+    async fetch() {
+        if (this.dirty) {
+            // if data is dirty
+            let val = await this.update()
+            this.data = val;
+            return val;
+        } else {
+            return this.data;
+        }
     }
 }
