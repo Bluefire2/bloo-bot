@@ -1,7 +1,6 @@
 /**
  * A currency conversion module.
  */
-// TODO: this API endpoint is deprecated, use a new one
 
 const axios = require('axios');
 
@@ -15,9 +14,10 @@ const fns = {
      * @returns {Promise} A promise that resolves with the rate.
      */
     rate: async (from, to) => {
-        const url = `http://api.fixer.io/latest?base=${from}&symbols=${to}`;
-        let response = await axios.get(url);
-        return response.data.rates[to];
+        const query = `${from}_${to}`,
+            url = `https://free.currencyconverterapi.com/api/v6/convert?q=${query}&compact=y`,
+            response = await axios.get(url);
+        return response.data[query].val;
     },
     /**
      * Converts an amount of one currency into another.
