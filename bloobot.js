@@ -149,7 +149,7 @@ client.on('message', msg => {
     });
 
     // once we've updated our variables (if we need to), try to parse a command
-    varRequest.then(() => {
+    varRequest.then(async () => { // TODO: the async annotation will get removed eventually when everything is rewritten as async/await
         // TODO: find some way to update this after setprefix
         let prefix = allPrefixes[channelID + ''];
 
@@ -195,23 +195,24 @@ client.on('message', msg => {
                     let parsedCmd = cmdParse(msg, prefix), // parse out the command and args
                         output;
                     if (parsedCmd) {
-                        cmdExe(msg, parsedCmd.cmdName, parsedCmd.cmdArgs, prefix)
-                            .then(out => {
-                                output = out;
-                                console.log(parsedCmd); // same as above
+                        try {
+                            let out = await cmdExe(msg, parsedCmd.cmdName, parsedCmd.cmdArgs, prefix);
+                            output = out;
+                            console.log(parsedCmd); // same as above
 
-                                // if we need to output something that was returned from the command, then do so
-                                if (output.length !== 0) {
-                                    // send the message
-                                    if (!util.safeSendMsg(msg.channel, output.join('\n'), '```')) {
-                                        msg.channel.send(`Outbound message length greater than ${util.MY_CHAR_LIMIT} character limit.`);
-                                    }
+                            // if we need to output something that was returned from the command, then do so
+                            if (output.length !== 0) {
+                                // send the message
+                                if (!util.safeSendMsg(msg.channel, output.join('\n'), '```')) {
+                                    msg.channel.send(`Outbound message length greater than ${util.MY_CHAR_LIMIT} character limit.`);
                                 }
-                            })
-                            .catch(err => {
-                                // an error was caught by cmdExe (most likely a permissions error)
-                                util.sendErrorMessage(msg.channel, err);
-                            });
+                            }
+                        } catch(err) {
+                            // an error was thrown by cmdExe (most likely a permissions error)
+                            console.log(err);
+                            console.log(err.stack);
+                            util.sendErrorMessage(msg.channel, err);
+                        };
                     } else {
                         // do nothing? idk
                     }
@@ -237,13 +238,14 @@ client.login(loginToken);
  * Executes a command using the function reference found in the command documentation file. This function is supposed to
  * be called after cmdParse, and take the command name and command args from its output.
  *
+ * @async
  * @param msg The message that requested the command to be executed.
  * @param cmdName The name of the command specified.
  * @param args The arguments given to the command.
  * @param prefix The command prefix currently in use.
  * @returns {Promise} A promise that resolves with an array of the text to be messaged inside ``, if any, line by line.
  */
-function cmdExe(msg, cmdName, args, prefix) {
+async function cmdExe(msg, cmdName, args, prefix) {
     const currCmd = cmdData[cmdName],
         // note: paramsCount DOES include default parameters!!!
         paramsCount = typeof currCmd.params === 'undefined' ? 0 : Object.keys(currCmd.params).length,
@@ -252,122 +254,105 @@ function cmdExe(msg, cmdName, args, prefix) {
         channelID = msg.channel.id;
 
     let outText = [];
+    console.log(args);
+    if (args.length === 0 && paramsCount !== 0) {
+        return outText = cmd.descString(prefix, cmdName);
+    } else {
+        // Check for a permissions error, and if positive reject the promise:
+        if (currCmd.permissions === 'admin' && !util.sentByAdminOrMe(msg)) { // check for privileges if the command requires them
+            throw new Error(`The command "${cmdName}" requires administrator privileges.`);
+        } else if (currCmd.permissions === 'me' && !util.sentByMe(msg)) { // check for privileges if the command requires them
+            throw new Error(`The command "${cmdName}" can only be run by the bot admin.`);
+        } else if (args.length < paramsCount - defaultsCount) { // check if the number of args is correct
+            throw new Error(`The command "${cmdName}" requires at least ${paramsCount - defaultsCount} arguments; received ${args.length}.`);
+        } else {
+            const func = cmd[currCmd.fn],
+                fnParams = currCmd.params,
+                fullArgs = args.slice(0),
+                sendingFunction = (text) => msg.channel.send.call(msg.channel, text);
+            // for some reason this is necessary, instead of just msg.channel.send :(
 
-    return new Promise((resolve, reject) => {
-        new Promise((res, rej) => {
-            if (args.length === 0 && paramsCount !== 0) {
-                outText = cmd.descString(prefix, cmdName);
-                res();
-            } else {
-                // Check for a permissions error, and if positive reject the promise:
-                if (currCmd.permissions === 'admin' && !util.sentByAdminOrMe(msg)) { // check for privileges if the command requires them
-                    rej(`The command "${cmdName}" requires administrator privileges.`);
-                } else if (currCmd.permissions === 'me' && !util.sentByMe(msg)) { // check for privileges if the command requires them
-                    rej(`The command "${cmdName}" can only be run by the bot admin.`);
-                } else if (args.length < paramsCount - defaultsCount) { // check if the number of args is correct
-                    rej(`The command "${cmdName}" requires at least ${paramsCount - defaultsCount} arguments; received ${args.length}.`);
-                } else {
-                    const func = cmd[currCmd.fn],
-                        fnParams = currCmd.params,
-                        fullArgs = args.slice(0),
-                        sendingFunction = (text) => msg.channel.send.call(msg.channel, text);
-                    // for some reason this is necessary, instead of just msg.channel.send :(
+            // type checking:
+            let typeMismatch = false,
+                typeMismatchDesc = {}; // initialising so WebStorm doesn't complain
 
-                    // type checking:
-                    let typeMismatch = false,
-                        typeMismatchDesc = {}; // initialising so WebStorm doesn't complain
+            if (typeof fnParams !== 'undefined') {
+                let i = 0, // TODO: this seems to work, but just in case, rewrite the API to not rely on key ordering
+                    paramNames = Object.keys(fnParams);
 
-                    if (typeof fnParams !== 'undefined') {
-                        let i = 0, // TODO: this seems to work, but just in case, rewrite the API to not rely on key ordering
-                            paramNames = Object.keys(fnParams);
-
-                        // using every instead of forEach lets me break out of the loop when a mismatch is detected
-                        paramNames.every(key => {
-                            if (i === argsCount) {
-                                // If a default argument has not been provided, we don't need to util.TypeCheck. That means,
-                                // we need to break out of the loop as soon as we have processed all provided arguments.
-                                return false;
-                            }
-                            const value = fnParams[key].type,
-                                typesArray = Array.isArray(value) ? value : [value],
-                                argument = fullArgs[i++],
-                                t = typesArray.filter(elem => util.TypeCheck[elem](argument));
-
-                            // There is a type mismatch if and only if the argument input does not match any of the
-                            // types specified for it. In this case, the filter above will trim all elements from the
-                            // array, and return [].
-                            typeMismatch = t.length === 0;
-
-                            if (typeMismatch) {
-                                typeMismatchDesc = {
-                                    argument: argument,
-                                    parameter: key,
-                                    expected: typesArray
-                                };
-                                return false;
-                            } else {
-                                return true;
-                            }
-                        });
+                // using every instead of forEach lets me break out of the loop when a mismatch is detected
+                paramNames.every(key => {
+                    if (i === argsCount) {
+                        // If a default argument has not been provided, we don't need to util.TypeCheck. That means,
+                        // we need to break out of the loop as soon as we have processed all provided arguments.
+                        return false;
                     }
+                    const value = fnParams[key].type,
+                        typesArray = Array.isArray(value) ? value : [value],
+                        argument = fullArgs[i++],
+                        t = typesArray.filter(elem => util.TypeCheck[elem](argument));
 
-                    if (!typeMismatch) {
-                        // input passed type checking
-                        fullArgs.unshift(sendingFunction);
-                        fullArgs.unshift(msg);
-                        fullArgs.unshift(client);
+                    // There is a type mismatch if and only if the argument input does not match any of the
+                    // types specified for it. In this case, the filter above will trim all elements from the
+                    // array, and return [].
+                    typeMismatch = t.length === 0;
 
-                        // call the command function:
-                        const moreText = func.apply(this, fullArgs);
-
-                        // process result
-                        if (typeof moreText === 'string') {
-                            outText.push(moreText);
-                            res();
-                        } else if (Array.isArray(moreText)) {
-                            outText = outText.concat(moreText);
-                            res();
-                        } else if (moreText instanceof Promise) {
-                            moreText.then((out) => {
-                                if (typeof out === 'string') {
-                                    outText.push(out);
-                                } else if (Array.isArray(out)) {
-                                    outText = outText.concat(out);
-                                }
-                                res();
-                            });
-                        }
+                    if (typeMismatch) {
+                        typeMismatchDesc = {
+                            argument: argument,
+                            parameter: key,
+                            expected: typesArray
+                        };
+                        return false;
                     } else {
-                        // input failed type checking, handle the error
-                        const p = typeMismatchDesc.parameter,
-                            a = typeMismatchDesc.argument,
-                            expected = typeMismatchDesc.expected,
-                            t = Array.isArray(expected) ? expected.join(', ') : expected;
-                        msg.channel.send(`Invalid input "${a}" for parameter **${p}** (${t} expected).`);
+                        return true;
+                    }
+                });
+            }
+
+            if (!typeMismatch) {
+                // input passed type checking
+                fullArgs.unshift(sendingFunction);
+                fullArgs.unshift(msg);
+                fullArgs.unshift(client);
+
+                // call the command function:
+                const moreText = func.apply(this, fullArgs);
+
+                // process result
+                if (typeof moreText === 'string') {
+                    outText.push(moreText);
+                } else if (Array.isArray(moreText)) {
+                    outText = outText.concat(moreText);
+                } else if (moreText instanceof Promise) {
+                    let out = await moreText;
+                    if (typeof out === 'string') {
+                        outText.push(out);
+                    } else if (Array.isArray(out)) {
+                        outText = outText.concat(out);
                     }
                 }
+            } else {
+                // input failed type checking, handle the error
+                const p = typeMismatchDesc.parameter,
+                    a = typeMismatchDesc.argument,
+                    expected = typeMismatchDesc.expected,
+                    t = Array.isArray(expected) ? expected.join(', ') : expected;
+                msg.channel.send(`Invalid input "${a}" for parameter **${p}** (${t} expected).`);
             }
-        }).then(() => {
-            // command execution successful
-            // update global variables if required, then return
-            new Promise((res, rej) => {
-                if (currCmd.update) {
-                    console.log('updating for ' + channelID);
-                    updateVariables(channelID).then(() => {
-                        res();
-                    }).catch(() => {
-                        rej();
-                    });
-                } else {
-                    res();
-                }
-            }).then(() => {
-                resolve(outText);
-            });
-        }).catch(err => {
-            reject(err);
-        });
-    });
+        }
+
+        return outText;
+    }
+    
+    // no errors thrown
+    // command execution successful
+    // update global variables if required, then return
+    if (currCmd.update) {
+        console.log('updating for ' + channelID);
+        await updateVariables(channelID);
+    }
+    return outText;
 }
 
 /**
