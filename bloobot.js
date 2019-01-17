@@ -57,7 +57,7 @@ const updateVariables = async (channelID) => {
  * @param keyword The string to be cross-checked.
  * @returns {*} The relevant command name if the string is an alias for some command, or false if not.
  */
-const checkForAlias = (channelID, keyword) => {
+const checkForAlias = async (channelID, keyword) => {
     const cmdNames = Object.keys(cmdData);
 
     let aliasFound = false,
