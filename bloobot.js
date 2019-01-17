@@ -1,4 +1,3 @@
-// const Promise = require('bluebird');
 const Discord = require('discord.js');
 const client = new Discord.Client();
 
