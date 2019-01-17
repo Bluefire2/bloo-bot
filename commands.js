@@ -204,10 +204,9 @@ const commands = {
     source: (client, msg, sendMsg) => {
         sendMsg(`**Source code at** ${sourceCodeURL}`);
     },
-    restart: (client, msg, sendMsg) => {
-        sendMsg('Restarting bot.').then(() => {
-            process.exit(1); // pm2 will restart if the exit code is not 0
-        });
+    restart: async (client, msg, sendMsg) => {
+        await sendMsg('Restarting bot.');
+        process.exit(1); // pm2 will restart if the exit code is not 0
     },
     eval_js: (client, msg, sendMsg, code) => {
         const e = eval(code);
@@ -265,22 +264,21 @@ const commands = {
             return Object.keys(pastaData).slice(0);
         }
     },
-    priceCheck: (client, msg, sendMsg, item, amount = 1) => {
+    priceCheck: async (client, msg, sendMsg, item, amount = 1) => {
         const baseUrl = 'http://runescape.wikia.com/wiki/Exchange:';
 
-        axios.get(baseUrl + item).then(response => {
+        try {
+            let response = await axios.get(baseUrl + item);
             let $ = cheerio.load(response.data),
                 price = parseInt($('#GEPrice').text().replace(/,/g, '')),
-                totalPrice = numberWithCommas(price * amount);
+                totalPrice = util.numberWithCommas(price * amount);
 
             sendMsg(item + ' x ' + amount + ': ' + totalPrice + 'gp');
-        }).catch((error) => {
+        } catch (error) {
             console.log(error);
-        });
-
-        return false;
+        }
     },
-    slayer: (client, msg, sendMsg, monster, amount = 1, aura = 0) => {
+    slayer: async (client, msg, sendMsg, monster, amount = 1, aura = 0) => {
         const baseUrl = 'http://runescape.wikia.com/wiki/';
 
         let auraMultiplier = slayerAuraChance(aura),
@@ -294,7 +292,9 @@ const commands = {
         expectedAmount = parseInt(amount * auraMultiplier);
 
         // get the monster id
-        axios.get(baseUrl + monster).then((response) => {
+        try {
+            console.log(baseUrl + monster);
+            let response = await axios.get(baseUrl + monster);
             const processXpText = (text) => {
                 return Math.floor(parseFloat(text.replace(/,/g, '')) * expectedAmount);
             };
@@ -307,15 +307,16 @@ const commands = {
 
             sendMsg(monsterName + ' x ' + expectedAmount + ': ' + xpSlayer
                 + ' slayer xp, ' + xpCombat + ' combat xp and ' + xpHp + ' hp xp.');
-        }).catch((error) => {
-            console.log(error);
-        });
+        } catch (error) {
+            //console.log(error);
+        }
     },
-    wikipedia: (client, msg, sendMsg, article, lang = 'en') => {
+    wikipedia: async (client, msg, sendMsg, article, lang = 'en') => {
         let baseUrl = 'https://' + lang + '.wikipedia.org/w/api.php?action=query&list=search&format=json&srsearch=',
             baseLinkUrl = 'https://' + lang + '.wikipedia.org/wiki/';
 
-        axios.get(baseUrl + article).then((response) => {
+        try {
+            let response = await axios.get(baseUrl + article);
             if (response.data.query.search.length !== 0) {
                 let firstResult = response.data.query.search[0],
                     firstResultTitle = firstResult.title.replace(/ /g, '_');
@@ -324,12 +325,12 @@ const commands = {
             } else {
                 sendMsg('No search results found for "' + article + '"');
             }
-        }).catch((error) => {
+        } catch (error) {
             console.log(error);
             if (error.code === 'ENOTFOUND') {
                 sendMsg('**Invalid language code** "' + lang + '"');
             }
-        });
+        };
     },
     translate: (client, msg, sendMsg, langFrom, langInto, ...text) => {
         let textJoined = text.join(' ');
@@ -361,18 +362,19 @@ const commands = {
     b: (client, msg, sendMsg) => {
         sendMsg(':b:');
     },
-    youtube: (client, msg, sendMsg, query) => {
+    youtube: async (client, msg, sendMsg, query) => {
+        console.log('a');
         let baseYoutubeUrl = 'https://www.googleapis.com/youtube/v3/search';
-
-        axios.get(baseYoutubeUrl, {
-            params: {
-                key: config.googleAPIKey,
-                part: 'snippet',
-                order: 'viewCount',
-                type: 'video',
-                q: query
-            }
-        }).then((response) => {
+        try {
+            let response = await axios.get(baseYoutubeUrl, {
+                params: {
+                    key: config.googleAPIKey,
+                    part: 'snippet',
+                    order: 'viewCount',
+                    type: 'video',
+                    q: query
+                }
+            });
             let items = response.data.items,
                 firstResult = items[0],
                 firstVideoID;
@@ -384,9 +386,9 @@ const commands = {
             }
 
             sendMsg(util.youtubeIDToLink(firstVideoID));
-        }).catch((response) => {
-            console.log(response);
-        });
+        } catch (error) {
+            console.log(error);
+        }
     },
     prettify: (client, msg, sendMsg, text) => {
         let prettifiedText = (text + '').split(' ').map((word) => {
@@ -415,46 +417,42 @@ const commands = {
 
         sendMsg(cyrillifiedText);
     },
-    setPrefix: (client, msg, sendMsg, value) => {
+    setPrefix: async (client, msg, sendMsg, value) => {
         let channelID = msg.channel.id;
 
         console.log('setting for ' + channelID);
-        return new Promise((resolve, reject) => {
-            scv.set(channelID, 'prefix', value).then((value) => {
-                sendMsg("**Prefix set to**: " + value);
-                console.log(`prefix set to ${value}`);
-                scv.listTable();
-                resolve();
-            }).catch((err) => {
-                sendMsg("Failed to set prefix value.");
-                reject(err);
-            });
-        });
+        try {
+            let value = await scv.set(channelID, 'prefix', value);
+            sendMsg("**Prefix set to**: " + value);
+            console.log(`prefix set to ${value}`);
+            scv.listTable();
+        } catch(err) {
+            sendMsg("Failed to set prefix value.");
+        };
     },
-    addCustomAlias: (client, msg, sendMsg, command, alias) => {
+    addCustomAlias: async (client, msg, sendMsg, command, alias) => {
         // validate input - make sure `command` is a valid command
         if(Object.keys(commandDesc).indexOf(command) === -1) {
             sendMsg(`Undefined command "${command}".`);
         } else {
             const channelID = msg.channel.id;
 
-            scv.get(channelID, 'aliases').then(val => {
+            let val = await scv.get(channelID, 'aliases');
+            console.log(val);
+            let currentAliases;
+            if(!val) {
+                currentAliases = {};
+            } else {
                 console.log(val);
-                let currentAliases;
-                if(!val) {
-                    currentAliases = {};
-                } else {
-                    console.log(val);
-                }
+            }
 
-                if(typeof currentAliases[command] === 'undefined') {
-                    currentAliases[command] = [];
-                }
+            if(typeof currentAliases[command] === 'undefined') {
+                currentAliases[command] = [];
+            }
 
-                currentAliases[command].push(alias);
+            currentAliases[command].push(alias);
 
-                scv.set(channelID, 'aliases', currentAliases);
-            });
+            await scv.set(channelID, 'aliases', currentAliases);
         }
     },
     eval: (client, msg, sendMsg, expression) => {
@@ -554,19 +552,20 @@ const commands = {
             sendMsg("Too long!");
         }
     },
-    currconvert: (client, msg, sendMsg, amount, currFrom, currTo, dp = 2) => {
+    currconvert: async (client, msg, sendMsg, amount, currFrom, currTo, dp = 2) => {
         const currFromTemp = currFrom.toUpperCase(),
             currToTemp = currTo.toUpperCase();
 
-        cconvert.convert(amount, currFromTemp, currToTemp).then(val => {
+        try {
+            let val = await cconvert.convert(amount, currFromTemp, currToTemp)
             if (isNaN(val)) {
                 sendMsg("Oops, something went wrong. Check that your currencies are both valid!");
             } else {
                 sendMsg(`${currFromTemp} ${amount} is ${currToTemp} ${util.roundTo(val, dp)}.`);
             }
-        }).catch(err => {
+        } catch(err) {
             sendMsg("Oops, something went wrong. Check that your currencies are both valid!");
-        });
+        };
     },
     poll: (client, msg, sendMsg, action, optionsStr = '') => {
         const channelID = msg.channel.id;
@@ -756,16 +755,15 @@ const commands = {
             sendMsg('No poll active!');
         }
     },
-    xkcd: (client, msg, sendMsg, keywords) => {
-        xkcd.fetchRelevant(keywords).then(response => {
-            let outString = '';
+    xkcd: async (client, msg, sendMsg, keywords) => {
+        let response = await xkcd.fetchRelevant(keywords);
+        let outString = '';
 
-            outString += `Relevant XKCD found: **${response.safeTitle}**\n\n`;
-            outString += response.imageURL;
-            //outString += response.altText;
+        outString += `Relevant XKCD found: **${response.safeTitle}**\n\n`;
+        outString += response.imageURL;
+        //outString += response.altText;
 
-            sendMsg(outString);
-        });
+        sendMsg(outString);
     },
     hangman: (client, msg, sendMsg, action, guessLetter = '') => {
         const channelID = msg.channel.id,
