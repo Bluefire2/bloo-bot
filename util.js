@@ -193,14 +193,7 @@ module.exports.letterToIndex = char => {
     return LCALPHABET.indexOf(char.toLowerCase());
 };
 
-module.exports.indexToLetter = num => {
-    let n = num;
-
-    while(n >= 26) {
-        n -= 26;
-    }
-    return LCALPHABET[n];
-};
+module.exports.indexToLetter = num => LCALPHABET[num % 26];
 
 module.exports.arraysEqual = arraysEqual;
 
