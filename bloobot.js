@@ -1,6 +1,7 @@
 const Discord = require('discord.js');
 const client = new Discord.Client();
 
+const transactions = require('./modules/transactions');
 const util = require('./util');
 const cmd = require('./commands');
 const scv = require('./modules/scv');
@@ -55,13 +56,12 @@ const updateVariables = async (channelID) => {
  *
  * @param channelID The current channel ID.
  * @param keyword The string to be cross-checked.
- * @returns {*} The relevant command name if the string is an alias for some command, or false if not.
+ * @returns {String} The relevant command name if the string is an alias for some command, or null if not.
  */
 const checkForAlias = async (channelID, keyword) => {
     const cmdNames = Object.keys(cmdData);
 
-    let aliasFound = false,
-        out = '';
+    let command = null;
 
     // first, check the default aliases
     for (let i in cmdNames) {
@@ -71,32 +71,22 @@ const checkForAlias = async (channelID, keyword) => {
         if (Array.isArray(aliases)) {
             if (aliases.indexOf(keyword) !== -1) {
                 aliasFound = true;
-                out = cmdName;
+                command = cmdName;
             }
         }
     }
 
-    if(!aliasFound) {
-        // haven't found any matching default aliases, so now check SCV
-        const customAliases = allCustomAliases[channelID];
-
-        if(typeof customAliases === 'undefined') {
-            let val = await scv.get(channelID, 'aliases');
-            if(!val) {
-                // no aliases defined for this channel
-                allCustomAliases[channelID] = {};
-            } else {
-                // aliases are defined, we just haven't fetched them yet
-                // TODO: implement fetching using the Datum class
-            }
+    if (!command) {
+        // haven't found any matching default aliases, so now check custom aliases
+        let customAliasCommand = await transactions.commandForAlias(channelID, keyword);
+        console.log(customAliasCommand);
+        if (customAliasCommand) {
+            // a command was found for this alias
+            command = customAliasCommand.command;
         }
     }
 
-    if (!aliasFound) {
-        return false;
-    } else {
-        return out;
-    }
+    return command;
 };
 
 client.once('ready', () => {

@@ -6,6 +6,7 @@ const xkcd = require('relevant-xkcd');
 
 const util = require('./util');
 
+const transactions = require('./modules/transactions');
 const scv = require('./modules/scv');
 const cconvert = require('./modules/cconvert');
 const Timer = require('./classes/Timer');
@@ -415,27 +416,11 @@ const commands = {
     },
     addCustomAlias: async (client, msg, sendMsg, command, alias) => {
         // validate input - make sure `command` is a valid command
-        if(Object.keys(commandDesc).indexOf(command) === -1) {
+        if (Object.keys(commandDesc).indexOf(command) === -1) {
             sendMsg(`Undefined command "${command}".`);
         } else {
-            const channelID = msg.channel.id;
-
-            let val = await scv.get(channelID, 'aliases');
-            console.log(val);
-            let currentAliases;
-            if(!val) {
-                currentAliases = {};
-            } else {
-                console.log(val);
-            }
-
-            if(typeof currentAliases[command] === 'undefined') {
-                currentAliases[command] = [];
-            }
-
-            currentAliases[command].push(alias);
-
-            await scv.set(channelID, 'aliases', currentAliases);
+            await transactions.addAliasForCommand(msg.channel.id, command, alias);
+            sendMsg(`Alias set successfully: ${alias} -> ${command}.`)
         }
     },
     eval: (client, msg, sendMsg, expression) => {
