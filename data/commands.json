@@ -76,6 +76,20 @@
     },
     "fn": "pasta"
   },
+  "addpasta": {
+    "desc": "Add a custom copypasta!",
+    "params": {
+      "pasta-name": {
+        "desc": "The name of the copypasta",
+        "type": "string"
+      },
+      "pasta-text": {
+        "desc": "The copypasta text",
+        "type": "string"
+      }
+    },
+    "fn": "addpasta"
+  },
   "pricecheck": {
     "desc": "Price checks an item on the ge",
     "params": {

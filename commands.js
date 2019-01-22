@@ -255,14 +255,37 @@ const commands = {
         let HorT = util.randomInRange(0, 1) === 1 ? 'heads' : 'tails';
         msg.reply(HorT);
     },
-    pasta: (client, msg, sendMsg, pastaName) => {
-        let pastaData = require("./data/pastas.json");
-        if (pastaName !== 'list') {
-            pastaText = pastaData[pastaName];
+    pasta: async (client, msg, sendMsg, pastaName) => {
+        let channelID = msg.channel.id,
+            pastaData = require("./data/pastas.json"),
+            customPastaNames = await transactions.pastaNamesForChannel(channelID);
 
-            sendMsg(pastaText);
+        // TODO: implement subcommands instead of doing this
+        if (pastaName === 'list') {
+            return Object.keys(pastaData).concat(customPastaNames);
         } else {
-            return Object.keys(pastaData).slice(0);
+            if (pastaName in pastaData) {
+                let pastaText = pastaData[pastaName];
+                sendMsg(pastaText);
+            } else if (customPastaNames.includes(pastaName)) {
+                let pastaText = await transactions.pastaForChannelWithName(channelID, pastaName);
+                sendMsg(pastaText);
+            } else {
+                sendMsg(`No pasta with name ${pastaName}.`);
+            }
+        }
+    },
+    // TODO: ditto, make this a subcommand of pasta
+    addpasta: async (client, msg, sendMsg, name, text) => {
+        let channelID = msg.channel.id,
+            pastaData = require("./data/pastas.json");
+        
+        // check if this pasta already exists by default
+        if (name in pastaData) {
+            sendMsg(`Pasta with name ${name} is a default pasta and cannot be overwritten.`);
+        } else {
+            await transactions.addPastaForChannel(channelID, name, text);
+            sendMsg(`Pasta added successfully.`);
         }
     },
     priceCheck: async (client, msg, sendMsg, item, amount = 1) => {
