@@ -213,7 +213,7 @@ async function cmdExe(msg, cmdName, args, prefix) {
     let outText = [];
     console.log(args);
     if (args.length === 0 && paramsCount !== 0) {
-        return outText = cmd.descString(prefix, cmdName);
+        return cmd.descString(prefix, cmdName);
     } else {
         // Check for a permissions error, and if positive reject the promise:
         if (currCmd.permissions === 'admin' && !util.sentByAdminOrMe(msg)) { // check for privileges if the command requires them
