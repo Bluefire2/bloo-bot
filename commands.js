@@ -404,11 +404,12 @@ const commands = {
 
         console.log('setting for ' + channelID);
         try {
-            let value = await scv.set(channelID, 'prefix', value);
-            sendMsg("**Prefix set to**: " + value);
-            console.log(`prefix set to ${value}`);
+            let newPrefix = await scv.set(channelID, 'prefix', value);
+            sendMsg("**Prefix set to**: " + newPrefix);
+            console.log(`prefix set to ${newPrefix}`);
             scv.listTable();
         } catch(err) {
+            console.log(err);
             sendMsg("Failed to set prefix value.");
         };
     },

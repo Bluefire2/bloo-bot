@@ -216,6 +216,7 @@ async function cmdExe(msg, cmdName, args, prefix) {
         // note: paramsCount DOES include default parameters!!!
         paramsCount = typeof currCmd.params === 'undefined' ? 0 : Object.keys(currCmd.params).length,
         defaultsCount = typeof currCmd.defaults === 'undefined' ? 0 : currCmd.defaults,
+        update = typeof currCmd.update === 'undefined' ? false : currCmd.update,
         argsCount = args.length,
         channelID = msg.channel.id;
 
@@ -308,6 +309,7 @@ async function cmdExe(msg, cmdName, args, prefix) {
             }
         }
 
+        if (update) await updateVariables(channelID); // update variables if necessary
         return outText;
     }
     
