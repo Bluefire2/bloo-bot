@@ -42,73 +42,50 @@ const scvFunctions = {
             module.exports.create();
         });
     },
-    set: (channelID, variable, value) => {
-        return new Promise((resolve, reject) => {
-            if (allowedVariables.includes(variable)) {
-                sql.get(`SELECT * FROM ${CVTableName} WHERE id = "${channelID}"`).then(row => {
-                    if (!row) {
-                        // if the guild has no entry in the db, create one
-                        sql.run(`INSERT INTO ${CVTableName} (id) VALUES (?)`, channelID).then(() => {
-                            return sql.run(`UPDATE ${CVTableName} SET ${variable} = ? WHERE id = "${channelID}"`, value);
-                        }).then(() => {
-                            resolve(value);
-                        });
-                    } else {
-                        sql.run(`UPDATE ${CVTableName} SET ${variable} = ? WHERE id = "${channelID}"`, value).then(() => {
-                            resolve(value);
-                        }).catch(err => {
-                            console.log(err);
-                            reject(err);
-                        });
-                    }
-                }).catch(err => {
-                    console.log(err);
-                    reject(err);
-                });
+    set: async (channelID, variable, value) => {
+        if (allowedVariables.includes(variable)) {
+            let row = await sql.get(`SELECT * FROM ${CVTableName} WHERE id = "${channelID}"`);
+            if (!row) {
+                // if the guild has no entry in the db, create one
+                await sql.run(`INSERT INTO ${CVTableName} (id) VALUES (?)`, channelID);
+                await sql.run(`UPDATE ${CVTableName} SET ${variable} = ? WHERE id = "${channelID}"`, value);
             } else {
-                // do nothing
-                reject("No such variable");
+                await sql.run(`UPDATE ${CVTableName} SET ${variable} = ? WHERE id = "${channelID}"`, value);
             }
-        });
+            return value;
+        } else {
+            // do nothing
+            throw new Error("No such variable");
+        }
     },
-    get: (channelID, variable) => {
-        return new Promise((resolve, reject) => {
-            if (allowedVariables.includes(variable)) {
-                sql.get(`SELECT * FROM ${CVTableName} WHERE id = "${channelID}"`).then(row => {
-                    if (!row) {
-                        // if the guild has no entry in the db, create one
-                        sql.run(`INSERT INTO ${CVTableName} (id) VALUES (?)`, channelID);
-                        resolve(false);
-                    } else {
-                        resolve(row[variable] === null ? false : row[variable]);
-                    }
-                }).catch(err => {
-                    console.log(err);
-                    reject(err);
-                });
+    get: async (channelID, variable) => {
+        if (allowedVariables.includes(variable)) {
+            let row = await sql.get(`SELECT * FROM ${CVTableName} WHERE id = "${channelID}"`);
+            if (!row) {
+                // if the guild has no entry in the db, create one
+                await sql.run(`INSERT INTO ${CVTableName} (id) VALUES (?)`, channelID);
+                return false;
             } else {
-                resolve(false);
+                return row[variable] === null ? false : row[variable];
             }
-        });
+        } else {
+            return false;
+        }
     },
     getMultiple: (channelID, variables) => {
-        return new Promise((resolve, reject) => {
-            let getPromises = variables.map((elem) => {
-                return scvFunctions.get(channelID, elem);
+        let getPromises = variables.map((elem) => {
+            return scvFunctions.get(channelID, elem);
+        });
+
+        return Promise.all(getPromises).then((values) => {
+            let varValues = {};
+
+            values.forEach((varValue) => {
+                let varName = variables[i];
+                varValues[varName] = varValue;
             });
 
-            Promise.all(getPromises).then((values) => {
-                let varValues = {};
-
-                values.forEach((varValue) => {
-                    let varName = variables[i];
-                    varValues[varName] = varValue;
-                });
-
-                resolve(varValues);
-            }).catch((err) => {
-                reject(err);
-            });
+            return varValues;
         });
     }
 };
