@@ -28,14 +28,18 @@ async function updateOrCreate (model, where, newItem) {
 
 module.exports.aliasesForCommand = async (channel, command) => {
     let data = await Alias.findAll({where: {channel, command}});
-    return data.map(({dataValues}) => dataValues);
+    if (data) {
+        return data.map(({dataValues: {alias}}) => alias);
+    } else {
+        return [];
+    }
 };
 
 module.exports.commandForAlias = async (channel, alias) => {
-    try {
-        let {dataValues} = await Alias.findOne({where: {channel, alias}});
-        return dataValues;
-    } catch (e) {
+    let data = await Alias.findOne({where: {channel, alias}});
+    if (data) {
+        return data.dataValues;
+    } else {
         return null;
     }
 }

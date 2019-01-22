@@ -31,13 +31,13 @@ const polls = {},
 
 /**
  * Outputs the descstring for a command.
- * TODO: rewrite this to not use the prefix?
  *
- * @param prefix The current prefix.
+ * @param channelID The channel ID.
  * @param cmdName The command name.
  * @returns {Array} The descstring as an array, line by line.
  */
-const descString = (prefix, cmdName) => {
+const descString = async (channelID, cmdName) => {
+    let prefix = await scv.get(channelID, 'prefix');
     // output the command docstring
     let currCmd = commandDesc[cmdName],
         outText = [];
@@ -96,19 +96,21 @@ const descString = (prefix, cmdName) => {
     }
 
     // aliases
+    let allAliases = [];
+    
+    // default aliases
     let aliases = currCmd.aliases;
     if (Array.isArray(aliases)) {
-        // command has one or more aliases
-        let aliasesStr = 'Alias(es): ';
+        allAliases = aliases.slice(0);
+    }
 
-        aliases.forEach((elem, index) => {
-            aliasesStr += elem;
-            if (index < aliases.length - 1) {
-                // if not the last element, add a comma for the next one
-                aliasesStr += ', ';
-            }
-        });
-        outText.push('\n' + aliasesStr);
+    // custom aliases
+    let customAliases = await transactions.aliasesForCommand(channelID, cmdName);
+    allAliases = allAliases.concat(customAliases);
+
+    if (allAliases.length > 0) {
+        // command has one or more aliases
+        outText.push(`\nAlias(es): ${allAliases.join(', ')}`);
     }
 
     return outText;
@@ -182,13 +184,12 @@ const commands = {
         outText += commandsArray.join(', ');
         return outText;
     },
-    help: (client, msg, sendMsg, cmdName) => {
-        let prefix = '<prefix>';
-        console.log(commandDesc[cmdName]);
+    help: async (client, msg, sendMsg, cmdName) => {
         if (typeof commandDesc[cmdName] === 'undefined') {
             sendMsg('**Undefined command name** "' + cmdName + '"');
         } else {
-            sendMsg('```' + descString(prefix, cmdName).join('\n') + '```');
+            let desc = await descString(msg.channel.id, cmdName);
+            sendMsg('```' + desc.join('\n') + '```');
         }
     },
     uptime: (client, msg, sendMsg) => {
