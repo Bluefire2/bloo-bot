@@ -6,6 +6,8 @@ const sequelize = new Sequelize({
     operatorsAliases: false
 });
 
+module.exports.sync = async () => await sequelize.sync();
+
 const Alias = sequelize.define('alias', {
     channel: Sequelize.BIGINT,
     command: Sequelize.STRING,
@@ -45,7 +47,6 @@ module.exports.commandForAlias = async (channel, alias) => {
 }
 
 module.exports.addAliasForCommand = async (channel, command, alias) => {
-    await sequelize.sync();
     // an alias can only be mapped to one command per channel
     return await updateOrCreate(Alias, {channel, alias}, {channel, alias, command}); 
 };
@@ -57,7 +58,6 @@ const Pasta = sequelize.define('pasta', {
 });
 
 module.exports.pastasForChannel = async channel => {
-    await Pasta.sync();
     let data = await Pasta.findAll({where: {channel}});
     if (data) {
         return data.map(({dataValues: {name, pasta}}) => {name, pasta});
@@ -67,7 +67,6 @@ module.exports.pastasForChannel = async channel => {
 };
 
 module.exports.pastaNamesForChannel = async channel => {
-    await Pasta.sync();
     let data = await Pasta.findAll({attributes: ['name'], where: {channel}});
     if (data) {
         return data.map(({dataValues: {name}}) => name);
@@ -77,12 +76,10 @@ module.exports.pastaNamesForChannel = async channel => {
 }
 
 module.exports.addPastaForChannel = async (channel, name, pasta) => {
-    await Pasta.sync();
     return await updateOrCreate(Pasta, {channel, name}, {channel, name, pasta});
 };
 
 module.exports.pastaForChannelWithName = async (channel, name) => {
-    await Pasta.sync();
     let data = await Pasta.findOne({where: {channel, name}});
     if (data) {
         return data.dataValues.pasta;

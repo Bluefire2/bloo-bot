@@ -89,9 +89,10 @@ const checkForAlias = async (channelID, keyword) => {
     return command;
 };
 
-client.once('ready', () => {
+client.once('ready', async () => {
     console.log('Bot is online!');
     console.log(`Ready: serving ${client.guilds.size} guilds, in ${client.channels.size} channels, for ${client.users.size} users.`);
+    await transactions.sync();
 });
 
 /*
